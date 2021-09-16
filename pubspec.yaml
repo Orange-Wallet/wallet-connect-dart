@@ -1,26 +1,19 @@
 name: wallet_connect
-description: A new Flutter project.
-
-publish_to: "none"
-
-version: 1.0.0+1
+description: Wallet Connect client made in love with dart.
+version: 1.0.0
+homepage: https://github.com/Orange-Wallet/wallet-connect-dart
 
 environment:
   sdk: ">=2.12.0 <3.0.0"
 
 dependencies:
-  flutter:
-    sdk: flutter
   hex: ^0.2.0
   web_socket_channel: ^2.1.0
   uuid: ^3.0.4
   http: ^0.13.3
-  web3dart: ^2.3.0
   cryptography: ^2.0.2
   json_annotation: ^4.0.1
 
 dev_dependencies:
-  flutter_test:
-    sdk: flutter
   build_runner: ^2.0.0
   json_serializable: ^4.1.4

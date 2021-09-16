@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wallet_connect/models/ethereum/wc_ethereum_sign_message.dart';
 import 'package:wallet_connect/models/ethereum/wc_ethereum_transaction.dart';
@@ -99,8 +98,7 @@ class WCClient {
 
   approveSession({required List<String> accounts, int? chainId}) {
     if (_handshakeId <= 0) {
-      debugPrint("handshakeId must be greater than 0 on session approve");
-      throw Exception();
+      throw HandshakeException();
     }
 
     if (chainId != null) _chainId = chainId;
@@ -114,7 +112,7 @@ class WCClient {
       id: _handshakeId,
       result: result.toJson(),
     );
-    debugPrint('approveSession ${jsonEncode(response.toJson())}');
+    print('approveSession ${jsonEncode(response.toJson())}');
     _onConnect?.call();
     _encryptAndSend(jsonEncode(response.toJson()));
   }
@@ -139,8 +137,7 @@ class WCClient {
 
   rejectSession({String message = "Session rejected"}) {
     if (_handshakeId <= 0) {
-      debugPrint("handshakeId must be greater than 0 on session approve");
-      throw Exception();
+      throw HandshakeException();
     }
 
     final response = JsonRpcErrorResponse(
@@ -249,36 +246,34 @@ class WCClient {
 
   Future<void> _encryptAndSend(String result) async {
     final payload = await WCCipher.encrypt(result, _session!.key);
-    debugPrint('encrypted $payload');
-
+    print('encrypted $payload');
     final message = WCSocketMessage(
       topic: _remotePeerId ?? _session!.topic,
       type: MessageType.PUB,
       payload: jsonEncode(payload.toJson()),
     );
-    debugPrint('message ${jsonEncode(message.toJson())}');
+    print('message ${jsonEncode(message.toJson())}');
     _socketSink!.add(jsonEncode(message.toJson()));
   }
 
   _listen() {
     _socketStream.listen(
       (event) async {
-        debugPrint('DATA: $event ${event.runtimeType}');
+        print('DATA: $event ${event.runtimeType}');
         final Map<String, dynamic> decoded = json.decode("$event");
-        debugPrint('DECODED: $decoded ${decoded.runtimeType}');
+        print('DECODED: $decoded ${decoded.runtimeType}');
         final socketMessage = WCSocketMessage.fromJson(jsonDecode("$event"));
         final decryptedMessage = await _decrypt(socketMessage);
         _handleMessage(decryptedMessage);
       },
       onError: (error) {
-        debugPrint(
-            'onError $_isConnected CloseCode ${_webSocket.closeCode} $error');
+        print('onError $_isConnected CloseCode ${_webSocket.closeCode} $error');
         _resetState();
         _onFailure?.call('$error');
       },
       onDone: () {
         if (_isConnected) {
-          debugPrint(
+          print(
               'onDone $_isConnected CloseCode ${_webSocket.closeCode} ${_webSocket.closeReason}');
           _resetState();
           _onDisconnect?.call(_webSocket.closeCode, _webSocket.closeReason);
@@ -291,7 +286,7 @@ class WCClient {
     final payload =
         WCEncryptionPayload.fromJson(jsonDecode(socketMessage.payload));
     final decrypted = await WCCipher.decrypt(payload, _session!.key);
-    debugPrint("DECRYPTED: $decrypted");
+    print("DECRYPTED: $decrypted");
     return decrypted;
   }
 
@@ -314,7 +309,7 @@ class WCClient {
     switch (request.method) {
       case WCMethod.SESSION_REQUEST:
         final param = WCSessionRequest.fromJson(request.params!.first);
-        debugPrint('SESSION_REQUEST $param');
+        print('SESSION_REQUEST $param');
         _handshakeId = request.id;
         _remotePeerId = param.peerId;
         _remotePeerMeta = param.peerMeta;
@@ -323,13 +318,13 @@ class WCClient {
         break;
       case WCMethod.SESSION_UPDATE:
         final param = WCSessionUpdate.fromJson(request.params!.first);
-        debugPrint('SESSION_UPDATE $param');
+        print('SESSION_UPDATE $param');
         if (!param.approved) {
           killSession();
         }
         break;
       case WCMethod.ETH_SIGN:
-        debugPrint('ETH_SIGN $request');
+        print('ETH_SIGN $request');
         final params = request.params!.cast<String>();
         if (params.length < 2) {
           throw InvalidJsonRpcParamsException(request.id);
@@ -344,7 +339,7 @@ class WCClient {
         );
         break;
       case WCMethod.ETH_PERSONAL_SIGN:
-        debugPrint('ETH_PERSONAL_SIGN $request');
+        print('ETH_PERSONAL_SIGN $request');
         final params = request.params!.cast<String>();
         if (params.length < 2) {
           throw InvalidJsonRpcParamsException(request.id);
@@ -359,7 +354,7 @@ class WCClient {
         );
         break;
       case WCMethod.ETH_SIGN_TYPE_DATA:
-        debugPrint('ETH_SIGN_TYPE_DATA $request');
+        print('ETH_SIGN_TYPE_DATA $request');
         final params = request.params!.cast<String>();
         if (params.length < 2) {
           throw InvalidJsonRpcParamsException(request.id);
@@ -374,12 +369,12 @@ class WCClient {
         );
         break;
       case WCMethod.ETH_SIGN_TRANSACTION:
-        debugPrint('ETH_SIGN_TRANSACTION $request');
+        print('ETH_SIGN_TRANSACTION $request');
         final param = WCEthereumTransaction.fromJson(request.params!.first);
         _onEthSignTransaction?.call(request.id, param);
         break;
       case WCMethod.ETH_SEND_TRANSACTION:
-        debugPrint('ETH_SEND_TRANSACTION $request');
+        print('ETH_SEND_TRANSACTION $request');
         final param = WCEthereumTransaction.fromJson(request.params!.first);
         _onEthSendTransaction?.call(request.id, param);
         break;

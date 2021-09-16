@@ -482,7 +482,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "1.0.0+1"
+    version: "1.0.0"
   watcher:
     dependency: transitive
     description:
@@ -491,7 +491,7 @@ packages:
     source: hosted
     version: "1.0.0"
   web3dart:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: web3dart
       url: "https://pub.dartlang.org"

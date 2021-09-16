@@ -1,5 +1,5 @@
 name: wallet_connect_example
-description: A new Flutter project.
+description: Wallet Connect example app implementing wallet_connect dart library.
 
 publish_to: "none"
 
@@ -12,6 +12,7 @@ dependencies:
   flutter:
     sdk: flutter
   scan: ^1.4.3
+  web3dart: ^2.3.0
   shared_preferences: ^2.0.7
   flutter_inappwebview: ^5.3.2
   cupertino_icons: ^1.0.2
