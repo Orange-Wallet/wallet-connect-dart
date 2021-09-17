@@ -12,9 +12,9 @@ class WCEthereumSignMessage {
     switch (type) {
       case WCSignType.MESSAGE:
         return raw[1];
-      case WCSignType.PERSONAL_MESSAGE:
-        return raw[1];
       case WCSignType.TYPED_MESSAGE:
+        return raw[1];
+      case WCSignType.PERSONAL_MESSAGE:
         return raw[0];
       default:
         return null;

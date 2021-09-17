@@ -364,7 +364,7 @@ class WCClient {
           request.id,
           WCEthereumSignMessage(
             raw: params,
-            type: WCSignType.PERSONAL_MESSAGE,
+            type: WCSignType.TYPED_MESSAGE,
           ),
         );
         break;

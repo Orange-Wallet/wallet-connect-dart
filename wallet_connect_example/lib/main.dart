@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:http/http.dart' as http;
@@ -11,12 +12,12 @@ import 'package:wallet_connect/models/session/wc_session.dart';
 import 'package:wallet_connect/models/wc_peer_meta.dart';
 import 'package:wallet_connect/wc_client.dart';
 import 'package:wallet_connect/wc_session_store.dart';
+import 'package:wallet_connect_example/eth_conversions.dart';
 import 'package:wallet_connect_example/qr_scan_view.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+void main() {
   runApp(MyApp());
 }
 
@@ -45,7 +46,7 @@ class MyHomePage extends StatefulWidget {
 const maticRpcUri =
     'https://rpc-mainnet.maticvigil.com/v1/140d92ff81094f0f3d7babde06603390d7e581be';
 
-enum MenuItems { PREVIOUS_SESSION, SCAN_QR, CLEAR_CACHE }
+enum MenuItems { PREVIOUS_SESSION, KILL_SESSION, SCAN_QR, CLEAR_CACHE }
 
 class _MyHomePageState extends State<MyHomePage> {
   late WCClient _wcClient;
@@ -95,10 +96,18 @@ class _MyHomePageState extends State<MyHomePage> {
                 case MenuItems.PREVIOUS_SESSION:
                   _connectToPreviousSession();
                   break;
+                case MenuItems.KILL_SESSION:
+                  _wcClient.killSession();
+                  break;
                 case MenuItems.SCAN_QR:
-                  Navigator.push(context,
-                          MaterialPageRoute(builder: (_) => QRScanView()))
-                      .then((value) => _qrScanHandler(value));
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => QRScanView()),
+                  ).then((value) {
+                    if (value != null) {
+                      _qrScanHandler(value);
+                    }
+                  });
                   break;
                 case MenuItems.CLEAR_CACHE:
                   _webViewController.clearCache();
@@ -110,6 +119,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 PopupMenuItem(
                   value: MenuItems.PREVIOUS_SESSION,
                   child: Text('Connect Previous Session'),
+                ),
+                PopupMenuItem(
+                  value: MenuItems.KILL_SESSION,
+                  child: Text('Kill Session'),
                 ),
                 PopupMenuItem(
                   value: MenuItems.SCAN_QR,
@@ -138,7 +151,7 @@ class _MyHomePageState extends State<MyHomePage> {
         shouldOverrideUrlLoading: (controller, navAction) async {
           final uri = navAction.request.url;
           final url = uri.toString();
-          debugPrint('URLL $url');
+          debugPrint('URL $url');
           if (url.startsWith('wc:')) {
             if (url.contains('bridge') && url.contains('key')) {
               _qrScanHandler(url);
@@ -154,14 +167,24 @@ class _MyHomePageState extends State<MyHomePage> {
 
   _qrScanHandler(String value) {
     final session = WCSession.from(value);
-    final peerMeta = WCPeerMeta(
-      name: "Example Wallet",
-      url: "https://orangewallet.app",
-      description: "Example Wallet",
-      icons: [
-        "https://gblobscdn.gitbook.com/spaces%2F-LJJeCjcLrr53DcT1Ml7%2Favatar.png"
-      ],
-    );
+    debugPrint('session $session');
+    final peerMeta = session.bridge == 'https://walletconnect-bridge.1inch.io'
+        ? WCPeerMeta(
+            name: "1inch Wallet",
+            url: "https://app.1inch.io",
+            description: "1inch Wallet",
+            icons: [
+              "https://gblobscdn.gitbook.com/spaces%2F-LJJeCjcLrr53DcT1Ml7%2Favatar.png"
+            ],
+          )
+        : WCPeerMeta(
+            name: "Example Wallet",
+            url: "https://orangewallet.app",
+            description: "Example Wallet",
+            icons: [
+              "https://gblobscdn.gitbook.com/spaces%2F-LJJeCjcLrr53DcT1Ml7%2Favatar.png"
+            ],
+          );
     _wcClient.connectNewSession(session: session, peerMeta: peerMeta);
   }
 
@@ -228,7 +251,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       _wcClient.approveSession(
                         accounts: [walletAddress],
                         // TODO: Mention Chain ID while connecting
-                        chainId: 1,
+                        chainId: 137,
                       );
                       _sessionStore = _wcClient.sessionStore;
                       await _prefs.setString('session',
@@ -340,112 +363,28 @@ class _MyHomePageState extends State<MyHomePage> {
     int id,
     WCEthereumTransaction ethereumTransaction,
   ) {
-    showDialog(
-      context: context,
-      builder: (_) {
-        return SimpleDialog(
-          title: Column(
-            children: [
-              if (_wcClient.remotePeerMeta!.icons.isNotEmpty)
-                Container(
-                  height: 100.0,
-                  width: 100.0,
-                  padding: const EdgeInsets.only(bottom: 8.0),
-                  child: Image.network(_wcClient.remotePeerMeta!.icons.first),
-                ),
-              Text(
-                _wcClient.remotePeerMeta!.name,
-                style: TextStyle(
-                  fontWeight: FontWeight.normal,
-                  fontSize: 20.0,
-                ),
-              ),
-            ],
-          ),
-          contentPadding: const EdgeInsets.fromLTRB(16.0, 12.0, 16.0, 16.0),
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8.0),
-              child: Text(
-                  'Allow ${_wcClient.remotePeerMeta!.url} to spend your USDT?'),
-            ),
-            // Padding(
-            //   padding: const EdgeInsets.only(bottom: 8.0),
-            //   child: Text('Connection to ${peerMeta.url}'),
-            // ),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: Text(
-                      'Transaction Fee',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16.0,
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Text(
-                      EtherAmount.inWei(
-                              BigInt.parse(ethereumTransaction.value ?? '0'))
-                          .getValueInUnit(EtherUnit.ether)
-                          .toString(),
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16.0,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Row(
-              children: [
-                Expanded(
-                  child: TextButton(
-                    style: TextButton.styleFrom(
-                      primary: Colors.white,
-                      backgroundColor: Theme.of(context).accentColor,
-                    ),
-                    onPressed: () async {
-                      final creds = EthPrivateKey.fromHex(privateKey);
-                      final tx = await _web3client.signTransaction(
-                        creds,
-                        _wcEthTxToWeb3Tx(ethereumTransaction),
-                        chainId: _wcClient.chainId!,
-                      );
-                      // final txhash = await _web3client.sendRawTransaction(tx);
-                      // debugPrint('txhash $txhash');
-                      _wcClient.approveRequest<String>(
-                        id: id,
-                        result: bytesToHex(tx),
-                      );
-                      Navigator.pop(context);
-                    },
-                    child: Text('SIGN'),
-                  ),
-                ),
-                const SizedBox(width: 16.0),
-                Expanded(
-                  child: TextButton(
-                    style: TextButton.styleFrom(
-                      primary: Colors.white,
-                      backgroundColor: Theme.of(context).accentColor,
-                    ),
-                    onPressed: () {
-                      _wcClient.rejectRequest(id: id);
-                      Navigator.pop(context);
-                    },
-                    child: Text('CANCEL'),
-                  ),
-                ),
-              ],
-            ),
-          ],
+    _onTransaction(
+      id: id,
+      ethereumTransaction: ethereumTransaction,
+      title: 'Sign Transaction',
+      onConfirm: () async {
+        final creds = EthPrivateKey.fromHex(privateKey);
+        final tx = await _web3client.signTransaction(
+          creds,
+          _wcEthTxToWeb3Tx(ethereumTransaction),
+          chainId: _wcClient.chainId!,
         );
+        // final txhash = await _web3client.sendRawTransaction(tx);
+        // debugPrint('txhash $txhash');
+        _wcClient.approveRequest<String>(
+          id: id,
+          result: bytesToHex(tx),
+        );
+        Navigator.pop(context);
+      },
+      onReject: () {
+        _wcClient.rejectRequest(id: id);
+        Navigator.pop(context);
       },
     );
   }
@@ -454,6 +393,69 @@ class _MyHomePageState extends State<MyHomePage> {
     int id,
     WCEthereumTransaction ethereumTransaction,
   ) {
+    _onTransaction(
+      id: id,
+      ethereumTransaction: ethereumTransaction,
+      title: 'Send Transaction',
+      onConfirm: () async {
+        final creds = EthPrivateKey.fromHex(privateKey);
+        final txhash = await _web3client.sendTransaction(
+          creds,
+          _wcEthTxToWeb3Tx(ethereumTransaction),
+          chainId: _wcClient.chainId!,
+        );
+        debugPrint('txhash $txhash');
+        _wcClient.approveRequest<String>(
+          id: id,
+          result: txhash,
+        );
+        Navigator.pop(context);
+      },
+      onReject: () {
+        _wcClient.rejectRequest(id: id);
+        Navigator.pop(context);
+      },
+    );
+  }
+
+  _onTransaction({
+    required int id,
+    required WCEthereumTransaction ethereumTransaction,
+    required String title,
+    required VoidCallback onConfirm,
+    required VoidCallback onReject,
+  }) async {
+    ContractFunction? contractFunction;
+    BigInt gasPrice = BigInt.parse(ethereumTransaction.gasPrice ?? '0');
+    try {
+      final abiUrl =
+          'https://api.polygonscan.com/api?module=contract&action=getabi&address=${ethereumTransaction.to}&apikey=BCER1MXNFHP1TVE93CMNVKC5J4FV8R4CPR';
+      final res = await http.get(Uri.parse(abiUrl));
+      final Map<String, dynamic> resMap = jsonDecode(res.body);
+      final abi = ContractAbi.fromJson(resMap['result'], '');
+      final contract = DeployedContract(
+          abi, EthereumAddress.fromHex(ethereumTransaction.to));
+      final dataBytes = hexToBytes(ethereumTransaction.data);
+      final funcBytes = dataBytes.take(4).toList();
+      debugPrint("funcBytes $funcBytes");
+      final maibiFunctions = contract.functions
+          .where((element) => listEquals<int>(element.selector, funcBytes));
+      if (maibiFunctions.isNotEmpty) {
+        debugPrint("isNotEmpty");
+        contractFunction = maibiFunctions.first;
+        debugPrint("function ${contractFunction.name}");
+        // contractFunction.parameters.forEach((element) {
+        //   debugPrint("params ${element.name} ${element.type.name}");
+        // });
+        // final params = dataBytes.sublist(4).toList();
+        // debugPrint("params $params ${params.length}");
+      }
+      if (gasPrice == BigInt.zero) {
+        gasPrice = await _web3client.estimateGas();
+      }
+    } catch (e, trace) {
+      debugPrint("failed to decode\n$e\n$trace");
+    }
     showDialog(
       context: context,
       builder: (_) {
@@ -478,9 +480,36 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           contentPadding: const EdgeInsets.fromLTRB(16.0, 12.0, 16.0, 16.0),
           children: [
+            Container(
+              alignment: Alignment.center,
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: Text(
+                title,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18.0,
+                ),
+              ),
+            ),
             Padding(
               padding: const EdgeInsets.only(bottom: 8.0),
-              child: Text('Send Transaction'),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Receipient',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16.0,
+                    ),
+                  ),
+                  const SizedBox(height: 8.0),
+                  Text(
+                    '${ethereumTransaction.to}',
+                    style: TextStyle(fontSize: 16.0),
+                  ),
+                ],
+              ),
             ),
             Padding(
               padding: const EdgeInsets.only(bottom: 8.0),
@@ -498,17 +527,78 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                   Expanded(
                     child: Text(
-                      EtherAmount.inWei(
-                              BigInt.parse(ethereumTransaction.value ?? '0'))
-                          .getValueInUnit(EtherUnit.ether)
-                          .toString(),
+                      '${EthConversions.weiToEthUnTrimmed(gasPrice * BigInt.parse(ethereumTransaction.gas), 18)} MATIC',
+                      style: TextStyle(fontSize: 16.0),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: Text(
+                      'Transaction Amount',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16.0,
                       ),
                     ),
                   ),
+                  Expanded(
+                    child: Text(
+                      '${EthConversions.weiToEthUnTrimmed(BigInt.parse(ethereumTransaction.value ?? '0'), 18)} MATIC',
+                      style: TextStyle(fontSize: 16.0),
+                    ),
+                  ),
                 ],
+              ),
+            ),
+            if (contractFunction != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Function',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16.0,
+                      ),
+                    ),
+                    const SizedBox(height: 8.0),
+                    Text(
+                      '${contractFunction.name}',
+                      style: TextStyle(fontSize: 16.0),
+                    ),
+                  ],
+                ),
+              ),
+            Theme(
+              data:
+                  Theme.of(context).copyWith(dividerColor: Colors.transparent),
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 8.0),
+                child: ExpansionTile(
+                  tilePadding: EdgeInsets.zero,
+                  title: Text(
+                    'Data',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16.0,
+                    ),
+                  ),
+                  children: [
+                    Text(
+                      '${ethereumTransaction.data}',
+                      style: TextStyle(fontSize: 16.0),
+                    ),
+                  ],
+                ),
               ),
             ),
             Row(
@@ -519,20 +609,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       primary: Colors.white,
                       backgroundColor: Theme.of(context).accentColor,
                     ),
-                    onPressed: () async {
-                      final creds = EthPrivateKey.fromHex(privateKey);
-                      final txhash = await _web3client.sendTransaction(
-                        creds,
-                        _wcEthTxToWeb3Tx(ethereumTransaction),
-                        chainId: _wcClient.chainId!,
-                      );
-                      debugPrint('txhash $txhash');
-                      _wcClient.approveRequest<String>(
-                        id: id,
-                        result: txhash,
-                      );
-                      Navigator.pop(context);
-                    },
+                    onPressed: onConfirm,
                     child: Text('CONFIRM'),
                   ),
                 ),
@@ -543,10 +620,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       primary: Colors.white,
                       backgroundColor: Theme.of(context).accentColor,
                     ),
-                    onPressed: () {
-                      _wcClient.rejectRequest(id: id);
-                      Navigator.pop(context);
-                    },
+                    onPressed: onReject,
                     child: Text('REJECT'),
                   ),
                 ),
@@ -562,6 +636,9 @@ class _MyHomePageState extends State<MyHomePage> {
     int id,
     WCEthereumSignMessage ethereumSignMessage,
   ) {
+    final decoded = (ethereumSignMessage.type == WCSignType.TYPED_MESSAGE)
+        ? ethereumSignMessage.data!
+        : ascii.decode(hexToBytes(ethereumSignMessage.data!));
     showDialog(
       context: context,
       builder: (_) {
@@ -586,9 +663,39 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           contentPadding: const EdgeInsets.fromLTRB(16.0, 12.0, 16.0, 16.0),
           children: [
-            Padding(
+            Container(
+              alignment: Alignment.center,
               padding: const EdgeInsets.only(bottom: 8.0),
-              child: Text('Sign Message'),
+              child: Text(
+                'Sign Message',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18.0,
+                ),
+              ),
+            ),
+            Theme(
+              data:
+                  Theme.of(context).copyWith(dividerColor: Colors.transparent),
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 8.0),
+                child: ExpansionTile(
+                  tilePadding: EdgeInsets.zero,
+                  title: Text(
+                    'Message',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16.0,
+                    ),
+                  ),
+                  children: [
+                    Text(
+                      decoded,
+                      style: TextStyle(fontSize: 16.0),
+                    ),
+                  ],
+                ),
+              ),
             ),
             Row(
               children: [
@@ -600,11 +707,6 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                     onPressed: () async {
                       final creds = EthPrivateKey.fromHex(privateKey);
-                      debugPrint(
-                          "ethereumSignMessage ${ethereumSignMessage.type}");
-                      final decoded =
-                          ascii.decode(utf8.encode(ethereumSignMessage.data!));
-                      debugPrint("decoded $decoded");
                       final signedData = await creds.signPersonalMessage(
                           Uint8List.fromList(
                               utf8.encode(ethereumSignMessage.data!)));
