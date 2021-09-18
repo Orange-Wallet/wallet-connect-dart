@@ -10,7 +10,7 @@ WCApproveSessionResponse _$WCApproveSessionResponseFromJson(
     Map<String, dynamic> json) {
   return WCApproveSessionResponse(
     approved: json['approved'] as bool,
-    chainId: json['chainId'] as int?,
+    chainId: json['chainId'] as int,
     accounts:
         (json['accounts'] as List<dynamic>).map((e) => e as String).toList(),
     peerId: json['peerId'] as String,

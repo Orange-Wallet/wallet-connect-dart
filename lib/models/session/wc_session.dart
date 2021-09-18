@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:meta/meta.dart';
 
 part 'wc_session.g.dart';
 
@@ -9,10 +10,10 @@ class WCSession {
   final String bridge;
   final String key;
   WCSession({
-    required this.topic,
-    required this.version,
-    required this.bridge,
-    required this.key,
+    @required this.topic,
+    @required this.version,
+    @required this.bridge,
+    @required this.key,
   });
 
   String toUri() => "wc:$topic@$version?bridge=$bridge&key=$key";

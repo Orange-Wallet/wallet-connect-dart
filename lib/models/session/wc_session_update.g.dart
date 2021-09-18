@@ -9,9 +9,9 @@ part of 'wc_session_update.dart';
 WCSessionUpdate _$WCSessionUpdateFromJson(Map<String, dynamic> json) {
   return WCSessionUpdate(
     approved: json['approved'] as bool,
-    chainId: json['chainId'] as int?,
+    chainId: json['chainId'] as int,
     accounts:
-        (json['accounts'] as List<dynamic>?)?.map((e) => e as String).toList(),
+        (json['accounts'] as List<dynamic>)?.map((e) => e as String)?.toList(),
   );
 }
 

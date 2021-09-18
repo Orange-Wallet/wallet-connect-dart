@@ -11,11 +11,11 @@ WCEthereumTransaction _$WCEthereumTransactionFromJson(
   return WCEthereumTransaction(
     from: json['from'] as String,
     to: json['to'] as String,
-    nonce: json['nonce'] as String?,
-    gasPrice: json['gasPrice'] as String?,
+    nonce: json['nonce'] as String,
+    gasPrice: json['gasPrice'] as String,
     gas: json['gas'] as String,
-    gasLimit: json['gasLimit'] as String?,
-    value: json['value'] as String?,
+    gasLimit: json['gasLimit'] as String,
+    value: json['value'] as String,
     data: json['data'] as String,
   );
 }

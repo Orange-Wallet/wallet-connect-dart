@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:meta/meta.dart';
 
 part 'wc_peer_meta.g.dart';
 
@@ -9,9 +10,9 @@ class WCPeerMeta {
   final String description;
   final List<String> icons;
   WCPeerMeta({
-    required this.name,
-    required this.url,
-    required this.description,
+    @required this.name,
+    @required this.url,
+    @required this.description,
     this.icons = const [],
   });
 

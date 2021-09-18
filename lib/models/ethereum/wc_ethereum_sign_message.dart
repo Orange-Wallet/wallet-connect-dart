@@ -1,14 +1,16 @@
+import 'package:meta/meta.dart';
+
 enum WCSignType { MESSAGE, PERSONAL_MESSAGE, TYPED_MESSAGE }
 
 class WCEthereumSignMessage {
   final List<String> raw;
   final WCSignType type;
   WCEthereumSignMessage({
-    required this.raw,
-    required this.type,
+    @required this.raw,
+    @required this.type,
   });
 
-  String? get data {
+  String get data {
     switch (type) {
       case WCSignType.MESSAGE:
         return raw[1];

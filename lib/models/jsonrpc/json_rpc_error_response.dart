@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:meta/meta.dart';
 import 'package:wallet_connect/models/jsonrpc/json_rpc_error.dart';
 import 'package:wallet_connect/utils/constants.dart';
 
@@ -10,8 +11,8 @@ class JsonRpcErrorResponse {
   final String jsonrpc = JSONRPC_VERSION;
   final JsonRpcError error;
   JsonRpcErrorResponse({
-    required this.id,
-    required this.error,
+    @required this.id,
+    @required this.error,
   });
 
   factory JsonRpcErrorResponse.fromJson(Map<String, dynamic> json) =>

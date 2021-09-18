@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:meta/meta.dart';
 
 part 'wc_encryption_payload.g.dart';
 
@@ -8,9 +9,9 @@ class WCEncryptionPayload {
   final String hmac;
   final String iv;
   WCEncryptionPayload({
-    required this.data,
-    required this.hmac,
-    required this.iv,
+    @required this.data,
+    @required this.hmac,
+    @required this.iv,
   });
 
   factory WCEncryptionPayload.fromJson(Map<String, dynamic> json) =>

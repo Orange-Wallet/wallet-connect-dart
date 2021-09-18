@@ -8,7 +8,7 @@ part of 'json_rpc_response.dart';
 
 JsonRpcResponse<T> _$JsonRpcResponseFromJson<T>(
   Map<String, dynamic> json,
-  T Function(Object? json) fromJsonT,
+  T Function(Object json) fromJsonT,
 ) {
   return JsonRpcResponse<T>(
     id: json['id'] as int,
@@ -19,7 +19,7 @@ JsonRpcResponse<T> _$JsonRpcResponseFromJson<T>(
 
 Map<String, dynamic> _$JsonRpcResponseToJson<T>(
   JsonRpcResponse<T> instance,
-  Object? Function(T value) toJsonT,
+  Object Function(T value) toJsonT,
 ) =>
     <String, dynamic>{
       'id': instance.id,

@@ -1,14 +1,15 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:meta/meta.dart';
 
 part 'wc_session_update.g.dart';
 
 @JsonSerializable()
 class WCSessionUpdate {
   final bool approved;
-  final int? chainId;
-  final List<String>? accounts;
+  final int chainId;
+  final List<String> accounts;
   WCSessionUpdate({
-    required this.approved,
+    @required this.approved,
     this.chainId,
     this.accounts,
   });

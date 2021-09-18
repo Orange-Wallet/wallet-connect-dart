@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:meta/meta.dart';
 import 'package:wallet_connect/models/wc_method.dart';
 import 'package:wallet_connect/utils/constants.dart';
 
@@ -8,13 +9,13 @@ part 'json_rpc_request.g.dart';
 class JsonRpcRequest {
   final int id;
   final String jsonrpc;
-  final WCMethod? method;
-  final List<dynamic>? params;
+  final WCMethod method;
+  final List<dynamic> params;
   JsonRpcRequest({
-    required this.id,
+    @required this.id,
     this.jsonrpc = JSONRPC_VERSION,
     this.method,
-    required this.params,
+    @required this.params,
   });
 
   factory JsonRpcRequest.fromJson(Map<String, dynamic> json) =>

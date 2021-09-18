@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:meta/meta.dart';
 import 'package:wallet_connect/models/wc_peer_meta.dart';
 
 part 'wc_session_request.g.dart';
@@ -7,10 +8,10 @@ part 'wc_session_request.g.dart';
 class WCSessionRequest {
   final String peerId;
   final WCPeerMeta peerMeta;
-  final int? chainId;
+  final int chainId;
   WCSessionRequest({
-    required this.peerId,
-    required this.peerMeta,
+    @required this.peerId,
+    @required this.peerMeta,
     this.chainId,
   });
 
