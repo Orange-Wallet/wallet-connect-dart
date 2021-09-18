@@ -48,4 +48,20 @@ class WCSession {
   String toString() {
     return 'WCSession(topic: $topic, version: $version, bridge: $bridge, key: $key)';
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is WCSession &&
+        other.topic == topic &&
+        other.version == version &&
+        other.bridge == bridge &&
+        other.key == key;
+  }
+
+  @override
+  int get hashCode {
+    return topic.hashCode ^ version.hashCode ^ bridge.hashCode ^ key.hashCode;
+  }
 }

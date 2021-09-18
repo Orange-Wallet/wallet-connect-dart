@@ -1,5 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:meta/meta.dart';
+
 import 'package:wallet_connect/models/session/wc_session.dart';
 import 'package:wallet_connect/models/wc_peer_meta.dart';
 
@@ -29,5 +30,28 @@ class WCSessionStore {
   @override
   String toString() {
     return 'WCSessionStore(session: $session, peerMeta: $peerMeta, peerId: $peerId, remotePeerId: $remotePeerId)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is WCSessionStore &&
+        other.session == session &&
+        other.peerMeta == peerMeta &&
+        other.remotePeerMeta == remotePeerMeta &&
+        other.chainId == chainId &&
+        other.peerId == peerId &&
+        other.remotePeerId == remotePeerId;
+  }
+
+  @override
+  int get hashCode {
+    return session.hashCode ^
+        peerMeta.hashCode ^
+        remotePeerMeta.hashCode ^
+        chainId.hashCode ^
+        peerId.hashCode ^
+        remotePeerId.hashCode;
   }
 }
