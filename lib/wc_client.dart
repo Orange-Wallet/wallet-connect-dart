@@ -32,11 +32,24 @@ typedef EthTransaction = void Function(
 typedef CustomRequest = void Function(int id, String payload);
 
 class WCClient {
-  WCClient._privateConstructor();
+  WCClient({
+    this.onSessionRequest,
+    this.onFailure,
+    this.onDisconnect,
+    this.onEthSign,
+    this.onEthSignTransaction,
+    this.onEthSendTransaction,
+    this.onCustomRequest,
+    this.onConnect,
+  });
 
-  static final WCClient _instance = WCClient._privateConstructor();
-
-  static WCClient get instance => _instance;
+  final SessionRequest onSessionRequest;
+  final SocketError onFailure;
+  final SocketClose onDisconnect;
+  final EthSign onEthSign;
+  final EthTransaction onEthSignTransaction, onEthSendTransaction;
+  final CustomRequest onCustomRequest;
+  final Function() onConnect;
 
   WebSocketChannel _webSocket;
   Stream _socketStream = Stream.empty();
@@ -57,14 +70,6 @@ class WCClient {
   int get chainId => _chainId;
   String get peerId => _peerId;
   String get remotePeerId => _remotePeerId;
-
-  SessionRequest _onSessionRequest;
-  SocketError _onFailure;
-  SocketClose _onDisconnect;
-  EthSign _onEthSign;
-  EthTransaction _onEthSignTransaction, _onEthSendTransaction;
-  CustomRequest _onCustomRequest;
-  Function() _onConnect;
 
   connectNewSession({
     @required WCSession session,
@@ -117,7 +122,7 @@ class WCClient {
       result: result.toJson(),
     );
     print('approveSession ${jsonEncode(response.toJson())}');
-    _onConnect?.call();
+    onConnect?.call();
     _encryptAndSend(jsonEncode(response.toJson()));
   }
 
@@ -175,26 +180,6 @@ class WCClient {
     _encryptAndSend(jsonEncode(response.toJson()));
   }
 
-  registerCallbacks({
-    SessionRequest onSessionRequest,
-    SocketError onFailure,
-    SocketClose onDisconnect,
-    EthSign onEthSign,
-    EthTransaction onEthSignTransaction,
-    EthTransaction onEthSendTransaction,
-    CustomRequest onCustomRequest,
-    Function() onConnect,
-  }) {
-    _onSessionRequest = onSessionRequest;
-    _onFailure = onFailure;
-    _onDisconnect = onDisconnect;
-    _onEthSign = onEthSign;
-    _onEthSignTransaction = onEthSignTransaction;
-    _onEthSendTransaction = onEthSendTransaction;
-    _onCustomRequest = onCustomRequest;
-    _onConnect = onConnect;
-  }
-
   _connect({
     @required WCSession session,
     @required WCPeerMeta peerMeta,
@@ -221,7 +206,7 @@ class WCClient {
     _webSocket = WebSocketChannel.connect(bridgeUri);
     _isConnected = true;
     if (fromSessionStore) {
-      _onConnect?.call();
+      onConnect?.call();
     }
     _socketStream = _webSocket.stream;
     _socketSink = _webSocket.sink;
@@ -276,14 +261,14 @@ class WCClient {
       onError: (error) {
         print('onError $_isConnected CloseCode ${_webSocket.closeCode} $error');
         _resetState();
-        _onFailure?.call('$error');
+        onFailure?.call('$error');
       },
       onDone: () {
         if (_isConnected) {
           print(
               'onDone $_isConnected CloseCode ${_webSocket.closeCode} ${_webSocket.closeReason}');
           _resetState();
-          _onDisconnect?.call(_webSocket.closeCode, _webSocket.closeReason);
+          onDisconnect?.call(_webSocket.closeCode, _webSocket.closeReason);
         }
       },
     );
@@ -303,7 +288,7 @@ class WCClient {
       if (request.method != null) {
         _handleRequest(request);
       } else {
-        _onCustomRequest?.call(request.id, payload);
+        onCustomRequest?.call(request.id, payload);
       }
     } on InvalidJsonRpcParamsException catch (e) {
       _invalidParams(e.requestId);
@@ -321,7 +306,7 @@ class WCClient {
         _remotePeerId = param.peerId;
         _remotePeerMeta = param.peerMeta;
         _chainId = param.chainId;
-        _onSessionRequest?.call(request.id, param.peerMeta);
+        onSessionRequest?.call(request.id, param.peerMeta);
         break;
       case WCMethod.SESSION_UPDATE:
         final param = WCSessionUpdate.fromJson(request.params.first);
@@ -337,7 +322,7 @@ class WCClient {
           throw InvalidJsonRpcParamsException(request.id);
         }
 
-        _onEthSign?.call(
+        onEthSign?.call(
           request.id,
           WCEthereumSignMessage(
             raw: params,
@@ -352,7 +337,7 @@ class WCClient {
           throw InvalidJsonRpcParamsException(request.id);
         }
 
-        _onEthSign?.call(
+        onEthSign?.call(
           request.id,
           WCEthereumSignMessage(
             raw: params,
@@ -367,7 +352,7 @@ class WCClient {
           throw InvalidJsonRpcParamsException(request.id);
         }
 
-        _onEthSign?.call(
+        onEthSign?.call(
           request.id,
           WCEthereumSignMessage(
             raw: params,
@@ -378,12 +363,12 @@ class WCClient {
       case WCMethod.ETH_SIGN_TRANSACTION:
         print('ETH_SIGN_TRANSACTION $request');
         final param = WCEthereumTransaction.fromJson(request.params.first);
-        _onEthSignTransaction?.call(request.id, param);
+        onEthSignTransaction?.call(request.id, param);
         break;
       case WCMethod.ETH_SEND_TRANSACTION:
         print('ETH_SEND_TRANSACTION $request');
         final param = WCEthereumTransaction.fromJson(request.params.first);
-        _onEthSendTransaction?.call(request.id, param);
+        onEthSendTransaction?.call(request.id, param);
         break;
       default:
     }
