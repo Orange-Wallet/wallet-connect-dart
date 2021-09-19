@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'wc_peer_meta.g.dart';
@@ -23,5 +24,22 @@ class WCPeerMeta {
   @override
   String toString() {
     return 'WCPeerMeta(name: $name, url: $url, description: $description, icons: $icons)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    final listEquals = const DeepCollectionEquality().equals;
+
+    return other is WCPeerMeta &&
+        other.name == name &&
+        other.url == url &&
+        other.description == description &&
+        listEquals(other.icons, icons);
+  }
+
+  @override
+  int get hashCode {
+    return name.hashCode ^ url.hashCode ^ description.hashCode ^ icons.hashCode;
   }
 }
