@@ -67,11 +67,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   _initialize() async {
-    _wcClient = WCClient.instance;
-    // TODO: Mention walletAddress and privateKey while connecting
-    walletAddress = '';
-    privateKey = '';
-    _wcClient.registerCallbacks(
+    _wcClient = WCClient(
       onSessionRequest: _onSessionRequest,
       onFailure: _onSessionError,
       onDisconnect: _onSessionClosed,
@@ -81,6 +77,9 @@ class _MyHomePageState extends State<MyHomePage> {
       onCustomRequest: (_, __) {},
       onConnect: _onConnect,
     );
+    // TODO: Mention walletAddress and privateKey while connecting
+    walletAddress = '';
+    privateKey = '';
     _prefs = await SharedPreferences.getInstance();
   }
 
