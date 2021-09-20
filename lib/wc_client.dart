@@ -73,11 +73,13 @@ class WCClient {
   connectNewSession({
     @required WCSession session,
     @required WCPeerMeta peerMeta,
+    @required String peerId,
   }) {
-    assert(session != null && peerMeta != null);
+    assert(session != null && peerMeta != null && peerId != null);
     _connect(
       session: session,
       peerMeta: peerMeta,
+      peerId: peerId,
     );
   }
 
