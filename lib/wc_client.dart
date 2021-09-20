@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:meta/meta.dart';
-import 'package:uuid/uuid.dart';
 import 'package:wallet_connect/models/ethereum/wc_ethereum_sign_message.dart';
 import 'package:wallet_connect/models/ethereum/wc_ethereum_transaction.dart';
 import 'package:wallet_connect/models/exception/exceptions.dart';
@@ -185,16 +184,15 @@ class WCClient {
     @required WCPeerMeta peerMeta,
     bool fromSessionStore = false,
     WCPeerMeta remotePeerMeta,
-    String peerId,
+    @required String peerId,
     String remotePeerId,
     int chainId,
   }) {
-    assert(session != null && peerMeta != null);
+    assert(session != null && peerMeta != null && peerId != null);
     if (session == WCSession.empty()) {
       throw InvalidSessionException();
     }
 
-    peerId ??= Uuid().v4();
     _session = session;
     _peerMeta = peerMeta;
     _remotePeerMeta = remotePeerMeta;
