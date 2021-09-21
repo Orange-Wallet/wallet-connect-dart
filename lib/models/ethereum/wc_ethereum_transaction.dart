@@ -32,4 +32,31 @@ class WCEthereumTransaction {
   String toString() {
     return 'WCEthereumTransaction(from: $from, to: $to, nonce: $nonce, gasPrice: $gasPrice, gas: $gas, gasLimit: $gasLimit, value: $value, data: $data)';
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is WCEthereumTransaction &&
+        other.from == from &&
+        other.to == to &&
+        other.nonce == nonce &&
+        other.gasPrice == gasPrice &&
+        other.gas == gas &&
+        other.gasLimit == gasLimit &&
+        other.value == value &&
+        other.data == data;
+  }
+
+  @override
+  int get hashCode {
+    return from.hashCode ^
+        to.hashCode ^
+        nonce.hashCode ^
+        gasPrice.hashCode ^
+        gas.hashCode ^
+        gasLimit.hashCode ^
+        value.hashCode ^
+        data.hashCode;
+  }
 }

@@ -1,5 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:meta/meta.dart';
+
 import 'package:wallet_connect/models/message_type.dart';
 
 part 'wc_socket_message.g.dart';
@@ -23,4 +24,17 @@ class WCSocketMessage {
   @override
   String toString() =>
       'WCSocketMessage(topic: $topic, type: $type, payload: $payload)';
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is WCSocketMessage &&
+        other.topic == topic &&
+        other.type == type &&
+        other.payload == payload;
+  }
+
+  @override
+  int get hashCode => topic.hashCode ^ type.hashCode ^ payload.hashCode;
 }
