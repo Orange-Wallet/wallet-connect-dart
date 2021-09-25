@@ -162,23 +162,14 @@ class _MyHomePageState extends State<MyHomePage> {
   _qrScanHandler(String value) {
     final session = WCSession.from(value);
     debugPrint('session $session');
-    final peerMeta = session.bridge == 'https://walletconnect-bridge.1inch.io'
-        ? WCPeerMeta(
-            name: "1inch Wallet",
-            url: "https://app.1inch.io",
-            description: "1inch Wallet",
-            icons: [
-              "https://gblobscdn.gitbook.com/spaces%2F-LJJeCjcLrr53DcT1Ml7%2Favatar.png"
-            ],
-          )
-        : WCPeerMeta(
-            name: "Example Wallet",
-            url: "https://orangewallet.app",
-            description: "Example Wallet",
-            icons: [
-              "https://gblobscdn.gitbook.com/spaces%2F-LJJeCjcLrr53DcT1Ml7%2Favatar.png"
-            ],
-          );
+    final peerMeta = WCPeerMeta(
+      name: "Example Wallet",
+      url: "https://example.wallet",
+      description: "Example Wallet",
+      icons: [
+        "https://gblobscdn.gitbook.com/spaces%2F-LJJeCjcLrr53DcT1Ml7%2Favatar.png"
+      ],
+    );
     _wcClient.connectNewSession(session: session, peerMeta: peerMeta);
   }
 
@@ -245,7 +236,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       _wcClient.approveSession(
                         accounts: [walletAddress],
                         // TODO: Mention Chain ID while connecting
-                        chainId: 137,
+                        chainId: 1,
                       );
                       _sessionStore = _wcClient.sessionStore;
                       await _prefs.setString('session',
