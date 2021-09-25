@@ -12,6 +12,7 @@ dependencies:
   uuid: ^3.0.4
   http: ^0.13.3
   cryptography: ^2.0.2
+  collection: ^1.15.0
   json_annotation: ^4.0.1
 
 dev_dependencies:
