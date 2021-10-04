@@ -692,9 +692,13 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                     onPressed: () async {
                       final creds = EthPrivateKey.fromHex(privateKey);
-                      final signedData = await creds.signPersonalMessage(
-                          Uint8List.fromList(
-                              utf8.encode(ethereumSignMessage.data!)));
+                      final encodedMessage =
+                          (ethereumSignMessage.type == WCSignType.TYPED_MESSAGE)
+                              ? Uint8List.fromList(
+                                  utf8.encode(ethereumSignMessage.data!))
+                              : hexToBytes(ethereumSignMessage.data!);
+                      final signedData =
+                          await creds.signPersonalMessage(encodedMessage);
                       final signedDataHex =
                           bytesToHex(signedData, include0x: true);
                       debugPrint('SIGNED $signedDataHex');
