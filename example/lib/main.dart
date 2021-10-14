@@ -1,6 +1,6 @@
 import 'dart:convert';
-import 'dart:typed_data';
 
+import 'package:eth_sig_util/eth_sig_util.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
@@ -691,16 +691,22 @@ class _MyHomePageState extends State<MyHomePage> {
                       backgroundColor: Theme.of(context).accentColor,
                     ),
                     onPressed: () async {
-                      final creds = EthPrivateKey.fromHex(privateKey);
-                      final encodedMessage =
-                          (ethereumSignMessage.type == WCSignType.TYPED_MESSAGE)
-                              ? Uint8List.fromList(
-                                  utf8.encode(ethereumSignMessage.data!))
-                              : hexToBytes(ethereumSignMessage.data!);
-                      final signedData =
-                          await creds.signPersonalMessage(encodedMessage);
-                      final signedDataHex =
-                          bytesToHex(signedData, include0x: true);
+                      String signedDataHex;
+                      if (ethereumSignMessage.type ==
+                          WCSignType.TYPED_MESSAGE) {
+                        signedDataHex = EthSigUtil.signTypedData(
+                          privateKey: privateKey,
+                          jsonData: ethereumSignMessage.data!,
+                          version: TypedDataVersion.V4,
+                        );
+                      } else {
+                        final creds = EthPrivateKey.fromHex(privateKey);
+                        final encodedMessage =
+                            hexToBytes(ethereumSignMessage.data!);
+                        final signedData =
+                            await creds.signPersonalMessage(encodedMessage);
+                        signedDataHex = bytesToHex(signedData, include0x: true);
+                      }
                       debugPrint('SIGNED $signedDataHex');
                       _wcClient.approveRequest<String>(
                         id: id,
