@@ -8,7 +8,7 @@ class WCEthereumTransaction {
   final String to;
   final String? nonce;
   final String? gasPrice;
-  final String gas;
+  final String? gas;
   final String? gasLimit;
   final String? value;
   final String data;

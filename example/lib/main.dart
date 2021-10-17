@@ -230,7 +230,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: TextButton(
                     style: TextButton.styleFrom(
                       primary: Colors.white,
-                      backgroundColor: Theme.of(context).accentColor,
+                      backgroundColor: Theme.of(context).colorScheme.secondary,
                     ),
                     onPressed: () async {
                       _wcClient.approveSession(
@@ -251,7 +251,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: TextButton(
                     style: TextButton.styleFrom(
                       primary: Colors.white,
-                      backgroundColor: Theme.of(context).accentColor,
+                      backgroundColor: Theme.of(context).colorScheme.secondary,
                     ),
                     onPressed: () {
                       _wcClient.rejectSession();
@@ -288,7 +288,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 TextButton(
                   style: TextButton.styleFrom(
                     primary: Colors.white,
-                    backgroundColor: Theme.of(context).accentColor,
+                    backgroundColor: Theme.of(context).colorScheme.secondary,
                   ),
                   onPressed: () {
                     Navigator.pop(context);
@@ -329,7 +329,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 TextButton(
                   style: TextButton.styleFrom(
                     primary: Colors.white,
-                    backgroundColor: Theme.of(context).accentColor,
+                    backgroundColor: Theme.of(context).colorScheme.secondary,
                   ),
                   onPressed: () {
                     Navigator.pop(context);
@@ -512,7 +512,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                   Expanded(
                     child: Text(
-                      '${EthConversions.weiToEthUnTrimmed(gasPrice * BigInt.parse(ethereumTransaction.gas), 18)} MATIC',
+                      '${EthConversions.weiToEthUnTrimmed(gasPrice * BigInt.parse(ethereumTransaction.gas ?? '0'), 18)} MATIC',
                       style: TextStyle(fontSize: 16.0),
                     ),
                   ),
@@ -592,7 +592,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: TextButton(
                     style: TextButton.styleFrom(
                       primary: Colors.white,
-                      backgroundColor: Theme.of(context).accentColor,
+                      backgroundColor: Theme.of(context).colorScheme.secondary,
                     ),
                     onPressed: onConfirm,
                     child: Text('CONFIRM'),
@@ -603,7 +603,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: TextButton(
                     style: TextButton.styleFrom(
                       primary: Colors.white,
-                      backgroundColor: Theme.of(context).accentColor,
+                      backgroundColor: Theme.of(context).colorScheme.secondary,
                     ),
                     onPressed: onReject,
                     child: Text('REJECT'),
@@ -688,7 +688,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: TextButton(
                     style: TextButton.styleFrom(
                       primary: Colors.white,
-                      backgroundColor: Theme.of(context).accentColor,
+                      backgroundColor: Theme.of(context).colorScheme.secondary,
                     ),
                     onPressed: () async {
                       String signedDataHex;
@@ -722,7 +722,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: TextButton(
                     style: TextButton.styleFrom(
                       primary: Colors.white,
-                      backgroundColor: Theme.of(context).accentColor,
+                      backgroundColor: Theme.of(context).colorScheme.secondary,
                     ),
                     onPressed: () {
                       _wcClient.rejectRequest(id: id);
