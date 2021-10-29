@@ -69,6 +69,7 @@ class WCClient {
   int? get chainId => _chainId;
   String? get peerId => _peerId;
   String? get remotePeerId => _remotePeerId;
+  bool get isConnected => _isConnected;
 
   connectNewSession({
     required WCSession session,
