@@ -1,5 +1,5 @@
 <div align="center">
-<img src="https://picc.io/2xkyh4-.png" alt="Wallet Connect Logo" width="70"/>
+<img src="https://github.com/Orange-Wallet/orangewallet-utils/raw/master/assets/images/walletconnect.png" alt="Wallet Connect Logo" width="70"/>
 <h1>Wallet Connect</h1>
 </div>
 

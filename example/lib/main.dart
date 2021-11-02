@@ -41,12 +41,19 @@ class MyHomePage extends StatefulWidget {
 const maticRpcUri =
     'https://rpc-mainnet.maticvigil.com/v1/140d92ff81094f0f3d7babde06603390d7e581be';
 
-enum MenuItems { PREVIOUS_SESSION, KILL_SESSION, SCAN_QR, CLEAR_CACHE }
+enum MenuItems {
+  PREVIOUS_SESSION,
+  KILL_SESSION,
+  SCAN_QR,
+  PASTE_CODE,
+  CLEAR_CACHE,
+}
 
 class _MyHomePageState extends State<MyHomePage> {
   late WCClient _wcClient;
   late SharedPreferences _prefs;
   late InAppWebViewController _webViewController;
+  late TextEditingController _textEditingController;
   late String walletAddress, privateKey;
   bool connected = false;
   WCSessionStore? _sessionStore;
@@ -75,6 +82,7 @@ class _MyHomePageState extends State<MyHomePage> {
     // TODO: Mention walletAddress and privateKey while connecting
     walletAddress = '';
     privateKey = '';
+    _textEditingController = TextEditingController();
     _prefs = await SharedPreferences.getInstance();
   }
 
@@ -103,6 +111,44 @@ class _MyHomePageState extends State<MyHomePage> {
                     }
                   });
                   break;
+                case MenuItems.PASTE_CODE:
+                  showGeneralDialog(
+                      context: context,
+                      barrierDismissible: true,
+                      barrierLabel: 'Paste Code',
+                      pageBuilder: (context, _, __) {
+                        return SimpleDialog(
+                          title: Text('Paste code to connect'),
+                          titlePadding:
+                              const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, .0),
+                          contentPadding: const EdgeInsets.all(16.0),
+                          children: [
+                            TextField(
+                              controller: _textEditingController,
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(),
+                                label: Text('Enter Code'),
+                              ),
+                            ),
+                            const SizedBox(height: 16.0),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: Text('CONTINUE'),
+                                ),
+                              ],
+                            ),
+                          ],
+                        );
+                      }).then((_) {
+                    if (_textEditingController.text.isNotEmpty) {
+                      _qrScanHandler(_textEditingController.text);
+                      _textEditingController.clear();
+                    }
+                  });
+                  break;
                 case MenuItems.CLEAR_CACHE:
                   _webViewController.clearCache();
                   break;
@@ -121,6 +167,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 PopupMenuItem(
                   value: MenuItems.SCAN_QR,
                   child: Text('Connect via QR'),
+                ),
+                PopupMenuItem(
+                  value: MenuItems.PASTE_CODE,
+                  child: Text('Connect via Code'),
                 ),
                 PopupMenuItem(
                   value: MenuItems.CLEAR_CACHE,
