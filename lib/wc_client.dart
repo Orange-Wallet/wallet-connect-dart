@@ -21,9 +21,12 @@ import 'package:wallet_connect/models/wc_socket_message.dart';
 import 'package:wallet_connect/wc_cipher.dart';
 import 'package:wallet_connect/wc_session_store.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
+import 'dart:math';
 
 typedef SessionRequest = void Function(int id, WCPeerMeta peerMeta);
 typedef SessionUpdate = void Function(int id, WCSessionUpdate sessionUpdate);
+typedef SessionApproved = void Function(
+    int id, WCApproveSessionResponse response);
 typedef SocketError = void Function(dynamic message);
 typedef SocketClose = void Function(int? code, String? reason);
 typedef EthSign = void Function(int id, WCEthereumSignMessage message);
@@ -55,6 +58,7 @@ class WCClient {
     this.onEthSendTransaction,
     this.onCustomRequest,
     this.onConnect,
+    this.onSessionApproved,
   });
 
   final SessionRequest? onSessionRequest;
@@ -64,7 +68,11 @@ class WCClient {
   final EthSign? onEthSign;
   final EthTransaction? onEthSignTransaction, onEthSendTransaction;
   final CustomRequest? onCustomRequest;
+  final SessionApproved? onSessionApproved;
   final Function()? onConnect;
+
+  final _random = new Random();
+  final _requestIDMap = new Map<int, JsonRpcRequest>();
 
   WCSession? get session => _session;
   WCPeerMeta? get peerMeta => _peerMeta;
@@ -73,11 +81,15 @@ class WCClient {
   String? get peerId => _peerId;
   String? get remotePeerId => _remotePeerId;
   bool get isConnected => _isConnected;
+  bool isWallet = true;
 
   connectNewSession({
     required WCSession session,
     required WCPeerMeta peerMeta,
+    bool isWallet = true,
   }) {
+    this.isWallet = isWallet;
+
     _connect(
       session: session,
       peerMeta: peerMeta,
@@ -206,12 +218,34 @@ class WCClient {
     _socketStream = _webSocket.stream;
     _socketSink = _webSocket.sink;
     _listen();
-    _subscribe(session.topic);
+    if (this.isWallet) {
+      _subscribe(session.topic);
+    } else {
+      _sendSessionRequest();
+    }
     _subscribe(peerId);
   }
 
   disconnect() {
     _socketSink!.close(WebSocketStatus.normalClosure);
+  }
+
+  _sendSessionRequest() {
+    if (chainId != null) _chainId = chainId;
+    final param = WCSessionRequest(
+      peerId: _peerId!,
+      peerMeta: _peerMeta!,
+      chainId: _chainId,
+    );
+    final request = JsonRpcRequest(
+      id: DateTime.now().millisecondsSinceEpoch * 1000 + _random.nextInt(1000),
+      method: WCMethod.SESSION_REQUEST,
+      params: [param.toJson()],
+    );
+
+    _requestIDMap[request.id] = request;
+
+    return _encryptAndSend(jsonEncode(request.toJson()));
   }
 
   _subscribe(String topic) {
@@ -232,6 +266,7 @@ class WCClient {
   }
 
   Future<void> _encryptAndSend(String result) async {
+    print('send payload: $result');
     final payload = await WCCipher.encrypt(result, _session!.key);
     print('encrypted $payload');
     final message = WCSocketMessage(
@@ -279,11 +314,21 @@ class WCClient {
 
   _handleMessage(String payload) {
     try {
-      final request = JsonRpcRequest.fromJson(jsonDecode(payload));
-      if (request.method != null) {
-        _handleRequest(request);
+      if (this.isWallet) {
+        final request = JsonRpcRequest.fromJson(jsonDecode(payload));
+        if (request.method != null) {
+          _handleRequest(request);
+        } else {
+          onCustomRequest?.call(request.id, payload);
+        }
       } else {
-        onCustomRequest?.call(request.id, payload);
+        final response = JsonRpcResponse.fromJson(jsonDecode(payload));
+        final originalRequest = _requestIDMap[response.id];
+        if (originalRequest != null) {
+          _handleResponse(response, originalRequest);
+        } else {
+          print("Unknown response: $response");
+        }
       }
     } on InvalidJsonRpcParamsException catch (e) {
       _invalidParams(e.requestId);
@@ -367,6 +412,18 @@ class WCClient {
         onEthSendTransaction?.call(request.id, param);
         break;
       default:
+    }
+  }
+
+  _handleResponse(JsonRpcResponse response, JsonRpcRequest originalRequest) {
+    if (response.id < 0) throw InvalidJsonRpcParamsException(response.id);
+    switch (originalRequest.method) {
+      case WCMethod.SESSION_REQUEST:
+        final result = WCApproveSessionResponse.fromJson(response.result);
+        onSessionApproved?.call(response.id, result);
+        break;
+      default:
+        print("Unhandled response: $response");
     }
   }
 
