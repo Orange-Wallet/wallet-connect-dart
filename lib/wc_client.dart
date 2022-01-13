@@ -202,9 +202,7 @@ class WCClient {
         Uri.parse(session.bridge.replaceAll('https://', 'wss://'));
     _webSocket = WebSocketChannel.connect(bridgeUri);
     _isConnected = true;
-    if (fromSessionStore) {
-      onConnect?.call();
-    }
+    onConnect?.call();
     _socketStream = _webSocket.stream;
     _socketSink = _webSocket.sink;
     _listen();
