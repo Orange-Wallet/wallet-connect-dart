@@ -96,7 +96,12 @@ class WCClient {
     );
   }
 
-  connectFromSessionStore(WCSessionStore sessionStore) {
+  connectFromSessionStore({
+    required WCSessionStore sessionStore,
+    bool isWallet = true,
+  }) {
+    this.isWallet = isWallet;
+
     _connect(
       fromSessionStore: true,
       session: sessionStore.session,
