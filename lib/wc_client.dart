@@ -332,7 +332,13 @@ class WCClient {
         if (originalRequest != null) {
           _handleResponse(response, originalRequest);
         } else {
-          print("Unknown response: $response");
+          // try to cast if it's a request
+          final request = JsonRpcRequest.fromJson(jsonDecode(payload));
+          if (request.method != null) {
+            _handleRequest(request);
+          } else {
+            print("Unknown message: $response");
+          }
         }
       }
     } on InvalidJsonRpcParamsException catch (e) {
