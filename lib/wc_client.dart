@@ -330,7 +330,12 @@ class WCClient {
         final response = JsonRpcResponse.fromJson(jsonDecode(payload));
         final originalRequest = _requestIDMap[response.id];
         if (originalRequest != null) {
-          _handleResponse(response, originalRequest);
+          if (response.result != null) {
+            _handleResponse(response, originalRequest);
+          } else {
+            final error = JsonRpcErrorResponse.fromJson(jsonDecode(payload));
+            _handleError(error, originalRequest);
+          }
         } else {
           // try to cast if it's a request
           final request = JsonRpcRequest.fromJson(jsonDecode(payload));
@@ -435,6 +440,14 @@ class WCClient {
         break;
       default:
         print("Unhandled response: $response");
+    }
+  }
+
+  _handleError(
+      JsonRpcErrorResponse errorResponse, JsonRpcRequest originalRequest) {
+    print("handle error: $errorResponse");
+    if (errorResponse.error.code == 32000) {
+      killSession();
     }
   }
 
