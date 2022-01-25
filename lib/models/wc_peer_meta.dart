@@ -7,7 +7,7 @@ part 'wc_peer_meta.g.dart';
 class WCPeerMeta {
   final String name;
   final String url;
-  final String description;
+  final String? description;
   final List<String> icons;
   WCPeerMeta({
     required this.name,
