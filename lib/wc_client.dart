@@ -74,10 +74,12 @@ class WCClient {
   connectNewSession({
     required WCSession session,
     required WCPeerMeta peerMeta,
+    String? peerId,
   }) {
     _connect(
       session: session,
       peerMeta: peerMeta,
+      peerId: peerId,
     );
   }
 
