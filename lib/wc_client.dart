@@ -33,6 +33,7 @@ typedef CustomRequest = void Function(int id, String payload);
 class WCClient {
   late WebSocketChannel _webSocket;
   Stream _socketStream = Stream.empty();
+
   // ignore: close_sinks
   WebSocketSink? _socketSink;
   WCSession? _session;
@@ -64,11 +65,17 @@ class WCClient {
   final Function()? onConnect;
 
   WCSession? get session => _session;
+
   WCPeerMeta? get peerMeta => _peerMeta;
+
   WCPeerMeta? get remotePeerMeta => _remotePeerMeta;
+
   int? get chainId => _chainId;
+
   String? get peerId => _peerId;
+
   String? get remotePeerId => _remotePeerId;
+
   bool get isConnected => _isConnected;
 
   connectNewSession({
@@ -93,7 +100,8 @@ class WCClient {
     );
   }
 
-  WCSessionStore get sessionStore => WCSessionStore(
+  WCSessionStore get sessionStore =>
+      WCSessionStore(
         session: _session!,
         peerMeta: _peerMeta!,
         peerId: _peerId!,
@@ -130,11 +138,13 @@ class WCClient {
   }) async {
     final param = WCSessionUpdate(
       approved: approved,
-      chainId: _chainId ?? chainId,
+      chainId: chainId ?? _chainId,
       accounts: accounts,
     );
     final request = JsonRpcRequest(
-      id: DateTime.now().millisecondsSinceEpoch,
+      id: DateTime
+          .now()
+          .millisecondsSinceEpoch,
       method: WCMethod.SESSION_UPDATE,
       params: [param.toJson()],
     );
@@ -196,7 +206,7 @@ class WCClient {
     _remotePeerId = remotePeerId;
     _chainId = chainId;
     final bridgeUri =
-        Uri.parse(session.bridge.replaceAll('https://', 'wss://'));
+    Uri.parse(session.bridge.replaceAll('https://', 'wss://'));
     _webSocket = WebSocketChannel.connect(bridgeUri);
     _isConnected = true;
     if (fromSessionStore) {
@@ -244,7 +254,7 @@ class WCClient {
 
   _listen() {
     _socketStream.listen(
-      (event) async {
+          (event) async {
         print('DATA: $event ${event.runtimeType}');
         final Map<String, dynamic> decoded = json.decode("$event");
         print('DECODED: $decoded ${decoded.runtimeType}');
@@ -270,7 +280,7 @@ class WCClient {
 
   Future<String> _decrypt(WCSocketMessage socketMessage) async {
     final payload =
-        WCEncryptionPayload.fromJson(jsonDecode(socketMessage.payload));
+    WCEncryptionPayload.fromJson(jsonDecode(socketMessage.payload));
     final decrypted = await WCCipher.decrypt(payload, _session!.key);
     print("DECRYPTED: $decrypted");
     return decrypted;
