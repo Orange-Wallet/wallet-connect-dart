@@ -1,19 +1,19 @@
-import 'package:json_annotation/json_annotation.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
+part 'wc_session.freezed.dart';
 part 'wc_session.g.dart';
 
-@JsonSerializable()
-class WCSession {
-  final String topic;
-  final String version;
-  final String bridge;
-  final String key;
-  WCSession({
-    required this.topic,
-    required this.version,
-    required this.bridge,
-    required this.key,
-  });
+@immutable
+@freezed
+class WCSession with _$WCSession {
+  const WCSession._();
+
+  const factory WCSession({
+    required String topic,
+    required String version,
+    required String bridge,
+    required String key,
+  }) = SessionData;
 
   String toUri() => "wc:$topic@$version?bridge=$bridge&key=$key";
 
@@ -36,31 +36,13 @@ class WCSession {
     return WCSession(topic: topic, version: version, bridge: bridge, key: key);
   }
 
-  factory WCSession.empty() =>
-      WCSession(topic: '', version: '', bridge: '', key: '');
+  const factory WCSession.empty({
+    @Default('') String topic,
+    @Default('') String version,
+    @Default('') String bridge,
+    @Default('') String key,
+  }) = EmptyWCSession;
 
   factory WCSession.fromJson(Map<String, dynamic> json) =>
       _$WCSessionFromJson(json);
-  Map<String, dynamic> toJson() => _$WCSessionToJson(this);
-
-  @override
-  String toString() {
-    return 'WCSession(topic: $topic, version: $version, bridge: $bridge, key: $key)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-
-    return other is WCSession &&
-        other.topic == topic &&
-        other.version == version &&
-        other.bridge == bridge &&
-        other.key == key;
-  }
-
-  @override
-  int get hashCode {
-    return topic.hashCode ^ version.hashCode ^ bridge.hashCode ^ key.hashCode;
-  }
 }

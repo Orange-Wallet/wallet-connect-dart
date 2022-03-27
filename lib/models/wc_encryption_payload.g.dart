@@ -6,16 +6,16 @@ part of 'wc_encryption_payload.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-WCEncryptionPayload _$WCEncryptionPayloadFromJson(Map<String, dynamic> json) {
-  return WCEncryptionPayload(
-    data: json['data'] as String,
-    hmac: json['hmac'] as String,
-    iv: json['iv'] as String,
-  );
-}
+_$_WCEncryptionPayload _$$_WCEncryptionPayloadFromJson(
+        Map<String, dynamic> json) =>
+    _$_WCEncryptionPayload(
+      data: json['data'] as String,
+      hmac: json['hmac'] as String,
+      iv: json['iv'] as String,
+    );
 
-Map<String, dynamic> _$WCEncryptionPayloadToJson(
-        WCEncryptionPayload instance) =>
+Map<String, dynamic> _$$_WCEncryptionPayloadToJson(
+        _$_WCEncryptionPayload instance) =>
     <String, dynamic>{
       'data': instance.data,
       'hmac': instance.hmac,

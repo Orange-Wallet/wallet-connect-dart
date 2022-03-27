@@ -1,31 +1,40 @@
-import 'package:json_annotation/json_annotation.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
+part 'json_rpc_error.freezed.dart';
 part 'json_rpc_error.g.dart';
 
-@JsonSerializable()
-class JsonRpcError {
-  final int code;
-  final String message;
-  JsonRpcError(
-    this.code,
-    this.message,
-  );
+@immutable
+@freezed
+class JsonRpcError with _$JsonRpcError {
+  const JsonRpcError._();
 
-  factory JsonRpcError.serverError(String message) =>
-      JsonRpcError(-32000, message);
-  factory JsonRpcError.invalidParams(String message) =>
-      JsonRpcError(-32602, message);
-  factory JsonRpcError.invalidRequest(String message) =>
-      JsonRpcError(-32600, message);
-  factory JsonRpcError.parseError(String message) =>
-      JsonRpcError(-32700, message);
-  factory JsonRpcError.methodNotFound(String message) =>
-      JsonRpcError(-32601, message);
+  const factory JsonRpcError(int code, String message) = RpcError;
+
+  const factory JsonRpcError.serverError(
+    String message, {
+    @Default(-32000) int code,
+  }) = ServerError;
+
+  const factory JsonRpcError.invalidParams(
+    String message, {
+    @Default(-32602) int code,
+  }) = InvalidParams;
+
+  const factory JsonRpcError.invalidRequest(
+    String message, {
+    @Default(-32600) int code,
+  }) = InvalidRequest;
+
+  const factory JsonRpcError.parseError(
+    String message, {
+    @Default(-32700) int code,
+  }) = ParseError;
+
+  const factory JsonRpcError.methodNotFound(
+    String message, {
+    @Default(-32601) int code,
+  }) = MethodNotFound;
 
   factory JsonRpcError.fromJson(Map<String, dynamic> json) =>
       _$JsonRpcErrorFromJson(json);
-  Map<String, dynamic> toJson() => _$JsonRpcErrorToJson(this);
-
-  @override
-  String toString() => 'JsonRpcError(code: $code, message: $message)';
 }

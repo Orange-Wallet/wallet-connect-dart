@@ -6,17 +6,16 @@ part of 'wc_session_request.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-WCSessionRequest _$WCSessionRequestFromJson(Map<String, dynamic> json) {
-  return WCSessionRequest(
-    peerId: json['peerId'] as String,
-    peerMeta: WCPeerMeta.fromJson(json['peerMeta'] as Map<String, dynamic>),
-    chainId: json['chainId'] as int?,
-  );
-}
+_$_WCSessionRequest _$$_WCSessionRequestFromJson(Map<String, dynamic> json) =>
+    _$_WCSessionRequest(
+      peerId: json['peerId'] as String,
+      peerMeta: WCPeerMeta.fromJson(json['peerMeta'] as Map<String, dynamic>),
+      chainId: json['chainId'] as int?,
+    );
 
-Map<String, dynamic> _$WCSessionRequestToJson(WCSessionRequest instance) =>
+Map<String, dynamic> _$$_WCSessionRequestToJson(_$_WCSessionRequest instance) =>
     <String, dynamic>{
       'peerId': instance.peerId,
-      'peerMeta': instance.peerMeta,
+      'peerMeta': instance.peerMeta.toJson(),
       'chainId': instance.chainId,
     };

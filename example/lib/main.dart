@@ -540,7 +540,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                   const SizedBox(height: 8.0),
                   Text(
-                    '${ethereumTransaction.to}',
+                    ethereumTransaction.to,
                     style: TextStyle(fontSize: 16.0),
                   ),
                 ],
@@ -607,7 +607,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                     const SizedBox(height: 8.0),
                     Text(
-                      '${contractFunction.name}',
+                      contractFunction.name,
                       style: TextStyle(fontSize: 16.0),
                     ),
                   ],
@@ -629,7 +629,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                   children: [
                     Text(
-                      '${ethereumTransaction.data}',
+                      ethereumTransaction.data,
                       style: TextStyle(fontSize: 16.0),
                     ),
                   ],

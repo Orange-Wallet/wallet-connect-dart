@@ -13,8 +13,10 @@ dependencies:
   http: ^0.13.3
   cryptography: ^2.0.2
   collection: ^1.15.0
-  json_annotation: ^4.0.1
+  json_annotation: ^4.4.0
+  freezed_annotation: ^1.1.0
 
 dev_dependencies:
-  build_runner: ^2.0.0
-  json_serializable: ^4.1.4
+  freezed: ^1.1.1
+  build_runner: ^2.1.8
+  json_serializable: ^6.1.5
