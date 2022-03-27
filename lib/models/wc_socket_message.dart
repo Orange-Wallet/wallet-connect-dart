@@ -1,25 +1,18 @@
-import 'package:json_annotation/json_annotation.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:wallet_connect/models/message_type.dart';
 
+part 'wc_socket_message.freezed.dart';
 part 'wc_socket_message.g.dart';
 
-@JsonSerializable()
-class WCSocketMessage {
-  final String topic;
-  final MessageType type;
-  final String payload;
-  WCSocketMessage({
-    required this.topic,
-    required this.type,
-    required this.payload,
-  });
+@immutable
+@freezed
+class WCSocketMessage with _$WCSocketMessage {
+  factory WCSocketMessage({
+    required String topic,
+    required MessageType type,
+    required String payload,
+  }) = _WCSocketMessage;
 
   factory WCSocketMessage.fromJson(Map<String, dynamic> json) =>
       _$WCSocketMessageFromJson(json);
-
-  Map<String, dynamic> toJson() => _$WCSocketMessageToJson(this);
-
-  @override
-  String toString() =>
-      'WCSocketMessage(topic: $topic, type: $type, payload: $payload)';
 }

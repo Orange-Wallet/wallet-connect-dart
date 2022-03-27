@@ -1,24 +1,18 @@
-import 'package:json_annotation/json_annotation.dart';
-import 'package:wallet_connect/models/wc_peer_meta.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:wallet_connect/wallet_connect.dart';
 
+part 'wc_session_request.freezed.dart';
 part 'wc_session_request.g.dart';
 
-@JsonSerializable()
-class WCSessionRequest {
-  final String peerId;
-  final WCPeerMeta peerMeta;
-  final int? chainId;
-  WCSessionRequest({
-    required this.peerId,
-    required this.peerMeta,
-    this.chainId,
-  });
+@immutable
+@freezed
+class WCSessionRequest with _$WCSessionRequest {
+  factory WCSessionRequest({
+    required String peerId,
+    required WCPeerMeta peerMeta,
+    int? chainId,
+  }) = _WCSessionRequest;
 
   factory WCSessionRequest.fromJson(Map<String, dynamic> json) =>
       _$WCSessionRequestFromJson(json);
-  Map<String, dynamic> toJson() => _$WCSessionRequestToJson(this);
-
-  @override
-  String toString() =>
-      'WCSessionRequest(peerId: $peerId, peerMeta: $peerMeta, chainId: $chainId)';
 }

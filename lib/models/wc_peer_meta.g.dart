@@ -6,16 +6,17 @@ part of 'wc_peer_meta.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-WCPeerMeta _$WCPeerMetaFromJson(Map<String, dynamic> json) {
-  return WCPeerMeta(
-    name: json['name'] as String,
-    url: json['url'] as String,
-    description: json['description'] as String,
-    icons: (json['icons'] as List<dynamic>).map((e) => e as String).toList(),
-  );
-}
+_$_WCPeerMeta _$$_WCPeerMetaFromJson(Map<String, dynamic> json) =>
+    _$_WCPeerMeta(
+      name: json['name'] as String,
+      url: json['url'] as String,
+      description: json['description'] as String,
+      icons:
+          (json['icons'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+              const [],
+    );
 
-Map<String, dynamic> _$WCPeerMetaToJson(WCPeerMeta instance) =>
+Map<String, dynamic> _$$_WCPeerMetaToJson(_$_WCPeerMeta instance) =>
     <String, dynamic>{
       'name': instance.name,
       'url': instance.url,

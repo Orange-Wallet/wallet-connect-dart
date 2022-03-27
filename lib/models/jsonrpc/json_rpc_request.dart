@@ -1,28 +1,20 @@
-import 'package:json_annotation/json_annotation.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:wallet_connect/models/wc_method.dart';
 import 'package:wallet_connect/utils/constants.dart';
 
+part 'json_rpc_request.freezed.dart';
 part 'json_rpc_request.g.dart';
 
-@JsonSerializable()
-class JsonRpcRequest {
-  final int id;
-  final String jsonrpc;
-  final WCMethod? method;
-  final List<dynamic>? params;
-  JsonRpcRequest({
-    required this.id,
-    this.jsonrpc = JSONRPC_VERSION,
-    this.method,
-    required this.params,
-  });
+@immutable
+@freezed
+class JsonRpcRequest with _$JsonRpcRequest {
+  factory JsonRpcRequest({
+    required int id,
+    @Default(JSONRPC_VERSION) String jsonrpc,
+    WCMethod? method,
+    required List<dynamic>? params,
+  }) = _JsonRpcRequest;
 
   factory JsonRpcRequest.fromJson(Map<String, dynamic> json) =>
       _$JsonRpcRequestFromJson(json);
-  Map<String, dynamic> toJson() => _$JsonRpcRequestToJson(this);
-
-  @override
-  String toString() {
-    return 'JsonRpcRequest(id: $id, jsonrpc: $jsonrpc, method: $method, params: $params)';
-  }
 }
