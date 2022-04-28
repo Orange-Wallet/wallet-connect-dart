@@ -469,8 +469,8 @@ class _MyHomePageState extends State<MyHomePage> {
       final Map<String, dynamic> resMap = jsonDecode(res.body);
       final abi = ContractAbi.fromJson(resMap['result'], '');
       final contract = DeployedContract(
-          abi, EthereumAddress.fromHex(ethereumTransaction.to));
-      final dataBytes = hexToBytes(ethereumTransaction.data);
+          abi, EthereumAddress.fromHex(ethereumTransaction.to!));
+      final dataBytes = hexToBytes(ethereumTransaction.data!);
       final funcBytes = dataBytes.take(4).toList();
       debugPrint("funcBytes $funcBytes");
       final maibiFunctions = contract.functions
@@ -792,7 +792,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Transaction _wcEthTxToWeb3Tx(WCEthereumTransaction ethereumTransaction) {
     return Transaction(
       from: EthereumAddress.fromHex(ethereumTransaction.from),
-      to: EthereumAddress.fromHex(ethereumTransaction.to),
+      to: EthereumAddress.fromHex(ethereumTransaction.to!),
       maxGas: ethereumTransaction.gasLimit != null
           ? int.tryParse(ethereumTransaction.gasLimit!)
           : null,
@@ -800,7 +800,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ? EtherAmount.inWei(BigInt.parse(ethereumTransaction.gasPrice!))
           : null,
       value: EtherAmount.inWei(BigInt.parse(ethereumTransaction.value ?? '0')),
-      data: hexToBytes(ethereumTransaction.data),
+      data: hexToBytes(ethereumTransaction.data!),
       nonce: ethereumTransaction.nonce != null
           ? int.tryParse(ethereumTransaction.nonce!)
           : null,
