@@ -356,6 +356,21 @@ class WCClient {
           ),
         );
         break;
+      case WCMethod.ETH_SIGN_TYPE_DATA_V4:
+        print('ETH_SIGN_TYPE_DATA_V4 $request');
+        final params = request.params!.cast<String>();
+        if (params.length < 2) {
+          throw InvalidJsonRpcParamsException(request.id);
+        }
+
+        onEthSign?.call(
+          request.id,
+          WCEthereumSignMessage(
+            raw: params,
+            type: WCSignType.TYPED_MESSAGE_V4,
+          ),
+        );
+        break;
       case WCMethod.ETH_SIGN_TRANSACTION:
         print('ETH_SIGN_TRANSACTION $request');
         final param = WCEthereumTransaction.fromJson(request.params!.first);
