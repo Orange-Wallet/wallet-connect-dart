@@ -29,6 +29,7 @@ typedef EthSign = void Function(int id, WCEthereumSignMessage message);
 typedef EthTransaction = void Function(
     int id, WCEthereumTransaction transaction);
 typedef CustomRequest = void Function(int id, String payload);
+typedef SwitchChainRequest = void Function(int, String chainId);
 
 class WCClient {
   late WebSocketChannel _webSocket;
@@ -61,6 +62,7 @@ class WCClient {
   final EthSign? onEthSign;
   final EthTransaction? onEthSignTransaction, onEthSendTransaction;
   final CustomRequest? onCustomRequest;
+  final SwitchChainRequest? onSwitchChainRequest;
   final Function()? onConnect;
 
   WCSession? get session => _session;
@@ -380,6 +382,11 @@ class WCClient {
         print('ETH_SEND_TRANSACTION $request');
         final param = WCEthereumTransaction.fromJson(request.params!.first);
         onEthSendTransaction?.call(request.id, param);
+        break;
+      case WCMethod.WALLET_SWITCH_ETHEREUM_CHAIN:
+        print('WALLET_SWITCH_ETHEREUM_CHAIN $request');
+        final chainId = request.params!.first["chainId"];
+        onSwitchChainRequest?.call(request.id, chainId);
         break;
       default:
     }
