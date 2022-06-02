@@ -52,6 +52,7 @@ class WCClient {
     this.onEthSign,
     this.onEthSignTransaction,
     this.onEthSendTransaction,
+    this.onSwitchChainRequest,
     this.onCustomRequest,
     this.onConnect,
   });
