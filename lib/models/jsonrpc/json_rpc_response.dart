@@ -6,6 +6,7 @@ part 'json_rpc_response.g.dart';
 @JsonSerializable(genericArgumentFactories: true)
 class JsonRpcResponse<T> {
   final int id;
+  @JsonKey(fromJson: _checkJsonNull)
   final String jsonrpc;
   final T result;
   JsonRpcResponse({
@@ -21,4 +22,6 @@ class JsonRpcResponse<T> {
   @override
   String toString() =>
       'JsonRpcResponse(id: $id, jsonrpc: $jsonrpc, result: $result)';
+
+  static String _checkJsonNull(String? jsonrpc) => jsonrpc ?? JSONRPC_VERSION;
 }
