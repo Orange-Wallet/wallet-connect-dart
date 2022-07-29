@@ -214,8 +214,8 @@ class WCClient {
     _subscribe(peerId);
   }
 
-  disconnect() {
-    _socketSink!.close(WebSocketStatus.normalClosure);
+  Future<void> disconnect() async {
+    await _socketSink!.close(WebSocketStatus.normalClosure);
   }
 
   _subscribe(String topic) {
@@ -395,7 +395,7 @@ class WCClient {
 
   killSession() async {
     await updateSession(approved: false);
-    disconnect();
+    await disconnect();
   }
 
   _resetState() {
