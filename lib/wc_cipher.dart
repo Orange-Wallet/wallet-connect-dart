@@ -32,9 +32,9 @@ class WCCipher {
       utf8.encode(data),
       secretKey: secretKey,
     );
-    print('Nonce: ${secretBox.nonce}');
-    print('Ciphertext: ${secretBox.cipherText}');
-    print('MAC: ${secretBox.mac.bytes}');
+    // print('Nonce: ${secretBox.nonce}');
+    // print('Ciphertext: ${secretBox.cipherText}');
+    // print('MAC: ${secretBox.mac.bytes}');
     final computedHmac =
         await _computeHmac(secretBox.cipherText, secretBox.nonce, _keyBytes);
     final encryptedData = HEX.encode(secretBox.cipherText);

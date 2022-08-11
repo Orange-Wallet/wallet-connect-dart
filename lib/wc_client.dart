@@ -123,7 +123,7 @@ class WCClient {
       id: _handshakeId,
       result: result.toJson(),
     );
-    print('approveSession ${jsonEncode(response.toJson())}');
+    // print('approveSession ${jsonEncode(response.toJson())}');
     onConnect?.call();
     _encryptAndSend(jsonEncode(response.toJson()));
   }
@@ -237,22 +237,22 @@ class WCClient {
 
   Future<void> _encryptAndSend(String result) async {
     final payload = await WCCipher.encrypt(result, _session!.key);
-    print('encrypted $payload');
+    // print('encrypted $payload');
     final message = WCSocketMessage(
       topic: _remotePeerId ?? _session!.topic,
       type: MessageType.PUB,
       payload: jsonEncode(payload.toJson()),
     );
-    print('message ${jsonEncode(message.toJson())}');
+    // print('message ${jsonEncode(message.toJson())}');
     _socketSink!.add(jsonEncode(message.toJson()));
   }
 
   _listen() {
     _socketStream.listen(
       (event) async {
-        print('DATA: $event ${event.runtimeType}');
-        final Map<String, dynamic> decoded = json.decode("$event");
-        print('DECODED: $decoded ${decoded.runtimeType}');
+        // print('DATA: $event ${event.runtimeType}');
+        // final Map<String, dynamic> decoded = json.decode("$event");
+        // print('DECODED: $decoded ${decoded.runtimeType}');
         final socketMessage = WCSocketMessage.fromJson(jsonDecode("$event"));
         final decryptedMessage = await _decrypt(socketMessage);
         _handleMessage(decryptedMessage);
@@ -277,7 +277,7 @@ class WCClient {
     final payload =
         WCEncryptionPayload.fromJson(jsonDecode(socketMessage.payload));
     final decrypted = await WCCipher.decrypt(payload, _session!.key);
-    print("DECRYPTED: $decrypted");
+    // print("DECRYPTED: $decrypted");
     return decrypted;
   }
 
@@ -300,7 +300,7 @@ class WCClient {
     switch (request.method) {
       case WCMethod.SESSION_REQUEST:
         final param = WCSessionRequest.fromJson(request.params!.first);
-        print('SESSION_REQUEST $param');
+        // print('SESSION_REQUEST $param');
         _handshakeId = request.id;
         _remotePeerId = param.peerId;
         _remotePeerMeta = param.peerMeta;
@@ -309,13 +309,13 @@ class WCClient {
         break;
       case WCMethod.SESSION_UPDATE:
         final param = WCSessionUpdate.fromJson(request.params!.first);
-        print('SESSION_UPDATE $param');
+        // print('SESSION_UPDATE $param');
         if (!param.approved) {
           killSession();
         }
         break;
       case WCMethod.ETH_SIGN:
-        print('ETH_SIGN $request');
+        // print('ETH_SIGN $request');
         final params = request.params!.cast<String>();
         if (params.length < 2) {
           throw InvalidJsonRpcParamsException(request.id);
@@ -330,7 +330,7 @@ class WCClient {
         );
         break;
       case WCMethod.ETH_PERSONAL_SIGN:
-        print('ETH_PERSONAL_SIGN $request');
+        // print('ETH_PERSONAL_SIGN $request');
         final params = request.params!.cast<String>();
         if (params.length < 2) {
           throw InvalidJsonRpcParamsException(request.id);
@@ -345,7 +345,7 @@ class WCClient {
         );
         break;
       case WCMethod.ETH_SIGN_TYPE_DATA:
-        print('ETH_SIGN_TYPE_DATA $request');
+        // print('ETH_SIGN_TYPE_DATA $request');
         final params = request.params!.cast<String>();
         if (params.length < 2) {
           throw InvalidJsonRpcParamsException(request.id);
@@ -360,7 +360,7 @@ class WCClient {
         );
         break;
       case WCMethod.ETH_SIGN_TYPE_DATA_V4:
-        print('ETH_SIGN_TYPE_DATA_V4 $request');
+        // print('ETH_SIGN_TYPE_DATA_V4 $request');
         final params = request.params!.cast<String>();
         if (params.length < 2) {
           throw InvalidJsonRpcParamsException(request.id);
@@ -375,17 +375,17 @@ class WCClient {
         );
         break;
       case WCMethod.ETH_SIGN_TRANSACTION:
-        print('ETH_SIGN_TRANSACTION $request');
+        // print('ETH_SIGN_TRANSACTION $request');
         final param = WCEthereumTransaction.fromJson(request.params!.first);
         onEthSignTransaction?.call(request.id, param);
         break;
       case WCMethod.ETH_SEND_TRANSACTION:
-        print('ETH_SEND_TRANSACTION $request');
+        // print('ETH_SEND_TRANSACTION $request');
         final param = WCEthereumTransaction.fromJson(request.params!.first);
         onEthSendTransaction?.call(request.id, param);
         break;
       case WCMethod.WALLET_SWITCH_ETHEREUM_CHAIN:
-        print('WALLET_SWITCH_ETHEREUM_CHAIN $request');
+        // print('WALLET_SWITCH_ETHEREUM_CHAIN $request');
         final chainId = request.params!.first["chainId"];
         onSwitchChainRequest?.call(request.id, chainId);
         break;
