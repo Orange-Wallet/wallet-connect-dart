@@ -133,9 +133,10 @@ class WCClient {
     int? chainId,
     bool approved = true,
   }) async {
+    _chainId = chainId ?? _chainId;
     final param = WCSessionUpdate(
       approved: approved,
-      chainId: _chainId ?? chainId,
+      chainId: chainId ?? _chainId,
       accounts: accounts,
     );
     final request = JsonRpcRequest(
