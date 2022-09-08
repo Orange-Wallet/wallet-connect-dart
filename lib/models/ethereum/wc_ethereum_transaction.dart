@@ -5,7 +5,7 @@ part 'wc_ethereum_transaction.g.dart';
 @JsonSerializable()
 class WCEthereumTransaction {
   final String from;
-  final String to;
+  final String? to;
   final String? nonce;
   final String? gasPrice;
   final String? gas;
