@@ -21,6 +21,7 @@ import 'package:wallet_connect/models/wc_peer_meta.dart';
 import 'package:wallet_connect/models/wc_socket_message.dart';
 import 'package:wallet_connect/wc_cipher.dart';
 import 'package:wallet_connect/wc_session_store.dart';
+import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 typedef SessionRequest = void Function(int id, WCPeerMeta peerMeta);
@@ -88,6 +89,7 @@ class WCClient {
   connectNewSession({
     required WCSession session,
     required WCPeerMeta peerMeta,
+    HttpClient? customHttpClient,
   }) {
     _connect(
       session: session,
@@ -95,7 +97,10 @@ class WCClient {
     );
   }
 
-  connectFromSessionStore(WCSessionStore sessionStore) {
+  connectFromSessionStore(
+    WCSessionStore sessionStore, {
+    HttpClient? customHttpClient,
+  }) {
     _connect(
       fromSessionStore: true,
       session: sessionStore.session,
@@ -198,7 +203,8 @@ class WCClient {
     String? peerId,
     String? remotePeerId,
     int? chainId,
-  }) {
+    HttpClient? customClient,
+  }) async {
     if (session == WCSession.empty()) {
       throw InvalidSessionException();
     }
@@ -212,7 +218,9 @@ class WCClient {
     _chainId = chainId;
     final bridgeUri =
         Uri.parse(session.bridge.replaceAll('https://', 'wss://'));
-    _webSocket = WebSocketChannel.connect(bridgeUri);
+    final ws = await WebSocket.connect(bridgeUri.toString(),
+        customClient: customClient);
+    _webSocket = new IOWebSocketChannel(ws);
     _isConnected = true;
     if (fromSessionStore) {
       onConnect?.call();
