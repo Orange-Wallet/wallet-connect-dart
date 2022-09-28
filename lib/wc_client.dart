@@ -33,6 +33,8 @@ typedef CustomRequest = void Function(int id, String payload);
 typedef WalletSwitchEthereumChain = void Function(
     int id, WCWalletSwitchEthereumChain transaction);
 
+const DappDisconnectCode = -9898;
+
 class WCClient {
   late WebSocketChannel _webSocket;
   Stream _socketStream = Stream.empty();
@@ -319,6 +321,7 @@ class WCClient {
         final param = WCSessionUpdate.fromJson(request.params!.first);
         print('SESSION_UPDATE $param');
         if (!param.approved) {
+          onDisconnect?.call(DappDisconnectCode, null);
           killSession();
         }
         break;
