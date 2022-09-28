@@ -90,8 +90,8 @@ class WCClient {
     required WCSession session,
     required WCPeerMeta peerMeta,
     HttpClient? customHttpClient,
-  }) {
-    _connect(
+  }) async {
+    await _connect(
       session: session,
       peerMeta: peerMeta,
     );
@@ -100,8 +100,8 @@ class WCClient {
   connectFromSessionStore(
     WCSessionStore sessionStore, {
     HttpClient? customHttpClient,
-  }) {
-    _connect(
+  }) async {
+    await _connect(
       fromSessionStore: true,
       session: sessionStore.session,
       peerMeta: sessionStore.peerMeta,
