@@ -86,7 +86,7 @@ class WCClient {
 
   bool get isConnected => _isConnected;
 
-  connectNewSession({
+  Future<void> connectNewSession({
     required WCSession session,
     required WCPeerMeta peerMeta,
     HttpClient? customHttpClient,
@@ -97,7 +97,7 @@ class WCClient {
     );
   }
 
-  connectFromSessionStore(
+  Future<void> connectFromSessionStore(
     WCSessionStore sessionStore, {
     HttpClient? customHttpClient,
   }) async {
