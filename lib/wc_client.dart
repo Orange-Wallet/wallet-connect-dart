@@ -10,6 +10,7 @@ import 'package:wallet_connect/models/jsonrpc/json_rpc_error_response.dart';
 import 'package:wallet_connect/models/jsonrpc/json_rpc_request.dart';
 import 'package:wallet_connect/models/jsonrpc/json_rpc_response.dart';
 import 'package:wallet_connect/models/message_type.dart';
+import 'package:wallet_connect/models/session/wallet_switch_ethereum_chain.dart';
 import 'package:wallet_connect/models/session/wc_approve_session_response.dart';
 import 'package:wallet_connect/models/session/wc_session.dart';
 import 'package:wallet_connect/models/session/wc_session_request.dart';
@@ -29,6 +30,7 @@ typedef EthSign = void Function(int id, WCEthereumSignMessage message);
 typedef EthTransaction = void Function(
     int id, WCEthereumTransaction transaction);
 typedef CustomRequest = void Function(int id, String payload);
+typedef SwitchChainRequest = void Function(int id, String chainId);
 
 class WCClient {
   late WebSocketChannel _webSocket;
@@ -54,6 +56,7 @@ class WCClient {
     this.onEthSendTransaction,
     this.onCustomRequest,
     this.onConnect,
+    this.onSwitchChainRequest,
   });
 
   final SessionRequest? onSessionRequest;
@@ -63,6 +66,7 @@ class WCClient {
   final EthTransaction? onEthSignTransaction, onEthSendTransaction;
   final CustomRequest? onCustomRequest;
   final Function()? onConnect;
+  final SwitchChainRequest? onSwitchChainRequest;
 
   WCSession? get session => _session;
 
@@ -100,8 +104,7 @@ class WCClient {
     );
   }
 
-  WCSessionStore get sessionStore =>
-      WCSessionStore(
+  WCSessionStore get sessionStore => WCSessionStore(
         session: _session!,
         peerMeta: _peerMeta!,
         peerId: _peerId!,
@@ -142,9 +145,7 @@ class WCClient {
       accounts: accounts,
     );
     final request = JsonRpcRequest(
-      id: DateTime
-          .now()
-          .millisecondsSinceEpoch,
+      id: DateTime.now().millisecondsSinceEpoch,
       method: WCMethod.SESSION_UPDATE,
       params: [param.toJson()],
     );
@@ -206,7 +207,7 @@ class WCClient {
     _remotePeerId = remotePeerId;
     _chainId = chainId;
     final bridgeUri =
-    Uri.parse(session.bridge.replaceAll('https://', 'wss://'));
+        Uri.parse(session.bridge.replaceAll('https://', 'wss://'));
     _webSocket = WebSocketChannel.connect(bridgeUri);
     _isConnected = true;
     if (fromSessionStore) {
@@ -254,7 +255,7 @@ class WCClient {
 
   _listen() {
     _socketStream.listen(
-          (event) async {
+      (event) async {
         print('DATA: $event ${event.runtimeType}');
         final Map<String, dynamic> decoded = json.decode("$event");
         print('DECODED: $decoded ${decoded.runtimeType}');
@@ -280,7 +281,7 @@ class WCClient {
 
   Future<String> _decrypt(WCSocketMessage socketMessage) async {
     final payload =
-    WCEncryptionPayload.fromJson(jsonDecode(socketMessage.payload));
+        WCEncryptionPayload.fromJson(jsonDecode(socketMessage.payload));
     final decrypted = await WCCipher.decrypt(payload, _session!.key);
     print("DECRYPTED: $decrypted");
     return decrypted;
@@ -318,6 +319,11 @@ class WCClient {
         if (!param.approved) {
           killSession();
         }
+        break;
+      case WCMethod.SWITCH_ETHEREUM_CHAIN:
+        final param = WalletSwitchEthereumChain.fromJson(request.params!.first);
+        print('SWITCH_ETHEREUM_CHAIN $param');
+        onSwitchChainRequest?.call(request.id, param.chainId);
         break;
       case WCMethod.ETH_SIGN:
         print('ETH_SIGN $request');

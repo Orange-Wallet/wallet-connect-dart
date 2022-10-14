@@ -63,6 +63,7 @@ K? _$enumDecodeNullable<K, V>(
 const _$WCMethodEnumMap = {
   WCMethod.SESSION_REQUEST: 'wc_sessionRequest',
   WCMethod.SESSION_UPDATE: 'wc_sessionUpdate',
+  WCMethod.SWITCH_ETHEREUM_CHAIN: 'wallet_switchEthereumChain',
   WCMethod.ETH_SIGN: 'eth_sign',
   WCMethod.ETH_PERSONAL_SIGN: 'personal_sign',
   WCMethod.ETH_SIGN_TYPE_DATA: 'eth_signTypedData',

@@ -6,6 +6,9 @@ enum WCMethod {
 
   @JsonValue("wc_sessionUpdate")
   SESSION_UPDATE,
+  
+  @JsonValue("wallet_switchEthereumChain")
+  SWITCH_ETHEREUM_CHAIN,
 
   @JsonValue("eth_sign")
   ETH_SIGN,
