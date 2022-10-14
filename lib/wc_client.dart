@@ -318,7 +318,7 @@ class WCClient {
       case WCMethod.SESSION_UPDATE:
         final param = WCSessionUpdate.fromJson(request.params!.first);
         print('SESSION_UPDATE $param');
-        onSessionUpdate?.call(request.id, param.chainId);
+        onSessionUpdate?.call(request.id, param.chainId!);
         if (!param.approved) {
           killSession();
         }
