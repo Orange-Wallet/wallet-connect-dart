@@ -23,6 +23,7 @@ import 'package:wallet_connect/wc_session_store.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 typedef SessionRequest = void Function(int id, WCPeerMeta peerMeta);
+typedef SessionUpdate = void Function(int id, int chainId);
 typedef SocketError = void Function(dynamic message);
 typedef SocketClose = void Function(int? code, String? reason);
 typedef EthSign = void Function(int id, WCEthereumSignMessage message);
@@ -47,6 +48,7 @@ class WCClient {
 
   WCClient({
     this.onSessionRequest,
+    this.onSessionUpdate,
     this.onFailure,
     this.onDisconnect,
     this.onEthSign,
@@ -57,6 +59,7 @@ class WCClient {
   });
 
   final SessionRequest? onSessionRequest;
+  final SessionUpdate? onSessionUpdate;
   final SocketError? onFailure;
   final SocketClose? onDisconnect;
   final EthSign? onEthSign;
@@ -315,6 +318,7 @@ class WCClient {
       case WCMethod.SESSION_UPDATE:
         final param = WCSessionUpdate.fromJson(request.params!.first);
         print('SESSION_UPDATE $param');
+        onSessionUpdate?.call(request.id, param.chainId!);
         if (!param.approved) {
           killSession();
         }
