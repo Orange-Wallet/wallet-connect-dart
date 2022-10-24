@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:eth_sig_util/eth_sig_util.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:http/http.dart' as http;
@@ -321,7 +320,7 @@ class _MyHomePageState extends State<MyHomePage> {
               children: [
                 TextButton(
                   style: TextButton.styleFrom(
-                    primary: Colors.white,
+                    foregroundColor: Colors.white,
                     backgroundColor: Theme.of(context).colorScheme.secondary,
                   ),
                   onPressed: () {
@@ -362,7 +361,7 @@ class _MyHomePageState extends State<MyHomePage> {
               children: [
                 TextButton(
                   style: TextButton.styleFrom(
-                    primary: Colors.white,
+                    foregroundColor: Colors.white,
                     backgroundColor: Theme.of(context).colorScheme.secondary,
                   ),
                   onPressed: () {
@@ -575,7 +574,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 Expanded(
                   child: TextButton(
                     style: TextButton.styleFrom(
-                      primary: Colors.white,
+                      foregroundColor: Colors.white,
                       backgroundColor: Theme.of(context).colorScheme.secondary,
                     ),
                     onPressed: onConfirm,
@@ -586,7 +585,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 Expanded(
                   child: TextButton(
                     style: TextButton.styleFrom(
-                      primary: Colors.white,
+                      foregroundColor: Colors.white,
                       backgroundColor: Theme.of(context).colorScheme.secondary,
                     ),
                     onPressed: onReject,
@@ -668,7 +667,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 Expanded(
                   child: TextButton(
                     style: TextButton.styleFrom(
-                      primary: Colors.white,
+                      foregroundColor: Colors.white,
                       backgroundColor: Theme.of(context).colorScheme.secondary,
                     ),
                     onPressed: () async {
@@ -702,7 +701,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 Expanded(
                   child: TextButton(
                     style: TextButton.styleFrom(
-                      primary: Colors.white,
+                      foregroundColor: Colors.white,
                       backgroundColor: Theme.of(context).colorScheme.secondary,
                     ),
                     onPressed: () {

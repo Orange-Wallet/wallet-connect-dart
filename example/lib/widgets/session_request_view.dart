@@ -63,7 +63,7 @@ class _SessionRequestViewState extends State<SessionRequestView> {
             Expanded(
               child: TextButton(
                 style: TextButton.styleFrom(
-                  primary: Colors.white,
+                  foregroundColor: Colors.white,
                   backgroundColor: Theme.of(context).colorScheme.secondary,
                 ),
                 onPressed: () {
@@ -77,7 +77,7 @@ class _SessionRequestViewState extends State<SessionRequestView> {
             Expanded(
               child: TextButton(
                 style: TextButton.styleFrom(
-                  primary: Colors.white,
+                  foregroundColor: Colors.white,
                   backgroundColor: Theme.of(context).colorScheme.secondary,
                 ),
                 onPressed: widget.onReject,
