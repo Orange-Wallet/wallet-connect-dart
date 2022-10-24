@@ -9,13 +9,12 @@ part of 'json_rpc_response.dart';
 JsonRpcResponse<T> _$JsonRpcResponseFromJson<T>(
   Map<String, dynamic> json,
   T Function(Object? json) fromJsonT,
-) {
-  return JsonRpcResponse<T>(
-    id: json['id'] as int,
-    jsonrpc: json['jsonrpc'] as String,
-    result: fromJsonT(json['result']),
-  );
-}
+) =>
+    JsonRpcResponse<T>(
+      id: json['id'] as int,
+      jsonrpc: json['jsonrpc'] as String? ?? JSONRPC_VERSION,
+      result: fromJsonT(json['result']),
+    );
 
 Map<String, dynamic> _$JsonRpcResponseToJson<T>(
   JsonRpcResponse<T> instance,
