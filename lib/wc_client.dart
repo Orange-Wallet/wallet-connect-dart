@@ -33,6 +33,7 @@ typedef CustomRequest = void Function(int id, String payload);
 class WCClient {
   late WebSocketChannel _webSocket;
   Stream _socketStream = Stream.empty();
+
   // ignore: close_sinks
   WebSocketSink? _socketSink;
   WCSession? _session;
@@ -64,11 +65,17 @@ class WCClient {
   final Function()? onConnect;
 
   WCSession? get session => _session;
+
   WCPeerMeta? get peerMeta => _peerMeta;
+
   WCPeerMeta? get remotePeerMeta => _remotePeerMeta;
+
   int? get chainId => _chainId;
+
   String? get peerId => _peerId;
+
   String? get remotePeerId => _remotePeerId;
+
   bool get isConnected => _isConnected;
 
   connectNewSession({
