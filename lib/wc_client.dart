@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:uuid/uuid.dart';
 import 'package:wallet_connect/models/ethereum/wc_ethereum_sign_message.dart';
 import 'package:wallet_connect/models/ethereum/wc_ethereum_transaction.dart';
+import 'package:wallet_connect/models/ethereum/wc_wallet_switch_network.dart';
 import 'package:wallet_connect/models/exception/exceptions.dart';
 import 'package:wallet_connect/models/jsonrpc/json_rpc_error.dart';
 import 'package:wallet_connect/models/jsonrpc/json_rpc_error_response.dart';
@@ -20,6 +21,7 @@ import 'package:wallet_connect/models/wc_peer_meta.dart';
 import 'package:wallet_connect/models/wc_socket_message.dart';
 import 'package:wallet_connect/wc_cipher.dart';
 import 'package:wallet_connect/wc_session_store.dart';
+import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 typedef SessionRequest = void Function(int id, WCPeerMeta peerMeta);
@@ -29,6 +31,7 @@ typedef EthSign = void Function(int id, WCEthereumSignMessage message);
 typedef EthTransaction = void Function(
     int id, WCEthereumTransaction transaction);
 typedef CustomRequest = void Function(int id, String payload);
+typedef WalletSwitchNetwork = void Function(int id, int chainId);
 
 class WCClient {
   late WebSocketChannel _webSocket;
@@ -52,6 +55,7 @@ class WCClient {
     this.onEthSign,
     this.onEthSignTransaction,
     this.onEthSendTransaction,
+    this.onWalletSwitchNetwork,
     this.onCustomRequest,
     this.onConnect,
   });
@@ -62,6 +66,7 @@ class WCClient {
   final EthSign? onEthSign;
   final EthTransaction? onEthSignTransaction, onEthSendTransaction;
   final CustomRequest? onCustomRequest;
+  final WalletSwitchNetwork? onWalletSwitchNetwork;
   final Function()? onConnect;
 
   WCSession? get session => _session;
@@ -78,18 +83,23 @@ class WCClient {
 
   bool get isConnected => _isConnected;
 
-  connectNewSession({
+  Future<void> connectNewSession({
     required WCSession session,
     required WCPeerMeta peerMeta,
-  }) {
-    _connect(
+    HttpClient? customHttpClient,
+  }) async {
+    await _connect(
       session: session,
       peerMeta: peerMeta,
+      customClient: customHttpClient,
     );
   }
 
-  connectFromSessionStore(WCSessionStore sessionStore) {
-    _connect(
+  Future<void> connectFromSessionStore(
+    WCSessionStore sessionStore, {
+    HttpClient? customHttpClient,
+  }) async {
+    await _connect(
       fromSessionStore: true,
       session: sessionStore.session,
       peerMeta: sessionStore.peerMeta,
@@ -97,6 +107,7 @@ class WCClient {
       peerId: sessionStore.peerId,
       remotePeerId: sessionStore.remotePeerId,
       chainId: sessionStore.chainId,
+      customClient: customHttpClient,
     );
   }
 
@@ -191,7 +202,8 @@ class WCClient {
     String? peerId,
     String? remotePeerId,
     int? chainId,
-  }) {
+    HttpClient? customClient,
+  }) async {
     if (session == WCSession.empty()) {
       throw InvalidSessionException();
     }
@@ -205,7 +217,11 @@ class WCClient {
     _chainId = chainId;
     final bridgeUri =
         Uri.parse(session.bridge.replaceAll('https://', 'wss://'));
-    _webSocket = WebSocketChannel.connect(bridgeUri);
+    final ws = await WebSocket.connect(
+      bridgeUri.toString(),
+      customClient: customClient,
+    );
+    _webSocket = new IOWebSocketChannel(ws);
     _isConnected = true;
     if (fromSessionStore) {
       onConnect?.call();
@@ -372,6 +388,12 @@ class WCClient {
         final param = WCEthereumTransaction.fromJson(request.params!.first);
         onEthSendTransaction?.call(request.id, param);
         break;
+      case WCMethod.WALLET_SWITCH_NETWORK:
+        print('WALLET_SWITCH_NETWORK $request');
+        final params = WCWalletSwitchNetwork.fromJson(request.params!.first);
+        _chainId = int.parse(params.chainId);
+        onWalletSwitchNetwork?.call(request.id, _chainId!);
+        break;
       default:
     }
   }
@@ -386,6 +408,7 @@ class WCClient {
     _isConnected = false;
     _session = null;
     _peerId = null;
+    _chainId = null;
     _remotePeerId = null;
     _remotePeerMeta = null;
     _peerMeta = null;

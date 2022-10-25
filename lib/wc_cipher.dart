@@ -1,17 +1,17 @@
 import 'dart:convert';
 
 import 'package:cryptography/cryptography.dart';
-import 'package:hex/hex.dart';
 import 'package:wallet_connect/models/exception/exceptions.dart';
 import 'package:wallet_connect/models/wc_encryption_payload.dart';
+import 'package:wallet_connect/utils/hex.dart';
 
 class WCCipher {
   static Future<String> decrypt(WCEncryptionPayload payload, String key) async {
-    final data = HEX.decode(payload.data);
-    final _iv = HEX.decode(payload.iv);
-    final _keyBytes = HEX.decode(key);
+    final data = hexToBytes(payload.data);
+    final _iv = hexToBytes(payload.iv);
+    final _keyBytes = hexToBytes(key);
     final computedHmac = await _computeHmac(data, _iv, _keyBytes);
-    if (payload.hmac.toLowerCase() != HEX.encode(computedHmac.bytes)) {
+    if (payload.hmac.toLowerCase() != bytesToHex(computedHmac.bytes)) {
       throw HmacException();
     }
     final algorithm = AesCbc.with256bits(macAlgorithm: MacAlgorithm.empty);
@@ -25,7 +25,7 @@ class WCCipher {
   }
 
   static Future<WCEncryptionPayload> encrypt(String data, String key) async {
-    final _keyBytes = HEX.decode(key);
+    final _keyBytes = hexToBytes(key);
     final algorithm = AesCbc.with256bits(macAlgorithm: MacAlgorithm.empty);
     final secretKey = SecretKey(_keyBytes);
     final secretBox = await algorithm.encrypt(
@@ -37,11 +37,11 @@ class WCCipher {
     print('MAC: ${secretBox.mac.bytes}');
     final computedHmac =
         await _computeHmac(secretBox.cipherText, secretBox.nonce, _keyBytes);
-    final encryptedData = HEX.encode(secretBox.cipherText);
+    final encryptedData = bytesToHex(secretBox.cipherText);
     return WCEncryptionPayload(
       data: encryptedData,
-      hmac: HEX.encode(computedHmac.bytes),
-      iv: HEX.encode(secretBox.nonce),
+      hmac: bytesToHex(computedHmac.bytes),
+      iv: bytesToHex(secretBox.nonce),
     );
   }
 

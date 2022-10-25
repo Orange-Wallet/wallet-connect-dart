@@ -41,7 +41,7 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-const maticRpcUri =
+const rpcUri =
     'https://rpc-mainnet.maticvigil.com/v1/140d92ff81094f0f3d7babde06603390d7e581be';
 
 enum MenuItems {
@@ -61,10 +61,7 @@ class _MyHomePageState extends State<MyHomePage> {
   late String walletAddress, privateKey;
   bool connected = false;
   WCSessionStore? _sessionStore;
-  final _web3client = Web3Client(
-    maticRpcUri,
-    http.Client(),
-  );
+  final _web3client = Web3Client(rpcUri, http.Client());
 
   @override
   void initState() {
@@ -82,6 +79,7 @@ class _MyHomePageState extends State<MyHomePage> {
       onEthSendTransaction: _onSendTransaction,
       onCustomRequest: (_, __) {},
       onConnect: _onConnect,
+      onWalletSwitchNetwork: _onSwitchNetwork,
     );
     walletAddress = WALLET_ADDRESS;
     privateKey = PRIVATE_KEY;
@@ -276,6 +274,12 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       connected = true;
     });
+  }
+
+  _onSwitchNetwork(int id, int chainId) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text('Changed network to $chainId.'),
+    ));
   }
 
   _onSessionRequest(int id, WCPeerMeta peerMeta) {
@@ -722,7 +726,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Transaction _wcEthTxToWeb3Tx(WCEthereumTransaction ethereumTransaction) {
     return Transaction(
       from: EthereumAddress.fromHex(ethereumTransaction.from),
-      to: EthereumAddress.fromHex(ethereumTransaction.to),
+      to: EthereumAddress.fromHex(ethereumTransaction.to!),
       maxGas: ethereumTransaction.gasLimit != null
           ? int.tryParse(ethereumTransaction.gasLimit!)
           : null,
@@ -730,7 +734,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ? EtherAmount.inWei(BigInt.parse(ethereumTransaction.gasPrice!))
           : null,
       value: EtherAmount.inWei(BigInt.parse(ethereumTransaction.value ?? '0')),
-      data: hexToBytes(ethereumTransaction.data),
+      data: hexToBytes(ethereumTransaction.data!),
       nonce: ethereumTransaction.nonce != null
           ? int.tryParse(ethereumTransaction.nonce!)
           : null,
