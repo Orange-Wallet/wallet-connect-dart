@@ -92,6 +92,7 @@ class WCClient {
     await _connect(
       session: session,
       peerMeta: peerMeta,
+      customClient: customHttpClient,
     );
   }
 
@@ -107,6 +108,7 @@ class WCClient {
       peerId: sessionStore.peerId,
       remotePeerId: sessionStore.remotePeerId,
       chainId: sessionStore.chainId,
+      customClient: customHttpClient,
     );
   }
 
@@ -216,8 +218,10 @@ class WCClient {
     _chainId = chainId;
     final bridgeUri =
         Uri.parse(session.bridge.replaceAll('https://', 'wss://'));
-    final ws = await WebSocket.connect(bridgeUri.toString(),
-        customClient: customClient);
+    final ws = await WebSocket.connect(
+      bridgeUri.toString(),
+      customClient: customClient,
+    );
     _webSocket = new IOWebSocketChannel(ws);
     _isConnected = true;
     if (fromSessionStore) {
