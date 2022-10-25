@@ -276,7 +276,9 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  _onSwitchNetwork(int id, int chainId) {
+  _onSwitchNetwork(int id, int chainId) async {
+    await _wcClient.updateSession(chainId: chainId);
+    _wcClient.approveRequest<Null>(id: id, result: null);
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text('Changed network to $chainId.'),
     ));
