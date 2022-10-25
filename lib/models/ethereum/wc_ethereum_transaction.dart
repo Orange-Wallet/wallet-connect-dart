@@ -8,6 +8,8 @@ class WCEthereumTransaction {
   final String? to;
   final String? nonce;
   final String? gasPrice;
+  final String? maxFeePerGas;
+  final String? maxPriorityFeePerGas;
   final String? gas;
   final String? gasLimit;
   final String? value;
@@ -17,6 +19,8 @@ class WCEthereumTransaction {
     this.to,
     this.nonce,
     this.gasPrice,
+    this.maxFeePerGas,
+    this.maxPriorityFeePerGas,
     this.gas,
     this.gasLimit,
     this.value,
