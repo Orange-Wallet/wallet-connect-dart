@@ -38,7 +38,7 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-const maticRpcUri =
+const rpcUri =
     'https://rpc-mainnet.maticvigil.com/v1/140d92ff81094f0f3d7babde06603390d7e581be';
 
 enum MenuItems {
@@ -57,10 +57,7 @@ class _MyHomePageState extends State<MyHomePage> {
   late String walletAddress, privateKey;
   bool connected = false;
   WCSessionStore? _sessionStore;
-  final _web3client = Web3Client(
-    maticRpcUri,
-    http.Client(),
-  );
+  final _web3client = Web3Client(rpcUri, http.Client());
 
   @override
   void initState() {
@@ -78,6 +75,7 @@ class _MyHomePageState extends State<MyHomePage> {
       onEthSendTransaction: _onSendTransaction,
       onCustomRequest: (_, __) {},
       onConnect: _onConnect,
+      onWalletSwitchNetwork: _onSwitchNetwork,
     );
     // TODO: Mention walletAddress and privateKey while connecting
     walletAddress = '';
@@ -220,7 +218,10 @@ class _MyHomePageState extends State<MyHomePage> {
         "https://gblobscdn.gitbook.com/spaces%2F-LJJeCjcLrr53DcT1Ml7%2Favatar.png"
       ],
     );
-    _wcClient.connectNewSession(session: session, peerMeta: peerMeta);
+    _wcClient.connectNewSession(
+      session: session,
+      peerMeta: peerMeta,
+    );
   }
 
   _connectToPreviousSession() {
@@ -243,6 +244,12 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       connected = true;
     });
+  }
+
+  _onSwitchNetwork(int id, int chainId) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text('Changed network to $chainId.'),
+    ));
   }
 
   _onSessionRequest(int id, WCPeerMeta peerMeta) {
