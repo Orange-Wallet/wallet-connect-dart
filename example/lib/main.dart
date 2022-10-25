@@ -270,7 +270,6 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   _onConnect() {
-    print('WalletConnect _onConnect');
     setState(() {
       connected = true;
     });
