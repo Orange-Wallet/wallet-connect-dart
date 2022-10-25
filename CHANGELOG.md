@@ -19,3 +19,7 @@
 - Add custom http client support
 - Fix updateSession call not updating chainId
 - Support eip1559 fields
+
+## 1.0.4
+
+- Fix handling of custom requests
