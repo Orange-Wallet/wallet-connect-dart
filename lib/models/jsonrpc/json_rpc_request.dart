@@ -8,6 +8,7 @@ part 'json_rpc_request.g.dart';
 class JsonRpcRequest {
   final int id;
   final String jsonrpc;
+  @JsonKey(unknownEnumValue: JsonKey.nullForUndefinedEnumValue)
   final WCMethod? method;
   final List<dynamic>? params;
   JsonRpcRequest({
