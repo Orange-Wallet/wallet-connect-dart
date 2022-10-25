@@ -388,8 +388,8 @@ class WCClient {
         final param = WCEthereumTransaction.fromJson(request.params!.first);
         onEthSendTransaction?.call(request.id, param);
         break;
-      case WCMethod.WALLET_SWITCHETHEREUMCHAIN:
-        print('WALLET_SWITCHETHEREUMCHAIN $request');
+      case WCMethod.WALLET_SWITCH_NETWORK:
+        print('WALLET_SWITCH_NETWORK $request');
         final params = request.params!.first as Map<String, dynamic>;
         onWalletSwitchEthereumChain?.call(request.id,
             WCWalletSwitchEthereumChain(params['chainId'] as String));
