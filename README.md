@@ -36,6 +36,9 @@ Wallet Connect client in dart highly inspired from [wallet-connect-kotlin](https
       onEthSignTransaction: (id, tx) {
         // Respond to eth_signTransaction request callback
       },
+      onWalletSwitchNetwork: (int id, int chainId) {
+      // Respond to onWalletSwitchNetwork request callback
+      }
     );
 ```
 
