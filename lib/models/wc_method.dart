@@ -24,4 +24,7 @@ enum WCMethod {
 
   @JsonValue("wallet_switchEthereumChain")
   WALLET_SWITCH_NETWORK,
+
+  @JsonValue("hns_handle")
+  HNS_HANDLE,
 }

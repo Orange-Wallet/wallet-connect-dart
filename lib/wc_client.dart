@@ -28,10 +28,10 @@ typedef SessionRequest = void Function(int id, WCPeerMeta peerMeta);
 typedef SocketError = void Function(dynamic message);
 typedef SocketClose = void Function(int? code, String? reason);
 typedef EthSign = void Function(int id, WCEthereumSignMessage message);
-typedef EthTransaction = void Function(
-    int id, WCEthereumTransaction transaction);
+typedef EthTransaction = void Function(int id, WCEthereumTransaction transaction);
 typedef CustomRequest = void Function(int id, String payload);
 typedef WalletSwitchNetwork = void Function(int id, int chainId);
+typedef HnsHandle = void Function(int id, List params);
 
 class WCClient {
   late WebSocketChannel _webSocket;
@@ -56,6 +56,7 @@ class WCClient {
     this.onEthSignTransaction,
     this.onEthSendTransaction,
     this.onWalletSwitchNetwork,
+    this.onHnsHandle,
     this.onCustomRequest,
     this.onConnect,
   });
@@ -65,6 +66,7 @@ class WCClient {
   final SocketClose? onDisconnect;
   final EthSign? onEthSign;
   final EthTransaction? onEthSignTransaction, onEthSendTransaction;
+  final HnsHandle? onHnsHandle;
   final CustomRequest? onCustomRequest;
   final WalletSwitchNetwork? onWalletSwitchNetwork;
   final Function()? onConnect;
@@ -392,6 +394,11 @@ class WCClient {
         final params = WCWalletSwitchNetwork.fromJson(request.params!.first);
         onWalletSwitchNetwork?.call(request.id, int.parse(params.chainId));
         break;
+      case WCMethod.HNS_HANDLE:
+        final params = request.params ?? [];
+        onHnsHandle?.call(request.id, params);
+        break;
+
       default:
     }
   }
