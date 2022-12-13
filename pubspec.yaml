@@ -1,6 +1,6 @@
-name: wallet_connect
-description: Wallet Connect client made in love with dart.
-version: 1.0.4
+name: wallet_connect_v2
+description: Wallet Connect v2 client made in love with dart.
+version: 1.0.0
 homepage: https://github.com/Orange-Wallet/wallet-connect-dart
 
 environment:

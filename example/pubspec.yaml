@@ -1,5 +1,5 @@
-name: wallet_connect_example
-description: Wallet Connect example app implementing wallet_connect dart library.
+name: wallet_connect_v2_example
+description: Wallet Connect example app implementing wallet_connect_v2 dart library.
 
 publish_to: "none"
 
@@ -17,7 +17,7 @@ dependencies:
   flutter_inappwebview: ^5.7.0
   cupertino_icons: ^1.0.2
   eth_sig_util: ^0.0.3
-  wallet_connect:
+  wallet_connect_v2:
     path: ../
 
 dev_dependencies:

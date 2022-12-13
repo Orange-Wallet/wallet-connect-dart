@@ -1,5 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:wallet_connect/models/message_type.dart';
+import 'package:wallet_connect_v2/models/message_type.dart';
 
 part 'wc_socket_message.g.dart';
 

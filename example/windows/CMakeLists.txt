@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
-project(wallet_connect_example LANGUAGES CXX)
+project(wallet_connect_v2_example LANGUAGES CXX)
 
-set(BINARY_NAME "wallet_connect_example")
+set(BINARY_NAME "wallet_connect_v2_example")
 
 cmake_policy(SET CMP0063 NEW)
 

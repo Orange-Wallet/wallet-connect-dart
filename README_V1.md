@@ -1,4 +1,9 @@
-Wallet Connect client in dart highly inspired from [wallet-connect-monorepo](https://github.com/trustwallet/wallet-connect-kotlin) by Wallet Connect.
+<div align="center">
+<img src="https://github.com/Orange-Wallet/orangewallet-utils/raw/master/assets/images/walletconnect.png" alt="Wallet Connect Logo" width="70"/>
+<h1>Wallet Connect</h1>
+</div>
+
+Wallet Connect client in dart highly inspired from [wallet-connect-kotlin](https://github.com/trustwallet/wallet-connect-kotlin) by [Trust Wallet](https://github.com/trustwallet).
 
 ## Usage
 

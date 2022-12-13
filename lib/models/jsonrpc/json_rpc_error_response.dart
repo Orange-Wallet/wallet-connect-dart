@@ -1,6 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:wallet_connect/models/jsonrpc/json_rpc_error.dart';
-import 'package:wallet_connect/utils/constants.dart';
+import 'package:wallet_connect_v2/models/jsonrpc/json_rpc_error.dart';
+import 'package:wallet_connect_v2/utils/constants.dart';
 
 part 'json_rpc_error_response.g.dart';
 

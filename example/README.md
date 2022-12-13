@@ -1,4 +1,4 @@
-# wallet_connect_example
+# wallet_connect_v2_example
 
 A new Flutter project.
 

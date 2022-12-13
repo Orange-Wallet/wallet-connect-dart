@@ -1,6 +1,6 @@
 {
-    "name": "wallet_connect_example",
-    "short_name": "wallet_connect_example",
+    "name": "wallet_connect_v2_example",
+    "short_name": "wallet_connect_v2_example",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

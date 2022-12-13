@@ -1,5 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:wallet_connect/utils/constants.dart';
+import 'package:wallet_connect_v2/utils/constants.dart';
 
 part 'json_rpc_response.g.dart';
 

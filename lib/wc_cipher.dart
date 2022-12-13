@@ -1,9 +1,9 @@
 import 'dart:convert';
 
 import 'package:cryptography/cryptography.dart';
-import 'package:wallet_connect/models/exception/exceptions.dart';
-import 'package:wallet_connect/models/wc_encryption_payload.dart';
-import 'package:wallet_connect/utils/hex.dart';
+import 'package:wallet_connect_v2/models/exception/exceptions.dart';
+import 'package:wallet_connect_v2/models/wc_encryption_payload.dart';
+import 'package:wallet_connect_v2/utils/hex.dart';
 
 class WCCipher {
   static Future<String> decrypt(WCEncryptionPayload payload, String key) async {

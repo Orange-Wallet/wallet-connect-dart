@@ -1,10 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.wallet_connect_example">
+    package="com.example.wallet_connect_v2_example">
 
    <uses-permission android:name="android.permission.CAMERA" />
 
    <application
-        android:label="wallet_connect_example"
+        android:label="wallet_connect_v2_example"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"

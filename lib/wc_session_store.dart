@@ -1,7 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
 
-import 'package:wallet_connect/models/session/wc_session.dart';
-import 'package:wallet_connect/models/wc_peer_meta.dart';
+import 'package:wallet_connect_v2/models/session/wc_session.dart';
+import 'package:wallet_connect_v2/models/wc_peer_meta.dart';
 
 part 'wc_session_store.g.dart';
 
