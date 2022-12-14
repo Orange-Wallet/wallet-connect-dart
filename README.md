@@ -1,130 +1,20 @@
 Wallet Connect client in dart highly inspired from [wallet-connect-monorepo](https://github.com/trustwallet/wallet-connect-kotlin) by Wallet Connect.
 
-## Usage
+This package is a work in progress.
 
-```dart
-    import 'package:wallet_connect_v2/wallet_connect_v2.dart';
-```
+Pieces that need to be completed:
 
-1.  Create instance of Wallet connect client and define callbacks.
+- Core API
+  - Crypto API
+  - Pairing API
+  - Relay API
+  - Store API
+- Sign API
+- Auth API
+- Push API
 
-```dart
-    final wcClient = WCClient(
-      onConnect: () {
-        // Respond to connect callback
-      },
-      onDisconnect: (code, reason) {
-        // Respond to disconnect callback
-      },
-      onFailure: (error) {
-        // Respond to connection failure callback
-      },
-      onSessionRequest: (id, peerMeta) {
-        // Respond to connection request callback
-      },
-      onEthSign: (id, message) {
-        // Respond to personal_sign or eth_sign or eth_signTypedData request callback
-      },
-      onEthSendTransaction: (id, tx) {
-        // Respond to eth_sendTransaction request callback
-      },
-      onEthSignTransaction: (id, tx) {
-        // Respond to eth_signTransaction request callback
-      },
-    );
-```
+I am beginning with the Core API. Once that is completed the others should fall into place.
 
-2.  Create WCSession object from wc: uri.
+For all JSONRPC calls, I plan on using the [json_rpc_2](https://pub.dev/packages/json_rpc_2) package for dart.
 
-```dart
-    final session = WCSession.from(wcUri);
-```
-
-3.  Create WCPeerMeta object containing metadata for your app.
-
-```dart
-    final peerMeta = WCPeerMeta(
-        name: 'Example Wallet',
-        url: 'https://example.wallet',
-        description: 'Example Wallet',
-        icons: [],
-    );
-```
-
-4.  Connect to a new session.
-
-```dart
-    wcClient.connectNewSession(session: session, peerMeta: peerMeta);
-```
-
-5.  Or connect to a saved session (from step 8).
-
-```dart
-    wcClient.connectFromSessionStore(sessionStore);
-```
-
-6.  Approve a session connection request.
-
-```dart
-    wcClient.approveSession(
-        accounts: [], // account addresses
-        chainId: 1, // chain id
-    );
-```
-
-7.  Or reject a session connection request.
-
-```dart
-    wcClient.rejectSession();
-```
-
-8.  Get active session from sessionStore getter to save for later use.
-
-```dart
-    final sessionStore = wcClient.sessionStore;
-```
-
-9.  Approve a sign transaction request by signing the transaction and sending the signed hex data.
-
-```dart
-    wcClient.approveRequest<String>(
-        id: id,
-        result: signedDataAsHex,
-    );
-```
-
-10. Approve a send transaction request by sending the transaction hash generated from sending the transaction.
-
-```dart
-    wcClient.approveRequest<String>(
-        id: id,
-        result: transactionHash,
-    );
-```
-
-11. Approve a sign request by sending the signed data hex generated.
-
-```dart
-    wcClient.approveRequest<String>(
-        id: id,
-        result: signedDataAsHex,
-    );
-```
-
-12. Or reject any of the requests above by specifying request id.
-
-```dart
-    wcClient.rejectRequest(id: id);
-```
-
-13. Disconnect from a connected session locally.
-
-```dart
-    wcClient.disconnect();
-```
-
-14. Permanently close a connected session.
-
-```dart
-    wcClient.killSession();
-```
+For all crypto related needs, such as generating keys and DH encryption/decryption, I plan on using a custom version of 

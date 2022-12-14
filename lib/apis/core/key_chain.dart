@@ -1,45 +1,84 @@
+import 'package:json_annotation/json_annotation.dart';
+import 'package:wallet_connect_v2/apis/core/store.dart';
 import 'package:wallet_connect_v2/apis/interfaces/i_key_chain.dart';
+import 'package:wallet_connect_v2/apis/models/models.dart';
+import 'package:wallet_connect_v2/apis/utils/constants.dart';
+import 'package:wallet_connect_v2/apis/utils/errors.dart';
 
 class KeyChain implements IKeyChain {
-  @override
-  // TODO: implement name
-  String get name => throw UnimplementedError();
+  static const KEYCHAIN = 'keychain';
+  static const KEYCHAIN_STORAGE_VERSION = '0.3';
+
+  bool _initialized = false;
+
+  String get name => KEYCHAIN;
+  String get version => KEYCHAIN_STORAGE_VERSION;
+
+  late Store store;
 
   @override
-  // TODO: implement context
-  String get context => throw UnimplementedError();
+  Future<void> init() async {
+    if (_initialized) {
+      return;
+    }
 
-  @override
-  // TODO: implement keychain
-  Map<String, String> get keychain => throw UnimplementedError();
+    store = Store(_storagePrefix);
+    await store.init();
 
-  @override
-  Future<void> init() {
-    // TODO: implement init
-    throw UnimplementedError();
+    _initialized = true;
   }
 
+  /// Returns true if the keychain has the given tag
   @override
-  bool has(String tag, options) {
-    // TODO: implement has
-    throw UnimplementedError();
+  bool has(
+    String tag, {
+    dynamic options,
+  }) {
+    _checkInitialized();
+    return store.map.containsKey(_addPrefix(tag));
   }
 
+  /// Gets the key associated with the provided tag
   @override
-  String get(String tag, options) {
-    // TODO: implement get
-    throw UnimplementedError();
+  String get(
+    String tag, {
+    dynamic options,
+  }) {
+    _checkInitialized();
+    return store.get(tag);
   }
 
+  /// Sets the value with the given key
   @override
-  Future<void> set(String tag, String key, options) {
-    // TODO: implement set
-    throw UnimplementedError();
+  Future<void> set(
+    String tag,
+    String key, {
+    dynamic options,
+  }) async {
+    _checkInitialized();
+    await store.set(tag, key);
   }
 
+  /// Deletes the key from the keychain
   @override
-  Future<void> del(String tag, options) {
-    // TODO: implement del
-    throw UnimplementedError();
+  Future<void> delete(
+    String tag, {
+    dynamic options,
+  }) async {
+    _checkInitialized();
+    await store.delete(tag);
+  }
+
+  String get _storagePrefix =>
+      '${WalletConnectConstants.CORE_STORAGE_PREFIX}$version//$name';
+
+  String _addPrefix(String key) {
+    return '$_storagePrefix$key';
+  }
+
+  void _checkInitialized() {
+    if (!_initialized) {
+      throw Errors.getInternalError(Errors.NOT_INITIALIZED);
+    }
   }
 }

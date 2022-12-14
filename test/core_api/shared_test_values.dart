@@ -1,0 +1,21 @@
+import 'package:wallet_connect_v2/apis/core/crypto/crypto_models.dart';
+
+const TEST_PAIRING_TOPIC = '';
+const TEST_SESSION_TOPIC = '';
+const TEST_KEY_PAIRS = {
+  'A': KeyPair(
+    '1fb63fca5c6ac731246f2f069d3bc2454345d5208254aa8ea7bffc6d110c8862',
+    'ff7a7d5767c362b0a17ad92299ebdb7831dcbd9a56959c01368c7404543b3342',
+  ),
+  'B': KeyPair(
+    '36bf507903537de91f5e573666eaa69b1fa313974f23b2b59645f20fea505854',
+    '590c2c627be7af08597091ff80dd41f7fa28acd10ef7191d7e830e116d3a186a',
+  ),
+};
+
+const TEST_SHARED_KEY =
+    "9c87e48e69b33a613907515bcd5b1b4cc10bbaf15167b19804b00f0a9217e607";
+const TEST_HASHED_KEY =
+    "a492906ccc809a411bb53a84572b57329375378c6ad7566f3e1c688200123e77";
+const TEST_SYM_KEY =
+    "0653ca620c7b4990392e1c53c4a51c14a2840cd20f0f1524cf435b17b6fe988c";

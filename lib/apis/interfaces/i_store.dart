@@ -1,16 +1,15 @@
 import 'package:wallet_connect_v2/apis/models/models.dart';
 
-abstract class IStore {
-  abstract final Map<String, dynamic> map;
-  abstract final String context;
+abstract class IStore<T> {
+  abstract final Map<String, T> map;
   abstract final List<String> keys;
-  abstract final List<dynamic> values;
+  abstract final List<T> values;
   abstract final String storagePrefix;
 
   Future<void> init();
-  Future<void> set(String key, dynamic value);
+  Future<void> set(String key, T value);
   dynamic get(String key);
   List<dynamic> getAll();
-  Future<void> update(String key, dynamic value);
-  Future<void> delete(String key, ErrorResponse reason);
+  Future<void> update(String key, T value);
+  Future<void> delete(String key);
 }
