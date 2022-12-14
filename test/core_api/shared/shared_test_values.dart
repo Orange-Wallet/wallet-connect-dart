@@ -3,11 +3,11 @@ import 'package:wallet_connect_v2/apis/core/crypto/crypto_models.dart';
 const TEST_PAIRING_TOPIC = '';
 const TEST_SESSION_TOPIC = '';
 const TEST_KEY_PAIRS = {
-  'A': KeyPair(
+  'A': const KeyPair(
     '1fb63fca5c6ac731246f2f069d3bc2454345d5208254aa8ea7bffc6d110c8862',
     'ff7a7d5767c362b0a17ad92299ebdb7831dcbd9a56959c01368c7404543b3342',
   ),
-  'B': KeyPair(
+  'B': const KeyPair(
     '36bf507903537de91f5e573666eaa69b1fa313974f23b2b59645f20fea505854',
     '590c2c627be7af08597091ff80dd41f7fa28acd10ef7191d7e830e116d3a186a',
   ),

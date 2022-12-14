@@ -10,15 +10,12 @@ import 'package:pointycastle/digests/sha256.dart';
 import 'package:pointycastle/key_derivators/hkdf.dart';
 import 'package:pointycastle/pointycastle.dart' show HkdfParameters;
 import 'package:wallet_connect_v2/apis/core/crypto/crypto_models.dart';
+import 'package:wallet_connect_v2/apis/interfaces/i_crypto_utils.dart';
 import 'package:wallet_connect_v2/apis/models/models.dart';
 // import 'package:x25519/x25519.dart' as x2;
 
-class CryptoUtils {
+class CryptoUtils extends ICryptoUtils {
   static final _random = Random.secure();
-
-  static const BASE10 = 'base10';
-  static const BASE16 = 'base16';
-  static const BASE64 = 'baes64';
 
   static const IV_LENGTH = 12;
   static const KEY_LENGTH = 32;
@@ -27,7 +24,8 @@ class CryptoUtils {
   static const TYPE_0 = 0;
   static const TYPE_1 = 1;
 
-  static KeyPair generateKeyPair() {
+  @override
+  KeyPair generateKeyPair() {
     x.PrivateKey pk = x.PrivateKey.generate();
     // final PrivateKey pk = PrivateKey.generate();
 
@@ -43,7 +41,8 @@ class CryptoUtils {
     // );
   }
 
-  static Uint8List randomBytes(int length) {
+  @override
+  Uint8List randomBytes(int length) {
     final Uint8List random = Uint8List(length);
     for (int i = 0; i < length; i++) {
       random[i] = _random.nextInt(256);
@@ -51,18 +50,20 @@ class CryptoUtils {
     return random;
   }
 
-  static String generateRandomBytes32() {
-    return base64Url.encode(randomBytes(32));
+  @override
+  String generateRandomBytes32() {
+    return hex.encode(randomBytes(32));
   }
 
-  static Future<String> deriveSymKey(String privKeyA, String pubKeyB) async {
+  @override
+  Future<String> deriveSymKey(String privKeyA, String pubKeyB) async {
     final Uint8List zeros = Uint8List(KEY_LENGTH);
     final Uint8List sharedKey1 = TweetNaCl.crypto_scalarmult(
       zeros,
       Uint8List.fromList(hex.decode(privKeyA)),
       Uint8List.fromList(hex.decode(pubKeyB)),
     );
-    print(sharedKey1);
+    // print(sharedKey1);
     // TweetNaCl.crypto_box_beforenm(k, pub, priv);
 
     Uint8List out = Uint8List(KEY_LENGTH);
@@ -78,7 +79,8 @@ class CryptoUtils {
     return hex.encode(out);
   }
 
-  static String hashKey(String key) {
+  @override
+  String hashKey(String key) {
     return hex.encode(
       SHA256Digest().process(
         Uint8List.fromList(
@@ -89,7 +91,8 @@ class CryptoUtils {
     // return hex.encode(Hash.sha256(hex.decode(key)));
   }
 
-  static String hashMessage(String message) {
+  @override
+  String hashMessage(String message) {
     return hex.encode(
       SHA256Digest().process(
         Uint8List.fromList(
@@ -100,7 +103,8 @@ class CryptoUtils {
     // return hex.encode(Hash.sha256(message));
   }
 
-  static Future<String> encrypt(
+  @override
+  Future<String> encrypt(
     String message,
     String symKey, {
     int? type,
@@ -140,7 +144,8 @@ class CryptoUtils {
     );
   }
 
-  static Future<String> decrypt(String symKey, String encoded) async {
+  @override
+  Future<String> decrypt(String symKey, String encoded) async {
     final chacha = dc.Chacha20.poly1305Aead();
     final dc.SecretKey secretKey = dc.SecretKey(
       hex.decode(symKey),
@@ -155,7 +160,8 @@ class CryptoUtils {
     return utf8.decode(data);
   }
 
-  static String serialize(
+  @override
+  String serialize(
     int type,
     Uint8List sealed,
     Uint8List iv, {
@@ -177,7 +183,8 @@ class CryptoUtils {
     return base64Encode(l);
   }
 
-  static EncodingParams deserialize(String encoded) {
+  @override
+  EncodingParams deserialize(String encoded) {
     final Uint8List bytes = base64Decode(encoded);
     final int type = bytes[0];
 
@@ -204,7 +211,8 @@ class CryptoUtils {
     );
   }
 
-  static EncodingValidation validateDecoding(
+  @override
+  EncodingValidation validateDecoding(
     String encoded, {
     String? receiverPublicKey,
   }) {
@@ -219,7 +227,8 @@ class CryptoUtils {
     );
   }
 
-  static EncodingValidation validateEncoding({
+  @override
+  EncodingValidation validateEncoding({
     int? type,
     String? senderPublicKey,
     String? receiverPublicKey,
@@ -240,7 +249,8 @@ class CryptoUtils {
     );
   }
 
-  static bool isTypeOneEnvelope(
+  @override
+  bool isTypeOneEnvelope(
     EncodingValidation result,
   ) {
     return result.type == TYPE_1 &&
