@@ -1,9 +1,14 @@
+import 'dart:async';
 import 'dart:convert';
 
+import 'package:stream_channel/stream_channel.dart';
+import 'package:event/src/eventargs.dart';
+import 'package:event/src/event.dart';
 import 'package:json_rpc_2/json_rpc_2.dart';
 import 'package:wallet_connect_v2/apis/core/crypto/i_crypto.dart';
 import 'package:wallet_connect_v2/apis/core/crypto/i_crypto_utils.dart';
 import 'package:wallet_connect_v2/apis/core/relay_client/i_relay_client.dart';
+import 'package:wallet_connect_v2/apis/core/relay_client/relay_client_models.dart';
 import 'package:wallet_connect_v2/apis/core/store/store.dart';
 import 'package:wallet_connect_v2/apis/utils/constants.dart';
 import 'package:wallet_connect_v2/apis/utils/errors.dart';
@@ -21,6 +26,35 @@ class RelayClient implements IRelayClient {
   static const JSON_RPC_SUBSCRIBE = 'subscribe';
   static const JSON_RPC_UNSUBSCRIBE = 'unsubscribe';
 
+  /// Events ///
+  /// Relay Client
+  @override
+  Event<EventArgs> get onRelayClientConnect => Event();
+
+  @override
+  Event<EventArgs> get onRelayClientDisconnect => Event();
+
+  @override
+  Event<ErrorEvent> get onRelayClientError => Event<ErrorEvent>();
+
+  @override
+  Event<MessageEvent> get onRelayClientMessage => Event<MessageEvent>();
+
+  /// Subscriptions
+  @override
+  Event<SubscriptionEvent> get onSubscriptionCreated =>
+      Event<SubscriptionEvent>();
+
+  @override
+  Event<SubscriptionDeletionEvent> get onSubscriptionDeleted =>
+      Event<SubscriptionDeletionEvent>();
+
+  @override
+  Event<EventArgs> get onSubscriptionResubscribed => Event();
+
+  @override
+  Event<EventArgs> get onSubscriptionSync => Event();
+
   bool _initialized = false;
 
   late String _relayUrl;
@@ -32,29 +66,33 @@ class RelayClient implements IRelayClient {
   late WebSocketChannel socket;
   late Peer jsonRPC;
 
-  String get _messageTrackerPrefix =>
+  String get messageTrackerPrefix =>
       '${WalletConnectConstants.CORE_STORAGE_PREFIX}$VERSION//$RELAYER_CONTEXT';
-  String get _subscriptionPrefix =>
+  String get subscriptionPrefix =>
       '${WalletConnectConstants.CORE_STORAGE_PREFIX}$VERSION//$SUBSCRIPTIONS_CONTEXT';
   Map<String, Map<String, String>> messageRecords = {};
-  late Store messageTracker;
+  Store? messageTracker;
 
   /// Stores all the subs that haven't been completed
   Map<String, Future<dynamic>> pendingSubscriptions = {};
 
   /// Stores mappings from topic -> subscription id
-  late Store topicMap;
+  Store? topicMap;
 
-  /// Stores subscription id -> subscription info
-  late Store subs;
+  final bool test;
 
   RelayClient(
     this._projectId,
     this.crypto,
     this.cryptoUtils, {
+    this.test = false,
     relayUrl = RELAYER_DEFAULT_RELAY_URL,
+    Store? messageTracker,
+    Store? topicMap,
   }) {
     _relayUrl = relayUrl;
+    if (messageTracker != null) this.messageTracker = messageTracker;
+    if (topicMap != null) this.topicMap = topicMap;
   }
 
   @override
@@ -63,20 +101,25 @@ class RelayClient implements IRelayClient {
       return;
     }
 
+    await crypto.init();
+
     // Setup the json RPC server
     jsonRPC = await _createJsonRPCProvider();
     jsonRPC.registerMethod(JSON_RPC_PUBLISH, _handlePublish);
     jsonRPC.registerMethod(JSON_RPC_SUBSCRIBE, _handleSubscribe);
     jsonRPC.registerMethod(JSON_RPC_UNSUBSCRIBE, _handleUnsubscribe);
+    jsonRPC.listen();
 
     // Initialize all of our stores
-    messageTracker = Store(_messageTrackerPrefix);
-    topicMap = Store(_subscriptionPrefix);
-    subs = Store(_subscriptionPrefix);
+    if (test) {
+      _initialized = true;
+      return;
+    }
+    messageTracker ??= Store(messageTrackerPrefix);
+    topicMap ??= Store(subscriptionPrefix);
     Future.wait([
-      messageTracker.init(),
-      topicMap.init(),
-      subs.init(),
+      messageTracker!.init(),
+      topicMap!.init(),
     ]);
 
     _initialized = true;
@@ -101,11 +144,15 @@ class RelayClient implements IRelayClient {
     if (prompt != null) data['prompt'] = prompt;
     if (tag != null) data['tag'] = tag;
 
-    await jsonRPC.sendRequest(
-      _buildMethod(JSON_RPC_PUBLISH),
-      data,
-    );
-    await _recordMessageEvent(topic, message);
+    try {
+      await jsonRPC.sendRequest(
+        _buildMethod(JSON_RPC_PUBLISH),
+        data,
+      );
+      await _recordMessageEvent(topic, message);
+    } catch (e) {
+      onRelayClientError.broadcast(ErrorEvent(e));
+    }
   }
 
   @override
@@ -121,23 +168,26 @@ class RelayClient implements IRelayClient {
   Future<void> unsubscribe(String topic) async {
     _checkInitialized();
 
-    int id = int.parse(topicMap.get(topic));
+    int id = int.parse(topicMap!.get(topic));
 
-    await jsonRPC.sendRequest(
-      _buildMethod(JSON_RPC_UNSUBSCRIBE),
-      {
-        'topic': topic,
-        'id': id,
-      },
-    );
+    try {
+      await jsonRPC.sendRequest(
+        _buildMethod(JSON_RPC_UNSUBSCRIBE),
+        {
+          'topic': topic,
+          'id': id,
+        },
+      );
+    } catch (e) {
+      onRelayClientError.broadcast(ErrorEvent(e));
+    }
 
     // Temove the subscription
     pendingSubscriptions.remove(topic);
-    await topicMap.delete(topic);
+    await topicMap!.delete(topic);
 
     // Delete all the messages
-    messageRecords.remove(topic);
-    messageTracker.delete(topic);
+    _deleteSubscriptionMessages(topic);
   }
 
   @override
@@ -159,6 +209,10 @@ class RelayClient implements IRelayClient {
   /// PRIVATE FUNCTIONS ///
 
   Future<Peer> _createJsonRPCProvider() async {
+    if (test) {
+      StreamController<String> data = StreamController.broadcast();
+      return Peer(StreamChannel(data.stream, data.sink));
+    }
     var auth = await crypto.signJWT(_relayUrl);
     socket = WebSocketChannel.connect(
       Uri.parse(
@@ -182,8 +236,27 @@ class RelayClient implements IRelayClient {
 
   /// JSON RPC MESSAGE HANDLERS
 
-  Future<bool> _handlePublish(Parameters params) async {
+  Future<bool> handlePublish(String topic, String message) async {
+    // If we want to ignore the message, stop
+    if (await _shouldIgnoreMessageEvent(topic, message)) return false;
+
+    // Record a message event
+    _recordMessageEvent(topic, message);
+
+    // Broadcast the message
+    onRelayClientMessage.broadcast(
+      MessageEvent(
+        topic,
+        message,
+      ),
+    );
     return true;
+  }
+
+  Future<bool> _handlePublish(Parameters params) async {
+    String topic = params['topic'].value;
+    String message = params['message'].value;
+    return await handlePublish(topic, message);
   }
 
   int _handleSubscribe(Parameters params) {
@@ -196,7 +269,7 @@ class RelayClient implements IRelayClient {
 
   Map<String, String> _loadMessages(String topic) {
     try {
-      return jsonDecode(messageTracker.get(topic));
+      return jsonDecode(messageTracker!.get(topic));
     } catch (e) {
       return {};
     }
@@ -208,43 +281,54 @@ class RelayClient implements IRelayClient {
       messageRecords[topic] = _loadMessages(topic);
     }
     messageRecords[topic]![hash] = message;
-    await messageTracker.set(topic, jsonEncode(messageRecords[topic]));
+    await messageTracker!.set(topic, jsonEncode(messageRecords[topic]));
+  }
+
+  bool _messageIsRecorded(String topic, String message) {
+    final String hash = cryptoUtils.hashMessage(message);
+    return messageRecords.containsKey(topic) &&
+        messageRecords[topic]!.containsKey(hash);
   }
 
   Future<void> _deleteSubscriptionMessages(String topic) async {
     messageRecords.remove(topic);
-    await messageTracker.delete(topic);
+    await messageTracker!.delete(topic);
   }
 
-  bool _shouldIgnoreMessageEvent(String topic, String message) {
-    return false;
+  Future<bool> _shouldIgnoreMessageEvent(String topic, String message) async {
+    if (!await _isSubscribed(topic)) return true;
+    return _messageIsRecorded(topic, message);
   }
 
   /// SUBSCRIPTION HANDLING
 
   Future<int> _onSubscribe(String topic) async {
-    jsonRPC.sendRequest(
-      _buildMethod(JSON_RPC_SUBSCRIBE),
-      {
-        'topic': topic,
-      },
-    );
+    try {
+      jsonRPC.sendRequest(
+        _buildMethod(JSON_RPC_SUBSCRIBE),
+        {
+          'topic': topic,
+        },
+      );
+    } catch (e) {
+      onRelayClientError.broadcast(ErrorEvent(e));
+    }
 
     final int requestId = await pendingSubscriptions[topic];
-    await topicMap.set(topic, requestId.toString());
+    await topicMap!.set(topic, requestId.toString());
     pendingSubscriptions.remove(topic);
 
     return requestId;
   }
 
   Future<bool> _isSubscribed(String topic) async {
-    if (topicMap.map.containsKey(topic)) {
+    if (topicMap!.has(topic)) {
       return true;
     }
 
     if (pendingSubscriptions.containsKey(topic)) {
       await pendingSubscriptions[topic];
-      return topicMap.map.containsKey(topic);
+      return topicMap!.has(topic);
     }
 
     return false;

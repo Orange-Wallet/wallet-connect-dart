@@ -9,6 +9,7 @@ abstract class IStore<T> {
   Future<void> init();
   Future<void> set(String key, T value);
   dynamic get(String key);
+  bool has(String key);
   List<dynamic> getAll();
   Future<void> update(String key, T value);
   Future<void> delete(String key);
