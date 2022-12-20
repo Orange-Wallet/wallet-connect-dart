@@ -4,13 +4,15 @@ import 'dart:typed_data';
 
 import 'package:convert/convert.dart';
 import 'package:cryptography/cryptography.dart' as dc;
+// import 'package:ed25519_edwards/ed25519_edwards.dart' as ed;
+// import 'package:ed25519_edwards/src/edwards25519.dart' as ed2;
 import 'package:pinenacl/tweetnacl.dart';
 import 'package:pinenacl/x25519.dart' as x;
 import 'package:pointycastle/digests/sha256.dart';
 import 'package:pointycastle/key_derivators/hkdf.dart';
 import 'package:pointycastle/pointycastle.dart' show HkdfParameters;
 import 'package:wallet_connect_v2/apis/core/crypto/crypto_models.dart';
-import 'package:wallet_connect_v2/apis/interfaces/i_crypto_utils.dart';
+import 'package:wallet_connect_v2/apis/core/crypto/i_crypto_utils.dart';
 import 'package:wallet_connect_v2/apis/models/models.dart';
 // import 'package:x25519/x25519.dart' as x2;
 
@@ -26,19 +28,20 @@ class CryptoUtils extends ICryptoUtils {
 
   @override
   KeyPair generateKeyPair() {
-    x.PrivateKey pk = x.PrivateKey.generate();
+    // x.PrivateKey pk = x.PrivateKey.generate();
     // final PrivateKey pk = PrivateKey.generate();
 
+    // ed.KeyPair keyPair = ed.generateKey();
+    // return KeyPair(
+    //   hex.encode(keyPair.privateKey.bytes),
+    //   hex.encode(keyPair.publicKey.bytes),
+    // );
+
+    final x.PrivateKey pk = x.PrivateKey.generate();
     return KeyPair(
       hex.encode(pk.toList()),
       hex.encode(pk.publicKey.toList()),
     );
-
-    // final x.KeyPair keyPair = x.generateKeyPair();
-    // return KeyPair(
-    //   hex.encode(keyPair.privateKey),
-    //   hex.encode(keyPair.publicKey),
-    // );
   }
 
   @override
@@ -58,13 +61,26 @@ class CryptoUtils extends ICryptoUtils {
   @override
   Future<String> deriveSymKey(String privKeyA, String pubKeyB) async {
     final Uint8List zeros = Uint8List(KEY_LENGTH);
+
+    // var R = ed2.ProjectiveGroupElement();
+    // var A = ed2.ExtendedGroupElement();
+    // A.FromBytes(Uint8List.fromList(hex.decode(privKeyA)));
+    // ed2.GeDoubleScalarMultVartime(
+    //   R,
+    //   Uint8List.fromList(hex.decode(pubKeyB)),
+    //   A,
+    //   zeros,
+    // );
+
+    // Uint8List sharedKey1 = Uint8List(32);
+    // R.ToBytes(sharedKey1);
+
     final Uint8List sharedKey1 = TweetNaCl.crypto_scalarmult(
       zeros,
       Uint8List.fromList(hex.decode(privKeyA)),
       Uint8List.fromList(hex.decode(pubKeyB)),
     );
-    // print(sharedKey1);
-    // TweetNaCl.crypto_box_beforenm(k, pub, priv);
+    print(sharedKey1);
 
     Uint8List out = Uint8List(KEY_LENGTH);
 

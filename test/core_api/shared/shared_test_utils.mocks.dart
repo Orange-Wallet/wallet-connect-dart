@@ -9,8 +9,8 @@ import 'dart:typed_data' as _i7;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:wallet_connect_v2/apis/core/crypto/crypto_models.dart' as _i3;
 import 'package:wallet_connect_v2/apis/core/crypto/crypto_utils.dart' as _i6;
-import 'package:wallet_connect_v2/apis/core/key_chain.dart' as _i4;
-import 'package:wallet_connect_v2/apis/core/store.dart' as _i2;
+import 'package:wallet_connect_v2/apis/core/key_chain/key_chain.dart' as _i4;
+import 'package:wallet_connect_v2/apis/core/store/store.dart' as _i2;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values

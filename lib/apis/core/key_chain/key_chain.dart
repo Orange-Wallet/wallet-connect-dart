@@ -1,6 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:wallet_connect_v2/apis/core/store.dart';
-import 'package:wallet_connect_v2/apis/interfaces/i_key_chain.dart';
+import 'package:wallet_connect_v2/apis/core/store/store.dart';
+import 'package:wallet_connect_v2/apis/core/key_chain/i_key_chain.dart';
 import 'package:wallet_connect_v2/apis/models/models.dart';
 import 'package:wallet_connect_v2/apis/utils/constants.dart';
 import 'package:wallet_connect_v2/apis/utils/errors.dart';

@@ -1,5 +1,5 @@
 import 'package:wallet_connect_v2/apis/core/crypto/crypto_models.dart';
-import 'package:wallet_connect_v2/apis/interfaces/i_key_chain.dart';
+import 'package:wallet_connect_v2/apis/core/key_chain/i_key_chain.dart';
 
 abstract class ICrypto {
   abstract final String name;

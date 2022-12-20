@@ -1,17 +1,22 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
+import 'package:convert/convert.dart';
 import 'package:wallet_connect_v2/apis/core/crypto/crypto_models.dart';
 import 'package:wallet_connect_v2/apis/core/crypto/crypto_utils.dart';
-import 'package:wallet_connect_v2/apis/core/key_chain.dart';
-import 'package:wallet_connect_v2/apis/interfaces/i_crypto.dart';
-import 'package:wallet_connect_v2/apis/interfaces/i_crypto_utils.dart';
-import 'package:wallet_connect_v2/apis/interfaces/i_key_chain.dart';
+import 'package:wallet_connect_v2/apis/core/key_chain/key_chain.dart';
+import 'package:wallet_connect_v2/apis/core/crypto/i_crypto.dart';
+import 'package:wallet_connect_v2/apis/core/crypto/i_crypto_utils.dart';
+import 'package:wallet_connect_v2/apis/core/key_chain/i_key_chain.dart';
+import 'package:wallet_connect_v2/apis/core/relay_auth/i_relay_auth.dart';
+import 'package:wallet_connect_v2/apis/core/relay_auth/relay_auth.dart';
 import 'package:wallet_connect_v2/apis/utils/errors.dart';
 
 class Crypto implements ICrypto {
   static const CRYPTO_CONTEXT = 'crypto';
   static const CRYPTO_CLIENT_SEED = 'client_ed25519_seed';
-  static const CRYPTO_JWT_TTL = 'ONE DAY'; // TODO: Fix this
+  static const CRYPTO_JWT_TTL = 86400;
+  static const CLIENT_SEED = 'CLIENT_SEED';
 
   bool _initialized = false;
 
@@ -21,19 +26,24 @@ class Crypto implements ICrypto {
   @override
   IKeyChain? keyChain;
   ICryptoUtils? utils;
+  IRelayAuth? relayAuth;
 
-  Crypto({this.keyChain, this.utils});
+  Crypto({this.keyChain, this.utils, this.relayAuth});
 
   @override
   Future<void> init() async {
     if (_initialized) {
       return;
     }
+
     if (keyChain == null) {
       keyChain = KeyChain();
     }
     if (utils == null) {
       utils = CryptoUtils();
+    }
+    if (relayAuth == null) {
+      relayAuth = RelayAuth();
     }
 
     await keyChain!.init();
@@ -49,8 +59,10 @@ class Crypto implements ICrypto {
   @override
   Future<String> getClientId() async {
     _checkInitialized();
-    // TODO: implement generateKeyPair
-    throw UnimplementedError();
+
+    // If we don't have a pub key associated with the seed yet, make one
+    String pubKey = await _getClientKeyFromSeed();
+    return relayAuth!.encodeIss(Uint8List.fromList(hex.decode(pubKey)));
   }
 
   @override
@@ -169,10 +181,18 @@ class Crypto implements ICrypto {
   }
 
   @override
-  Future<String> signJWT(String aud) {
+  Future<String> signJWT(String aud) async {
     _checkInitialized();
-    // TODO: implement signJWT
-    throw UnimplementedError();
+
+    String pubKey = await _getClientKeyFromSeed();
+    String sub = utils!.generateRandomBytes32();
+    String jwt = await relayAuth!.signJWT(
+      sub,
+      aud,
+      CRYPTO_JWT_TTL,
+      KeyPair(_getPrivateKey(pubKey), pubKey),
+    );
+    return jwt;
   }
 
   @override
@@ -180,10 +200,6 @@ class Crypto implements ICrypto {
     _checkInitialized();
 
     return utils!.deserialize(encoded).type;
-  }
-
-  List<int> getClientSeed() {
-    return [];
   }
 
   // PRIVATE FUNCTIONS
@@ -199,6 +215,33 @@ class Crypto implements ICrypto {
 
   String _getSymKey(String topic) {
     return keyChain!.get(topic);
+  }
+
+  Future<String> _getClientKeyFromSeed() async {
+    // Get the seed
+    String seed = await _getClientSeed();
+
+    String pubKey;
+    try {
+      pubKey = keyChain!.get(seed);
+    } catch (e) {
+      pubKey = await generateKeyPair();
+      await keyChain!.set(seed, pubKey);
+    }
+
+    return pubKey;
+  }
+
+  Future<String> _getClientSeed() async {
+    String seed;
+    try {
+      seed = keyChain!.get(CLIENT_SEED);
+    } catch (e) {
+      seed = utils!.generateRandomBytes32();
+      await keyChain!.set(CLIENT_SEED, seed);
+    }
+
+    return seed;
   }
 
   void _checkInitialized() {

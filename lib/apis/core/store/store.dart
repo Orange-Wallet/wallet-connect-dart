@@ -1,5 +1,5 @@
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wallet_connect_v2/apis/interfaces/i_store.dart';
+import 'package:wallet_connect_v2/apis/core/store/i_store.dart';
 import 'package:wallet_connect_v2/apis/utils/errors.dart';
 
 class Store implements IStore<String> {

@@ -1,10 +1,29 @@
 import 'dart:typed_data';
 
+import 'package:convert/convert.dart';
+import 'package:pinenacl/ed25519.dart';
+
 class KeyPair {
   final String privateKey;
   final String publicKey;
 
   const KeyPair(this.privateKey, this.publicKey);
+
+  Uint8List getPrivateKeyBytes() {
+    return Uint8List.fromList(hex.decode(privateKey));
+  }
+
+  Uint8List getPublicKeyBytes() {
+    return Uint8List.fromList(hex.decode(publicKey));
+  }
+
+  SigningKey toSigningKey() {
+    return SigningKey.fromValidBytes(getPrivateKeyBytes());
+  }
+
+  List<int> sign(Uint8List data) {
+    return toSigningKey().sign(data).toList();
+  }
 }
 
 class EncryptParams {
