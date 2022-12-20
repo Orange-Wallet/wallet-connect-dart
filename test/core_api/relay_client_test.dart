@@ -9,6 +9,7 @@ import 'package:wallet_connect_v2/apis/core/crypto/crypto_utils.dart';
 import 'package:wallet_connect_v2/apis/core/crypto/i_crypto.dart';
 import 'package:wallet_connect_v2/apis/core/crypto/i_crypto_utils.dart';
 import 'package:wallet_connect_v2/apis/core/relay_client/relay_client.dart';
+import 'package:wallet_connect_v2/apis/core/relay_client/relay_client_models.dart';
 import 'package:wallet_connect_v2/apis/utils/constants.dart';
 
 import 'shared/shared_test_utils.mocks.dart';
@@ -53,8 +54,7 @@ void main() {
 
     test('Handle publish broadcasts and stores the message event', () async {
       int counter = 0;
-      relayClient.onRelayClientMessage.subscribe((args) {
-        print('swag 4');
+      relayClient.onRelayClientMessage.subscribe((MessageEvent? args) {
         counter++;
       });
 
@@ -64,7 +64,7 @@ void main() {
       );
       expect(published, true);
       // await Future.delayed(const Duration(milliseconds: 500));
-      // expect(counter, 1);
+      expect(counter, 1);
 
       Map<String, String>? message = relayClient.messageRecords[TEST_TOPIC];
       if (message == null) {

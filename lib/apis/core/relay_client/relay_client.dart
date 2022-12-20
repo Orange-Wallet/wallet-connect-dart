@@ -28,32 +28,41 @@ class RelayClient implements IRelayClient {
 
   /// Events ///
   /// Relay Client
+  Event _onRelayClientConnect = Event();
   @override
-  Event<EventArgs> get onRelayClientConnect => Event();
+  Event<EventArgs> get onRelayClientConnect => _onRelayClientConnect;
 
+  Event _onRelayClientDisconnect = Event();
   @override
-  Event<EventArgs> get onRelayClientDisconnect => Event();
+  Event<EventArgs> get onRelayClientDisconnect => _onRelayClientDisconnect;
 
+  Event<ErrorEvent> _onRelayClientError = Event<ErrorEvent>();
   @override
-  Event<ErrorEvent> get onRelayClientError => Event<ErrorEvent>();
+  Event<ErrorEvent> get onRelayClientError => _onRelayClientError;
 
+  Event<MessageEvent> _onRelayClientMessage = Event<MessageEvent>();
   @override
-  Event<MessageEvent> get onRelayClientMessage => Event<MessageEvent>();
+  Event<MessageEvent> get onRelayClientMessage => _onRelayClientMessage;
 
   /// Subscriptions
+  Event<SubscriptionEvent> _onSubscriptionCreated = Event<SubscriptionEvent>();
   @override
-  Event<SubscriptionEvent> get onSubscriptionCreated =>
-      Event<SubscriptionEvent>();
+  Event<SubscriptionEvent> get onSubscriptionCreated => _onSubscriptionCreated;
 
+  Event<SubscriptionDeletionEvent> _onSubscriptionDeleted =
+      Event<SubscriptionDeletionEvent>();
   @override
   Event<SubscriptionDeletionEvent> get onSubscriptionDeleted =>
-      Event<SubscriptionDeletionEvent>();
+      _onSubscriptionDeleted;
 
+  Event _onSubscriptionResubscribed = Event();
   @override
-  Event<EventArgs> get onSubscriptionResubscribed => Event();
+  Event<EventArgs> get onSubscriptionResubscribed =>
+      _onSubscriptionResubscribed;
 
+  Event _onSubscriptionSync = Event();
   @override
-  Event<EventArgs> get onSubscriptionSync => Event();
+  Event<EventArgs> get onSubscriptionSync => _onSubscriptionSync;
 
   bool _initialized = false;
 
