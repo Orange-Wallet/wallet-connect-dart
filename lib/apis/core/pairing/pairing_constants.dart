@@ -8,52 +8,40 @@ class PairingConstants {
 
   static final Map<String, dynamic> PAIRING_RPC_OPTS = {
     WC_PAIRING_PING: {
-      'req': {
-        RpcOptions(
-          WalletConnectConstants.ONE_DAY,
-          false,
-          1000,
-        ),
-      },
-      'res': {
-        RpcOptions(
-          WalletConnectConstants.ONE_DAY,
-          false,
-          1001,
-        ),
-      }
+      'req': RpcOptions(
+        WalletConnectConstants.ONE_DAY,
+        false,
+        1000,
+      ),
+      'res': RpcOptions(
+        WalletConnectConstants.ONE_DAY,
+        false,
+        1001,
+      ),
     },
     WC_PAIRING_DELETE: {
-      'req': {
-        RpcOptions(
-          WalletConnectConstants.THIRTY_SECONDS,
-          false,
-          1002,
-        ),
-      },
-      'res': {
-        RpcOptions(
-          WalletConnectConstants.THIRTY_SECONDS,
-          false,
-          1003,
-        ),
-      }
+      'req': RpcOptions(
+        WalletConnectConstants.THIRTY_SECONDS,
+        false,
+        1002,
+      ),
+      'res': RpcOptions(
+        WalletConnectConstants.THIRTY_SECONDS,
+        false,
+        1003,
+      ),
     },
     UNREGISTERED_METHOD: {
-      'req': {
-        RpcOptions(
-          WalletConnectConstants.ONE_DAY,
-          false,
-          0,
-        ),
-      },
-      'res': {
-        RpcOptions(
-          WalletConnectConstants.ONE_DAY,
-          false,
-          0,
-        ),
-      }
+      'req': RpcOptions(
+        WalletConnectConstants.ONE_DAY,
+        false,
+        0,
+      ),
+      'res': RpcOptions(
+        WalletConnectConstants.ONE_DAY,
+        false,
+        0,
+      ),
     }
   };
 }

@@ -1,4 +1,5 @@
 import 'package:event/event.dart';
+import 'package:wallet_connect_v2/apis/core/pairing/i_pairing_store.dart';
 import 'package:wallet_connect_v2/apis/core/pairing/pairing_models.dart';
 import 'package:wallet_connect_v2/apis/models/models.dart';
 
@@ -9,7 +10,7 @@ abstract class IPairing {
 
   Future<void> init();
   Future<PairingInfo> pair(
-    String uri, {
+    Uri uri, {
     bool activatePairing,
   });
   Future<CreateResponse> create();
@@ -20,4 +21,5 @@ abstract class IPairing {
   List<PairingInfo> getPairings();
   Future<void> ping(String topic);
   Future<void> disconnect(String topic);
+  IPairingStore getStore();
 }

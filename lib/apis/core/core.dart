@@ -14,21 +14,13 @@ import 'package:wallet_connect_v2/apis/core/pairing/i_pairing.dart';
 
 class Core implements ICore {
   @override
-  // TODO: implement protocol
-  String get protocol => throw UnimplementedError();
+  String get protocol => 'wc';
   @override
-  // TODO: implement version
-  String get version => throw UnimplementedError();
+  String get version => '2';
 
-  @override
-  // TODO: implement name
-  String get name => throw UnimplementedError();
-  @override
-  // TODO: implement context
-  String get context => throw UnimplementedError();
   String _relayUrl;
   @override
-  String get relayUrl => throw UnimplementedError();
+  String get relayUrl => _relayUrl;
   String _projectId;
   @override
   String get projectId => _projectId;
@@ -53,14 +45,18 @@ class Core implements ICore {
 
   Core(
     this._relayUrl,
-    this._projectId,
-  ) {
-    storage = GetStorageStore();
+    this._projectId, {
+    bool memoryStore = false,
+  }) {
+    storage = GetStorageStore(
+      <String, dynamic>{},
+      memoryStore: memoryStore,
+    );
     crypto = Crypto(this);
     relayClient = RelayClient(this);
     expirer = Expirer(this);
     history = JsonRpcHistory(this);
-    // pairing = Pairing(crypto, relayer)
+    pairing = Pairing(this);
   }
 
   @override
@@ -68,7 +64,8 @@ class Core implements ICore {
     await storage.init();
     await crypto.init();
     await relayClient.init();
+    await expirer.init();
     await history.init();
-    // await pairing.init();
+    await pairing.init();
   }
 }

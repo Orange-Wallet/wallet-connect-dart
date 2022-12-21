@@ -126,8 +126,9 @@ class Expirer implements IExpirer {
 
   @override
   Future<void> restore() async {
-    _checkInitialized();
-    expirations = core.storage.get(storageKey);
+    expirations = MiscUtils.convertMapTo<int>(
+      core.storage.get(storageKey),
+    );
   }
 
   void _checkInitialized() {

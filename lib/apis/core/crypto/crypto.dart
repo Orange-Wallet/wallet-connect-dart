@@ -230,10 +230,8 @@ class Crypto implements ICrypto {
     // Get the seed
     String seed = await _getClientSeed();
 
-    String pubKey;
-    try {
-      pubKey = keyChain!.get(seed);
-    } catch (e) {
+    String pubKey = keyChain!.get(seed);
+    if (pubKey == '') {
       pubKey = await generateKeyPair();
       await keyChain!.set(seed, pubKey);
     }
@@ -242,10 +240,8 @@ class Crypto implements ICrypto {
   }
 
   Future<String> _getClientSeed() async {
-    String seed;
-    try {
-      seed = keyChain!.get(CLIENT_SEED);
-    } catch (e) {
+    String seed = keyChain!.get(CLIENT_SEED);
+    if (seed == '') {
       seed = utils!.generateRandomBytes32();
       await keyChain!.set(CLIENT_SEED, seed);
     }

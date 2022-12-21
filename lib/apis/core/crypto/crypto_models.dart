@@ -10,7 +10,7 @@ class KeyPair {
   const KeyPair(this.privateKey, this.publicKey);
 
   Uint8List getPrivateKeyBytes() {
-    return Uint8List.fromList(hex.decode(privateKey));
+    return Uint8List.fromList(hex.decode(privateKey + publicKey));
   }
 
   Uint8List getPublicKeyBytes() {

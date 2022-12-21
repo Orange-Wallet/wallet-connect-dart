@@ -17,7 +17,7 @@ abstract class IJsonRpcHistory extends IStoreUser {
     JsonRpcRequest value, {
     String? chainId,
   });
-  Future<void> resolve(JsonRpcResponse response);
+  Future<void> resolve(Map<String, dynamic> response);
   JsonRpcRecord? get(int key);
   Future<void> delete(int key);
 }

@@ -69,7 +69,7 @@ class Redirect {
 
 class CreateResponse {
   String topic;
-  String uri;
+  Uri uri;
 
   CreateResponse(
     this.topic,

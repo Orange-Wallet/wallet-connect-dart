@@ -6,7 +6,7 @@ import 'package:wallet_connect_v2/models/ethereum/wc_ethereum_sign_message.dart'
 import 'package:wallet_connect_v2/models/ethereum/wc_ethereum_transaction.dart';
 import 'package:wallet_connect_v2/models/ethereum/wc_wallet_switch_network.dart';
 import 'package:wallet_connect_v2/models/exception/exceptions.dart';
-import 'package:wallet_connect_v2/models/jsonrpc/json_rpc_error.dart';
+import 'package:wallet_connect_v2/apis/models/json_rpc_error.dart';
 import 'package:wallet_connect_v2/models/jsonrpc/json_rpc_error_response.dart';
 import 'package:wallet_connect_v2/apis/models/json_rpc_request.dart';
 import 'package:wallet_connect_v2/apis/models/json_rpc_response.dart';

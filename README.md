@@ -18,3 +18,11 @@ I am beginning with the Core API. Once that is completed the others should fall 
 For all JSONRPC calls, I plan on using the [json_rpc_2](https://pub.dev/packages/json_rpc_2) package for dart.
 
 For all crypto related needs, such as generating keys and DH encryption/decryption, I plan on using a custom version of 
+
+# To Test
+
+- Pull this repo and set it up: https://github.com/WalletConnect/relay
+
+Build using make dev, docket must be open.
+Install dependencies using npm install.
+Run it using PORT=5555 npm run start.

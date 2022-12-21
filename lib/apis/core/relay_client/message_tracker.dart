@@ -1,6 +1,7 @@
 import 'package:wallet_connect_v2/apis/core/i_core.dart';
 import 'package:wallet_connect_v2/apis/core/relay_client/i_message_tracker.dart';
 import 'package:wallet_connect_v2/apis/core/store/i_store_user.dart';
+import 'package:wallet_connect_v2/apis/utils/misc.dart';
 
 class MessageTracker implements IMessageTracker {
   static const MESSAGE_TRACKER_CONTEXT = 'MESSAGE_TRACKER';
@@ -54,6 +55,8 @@ class MessageTracker implements IMessageTracker {
 
   @override
   Future<void> restore() async {
-    messageRecords = core.storage.get(storageKey);
+    messageRecords = MiscUtils.convertMapTo<Map<String, String>>(
+      core.storage.get(storageKey),
+    );
   }
 }

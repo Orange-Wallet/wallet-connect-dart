@@ -5,6 +5,7 @@ import 'package:wallet_connect_v2/apis/core/pairing/i_pairing_store.dart';
 import 'package:wallet_connect_v2/apis/core/pairing/pairing_models.dart';
 import 'package:wallet_connect_v2/apis/core/relay_client/i_topic_map.dart';
 import 'package:wallet_connect_v2/apis/utils/errors.dart';
+import 'package:wallet_connect_v2/apis/utils/misc.dart';
 
 class PairingStore implements IPairingStore {
   static const CONTEXT = 'pairings';
@@ -108,8 +109,9 @@ class PairingStore implements IPairingStore {
 
   @override
   Future<void> restore() async {
-    _checkInitialized();
-    pairingStrings = core.storage.get(storageKey);
+    pairingStrings = MiscUtils.convertMapTo<String>(
+      core.storage.get(storageKey),
+    );
     for (var entry in pairingStrings.entries) {
       pairings[entry.key] = PairingInfo.fromJson(
         jsonDecode(entry.value),

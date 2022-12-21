@@ -9,8 +9,6 @@ abstract class ICore {
   final String protocol = 'wc';
   final String version = '2';
 
-  abstract final String name;
-  abstract final String context;
   abstract final String relayUrl;
   abstract final String projectId;
 
@@ -22,5 +20,5 @@ abstract class ICore {
   abstract IExpirer expirer;
   abstract IPairing pairing;
 
-  void start();
+  Future<void> start();
 }

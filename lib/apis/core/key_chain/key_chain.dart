@@ -2,6 +2,7 @@ import 'package:wallet_connect_v2/apis/core/i_core.dart';
 import 'package:wallet_connect_v2/apis/core/store/i_store.dart';
 import 'package:wallet_connect_v2/apis/core/key_chain/i_key_chain.dart';
 import 'package:wallet_connect_v2/apis/utils/errors.dart';
+import 'package:wallet_connect_v2/apis/utils/misc.dart';
 
 class KeyChain implements IKeyChain {
   static const KEYCHAIN = 'keychain';
@@ -84,8 +85,9 @@ class KeyChain implements IKeyChain {
 
   @override
   Future<void> restore() async {
-    _checkInitialized();
-    keyChain = core.storage.get(storageKey);
+    keyChain = MiscUtils.convertMapTo<String>(
+      core.storage.get(storageKey),
+    ); // as Map<String, String>;
   }
 
   void _checkInitialized() {

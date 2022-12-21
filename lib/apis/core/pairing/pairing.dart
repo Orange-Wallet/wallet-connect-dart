@@ -45,6 +45,7 @@ class Pairing implements IPairing {
     }
 
     pairings ??= PairingStore(core);
+    await core.expirer.init();
     await pairings!.init();
     await _cleanup();
 
@@ -53,19 +54,18 @@ class Pairing implements IPairing {
 
   @override
   Future<PairingInfo> pair(
-    String uriString, {
+    Uri uri, {
     bool activatePairing = false,
   }) async {
     _checkInitialized();
 
-    final Uri uri = Uri.parse(uriString);
+    print(uri.queryParameters);
     final int expiry = MiscUtils.calculateExpiry(
       WalletConnectConstants.FIVE_MINUTES,
     );
-    final String topic = uri.queryParameters['topic']!;
-    final Relay relay = Relay.fromJson(jsonDecode(
-      uri.queryParameters['relay']!,
-    ));
+    final Map<String, dynamic> parsedUri = MiscUtils.parseUri(uri);
+    final String topic = parsedUri['topic']!;
+    final Relay relay = parsedUri['relay']!;
     final String symKey = uri.queryParameters['symKey']!;
     final PairingInfo pairing = PairingInfo(
       topic,
@@ -108,7 +108,7 @@ class Pairing implements IPairing {
 
     return CreateResponse(
       topic,
-      uri.toString(),
+      uri,
     );
   }
 
@@ -153,7 +153,6 @@ class Pairing implements IPairing {
 
   @override
   List<PairingInfo> getPairings() {
-    _checkInitialized();
     return pairings!.getAll();
   }
 
@@ -186,6 +185,11 @@ class Pairing implements IPairing {
     }
   }
 
+  @override
+  IPairingStore getStore() {
+    return pairings!;
+  }
+
   // PRIVATE HELPERS
 
   Future<int> _sendRequest(
@@ -199,11 +203,13 @@ class Pairing implements IPairing {
     );
     final JsonRpcRequest request = JsonRpcRequest.fromJson(payload);
     final String message = await core.crypto.encode(topic, payload);
-    final RpcOptions opts = PairingConstants.PAIRING_RPC_OPTS[method]['req'];
+    final RpcOptions opts =
+        PairingConstants.PAIRING_RPC_OPTS[method]['req'] as RpcOptions;
     await core.history.set(
       topic,
       request,
     );
+    print('sent request');
     await core.relayClient.publish(topic, message, opts.ttl);
 
     return request.id;
@@ -292,6 +298,7 @@ class Pairing implements IPairing {
   }
 
   void _onMessageEvent(MessageEvent? event) async {
+    print('message');
     if (event == null) {
       return;
     }
@@ -326,6 +333,7 @@ class Pairing implements IPairing {
   }
 
   Future<void> _onPairingPingRequest(String topic, dynamic params) async {
+    print('ping req');
     final int id = params['id'];
     try {
       _isValidPing(topic);

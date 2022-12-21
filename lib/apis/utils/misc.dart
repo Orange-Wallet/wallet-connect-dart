@@ -44,6 +44,26 @@ class MiscUtils {
     ].join('/');
   }
 
+  /// ---- URI HANDLING --- ///
+
+  static Map<String, dynamic> parseUri(Uri uri) {
+    Map<String, dynamic> ret = {};
+    String path = uri.path;
+    int colon = path.indexOf('%3A');
+    int at = path.indexOf('@');
+    ret['protocol'] = path.substring(0, colon);
+    ret['topic'] = path.substring(colon + 3, at);
+    ret['version'] = path.substring(at + 1);
+    ret['relay'] = Relay(
+      uri.queryParameters['relay-protocol']!,
+      data: uri.queryParameters.containsKey('relay-data')
+          ? uri.queryParameters['relay-data']
+          : null,
+    );
+    print(ret);
+    return ret;
+  }
+
   static String formatRelayRpcUrl(
     String protocol,
     String version,
@@ -86,5 +106,13 @@ class MiscUtils {
     params['symKey'] = symKey;
 
     return Uri(path: '$protocol:$topic@$version', queryParameters: params);
+  }
+
+  static Map<String, T> convertMapTo<T>(Map<String, dynamic> inMap) {
+    Map<String, T> m = {};
+    for (var entry in inMap.entries) {
+      m[entry.key] = entry.value as T;
+    }
+    return m;
   }
 }

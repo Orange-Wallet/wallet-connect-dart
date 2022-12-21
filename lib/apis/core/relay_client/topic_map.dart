@@ -1,6 +1,7 @@
 import 'package:wallet_connect_v2/apis/core/i_core.dart';
 import 'package:wallet_connect_v2/apis/core/relay_client/i_topic_map.dart';
 import 'package:wallet_connect_v2/apis/utils/errors.dart';
+import 'package:wallet_connect_v2/apis/utils/misc.dart';
 
 class TopicMap implements ITopicMap {
   static const CONTEXT = 'topicMap';
@@ -65,8 +66,9 @@ class TopicMap implements ITopicMap {
 
   @override
   Future<void> restore() async {
-    _checkInitialized();
-    topicMap = core.storage.get(storageKey);
+    topicMap = MiscUtils.convertMapTo<String>(
+      core.storage.get(storageKey),
+    );
   }
 
   void _checkInitialized() {

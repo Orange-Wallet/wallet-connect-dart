@@ -140,12 +140,15 @@ class RelayClient implements IRelayClient {
     if (tag != null) data['tag'] = tag;
 
     try {
-      await jsonRPC.sendRequest(
-        _buildMethod(JSON_RPC_PUBLISH),
+      print('publishing');
+      var value = await jsonRPC.sendRequest(
+        JSON_RPC_PUBLISH,
         data,
       );
+      print(value);
       await messageTracker!.recordMessageEvent(topic, message);
     } catch (e) {
+      print(e);
       onRelayClientError.broadcast(ErrorEvent(e));
     }
   }
@@ -167,7 +170,7 @@ class RelayClient implements IRelayClient {
 
     try {
       await jsonRPC.sendRequest(
-        _buildMethod(JSON_RPC_UNSUBSCRIBE),
+        JSON_RPC_UNSUBSCRIBE,
         {
           'topic': topic,
           'id': id,
@@ -229,6 +232,7 @@ class RelayClient implements IRelayClient {
   /// JSON RPC MESSAGE HANDLERS
 
   Future<bool> handlePublish(String topic, String message) async {
+    print('got publish');
     // If we want to ignore the message, stop
     if (await _shouldIgnoreMessageEvent(topic, message)) return false;
 
@@ -267,9 +271,10 @@ class RelayClient implements IRelayClient {
   /// SUBSCRIPTION HANDLING
 
   Future<int> _onSubscribe(String topic) async {
+    int? requestId;
     try {
-      jsonRPC.sendRequest(
-        _buildMethod(JSON_RPC_SUBSCRIBE),
+      requestId = await jsonRPC.sendRequest(
+        JSON_RPC_SUBSCRIBE,
         {
           'topic': topic,
         },
@@ -278,7 +283,10 @@ class RelayClient implements IRelayClient {
       onRelayClientError.broadcast(ErrorEvent(e));
     }
 
-    final int requestId = await pendingSubscriptions[topic];
+    if (requestId == null) {
+      return -1;
+    }
+
     await topicMap!.set(topic, requestId.toString());
     pendingSubscriptions.remove(topic);
 

@@ -22,7 +22,13 @@ class GetStorageStore<T> implements IStore<T> {
   @override
   String get storagePrefix => WalletConnectConstants.CORE_STORAGE_PREFIX;
 
-  GetStorageStore();
+  final T defaultValue;
+  final bool memoryStore;
+
+  GetStorageStore(
+    this.defaultValue, {
+    this.memoryStore = false,
+  });
 
   /// Initializes the store, loading all persistent values into memory.
   @override
@@ -31,8 +37,11 @@ class GetStorageStore<T> implements IStore<T> {
       return;
     }
 
-    GetStorage.init();
-    box = GetStorage();
+    if (!memoryStore) {
+      GetStorage.init();
+      box = GetStorage();
+    }
+
     _initialized = true;
   }
 
@@ -99,6 +108,10 @@ class GetStorageStore<T> implements IStore<T> {
   }
 
   T _getPref(String key) {
+    if (memoryStore) {
+      return defaultValue;
+    }
+
     if (box.hasData(key)) {
       return box.read(key);
     } else {
@@ -107,6 +120,9 @@ class GetStorageStore<T> implements IStore<T> {
   }
 
   Future<void> _updatePref(String key, T value) async {
+    if (memoryStore) {
+      return;
+    }
     try {
       await box.write(key, value);
     } on Exception catch (e) {
@@ -118,6 +134,9 @@ class GetStorageStore<T> implements IStore<T> {
   }
 
   Future<void> _removePref(String key) async {
+    if (memoryStore) {
+      return;
+    }
     await box.remove(key);
   }
 
