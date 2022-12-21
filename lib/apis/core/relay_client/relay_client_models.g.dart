@@ -8,7 +8,7 @@ part of 'relay_client_models.dart';
 
 Relay _$RelayFromJson(Map<String, dynamic> json) => Relay(
       json['protocol'] as String,
-      json['data'] as String?,
+      data: json['data'] as String?,
     );
 
 Map<String, dynamic> _$RelayToJson(Relay instance) => <String, dynamic>{

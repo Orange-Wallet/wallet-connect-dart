@@ -1,5 +1,4 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:wallet_connect_v2/models/wc_method.dart';
 import 'package:wallet_connect_v2/utils/constants.dart';
 
 part 'json_rpc_request.g.dart';
@@ -8,13 +7,12 @@ part 'json_rpc_request.g.dart';
 class JsonRpcRequest {
   final int id;
   final String jsonrpc;
-  @JsonKey(unknownEnumValue: JsonKey.nullForUndefinedEnumValue)
-  final WCMethod? method;
-  final List<dynamic>? params;
+  final String method;
+  final dynamic params;
   JsonRpcRequest({
     required this.id,
     this.jsonrpc = JSONRPC_VERSION,
-    this.method,
+    required this.method,
     required this.params,
   });
 

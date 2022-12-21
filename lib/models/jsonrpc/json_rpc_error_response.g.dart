@@ -10,7 +10,7 @@ JsonRpcErrorResponse _$JsonRpcErrorResponseFromJson(
         Map<String, dynamic> json) =>
     JsonRpcErrorResponse(
       id: json['id'] as int,
-      error: JsonRpcError.fromJson(json['error'] as Map<String, dynamic>),
+      error: json['error'],
     );
 
 Map<String, dynamic> _$JsonRpcErrorResponseToJson(

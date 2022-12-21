@@ -1,6 +1,8 @@
+import 'package:event/event.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:wallet_connect_v2/apis/core/relay_auth/relay_auth_models.dart';
 import 'package:wallet_connect_v2/apis/core/relay_client/relay_client_models.dart';
+import 'package:wallet_connect_v2/apis/models/json_rpc_error.dart';
 
 part 'pairing_models.g.dart';
 
@@ -73,4 +75,52 @@ class CreateResponse {
     this.topic,
     this.uri,
   );
+}
+
+class ExpirationEvent extends EventArgs {
+  String target;
+  int expiry;
+
+  ExpirationEvent(this.target, this.expiry);
+}
+
+class HistoryEvent extends EventArgs {
+  JsonRpcRecord record;
+
+  HistoryEvent(this.record);
+}
+
+class PairingEvent extends EventArgs {
+  int? id;
+  String? topic;
+  JsonRpcError? error;
+
+  PairingEvent({
+    this.id,
+    this.topic,
+    this.error,
+  });
+}
+
+@JsonSerializable()
+class JsonRpcRecord {
+  int id;
+  String topic;
+  String method;
+  dynamic params;
+  dynamic response;
+  String? chainId;
+
+  JsonRpcRecord(
+    this.id,
+    this.topic,
+    this.method,
+    this.params, {
+    this.chainId,
+  });
+
+  factory JsonRpcRecord.fromJson(Map<String, dynamic> json) =>
+      _$JsonRpcRecordFromJson(json);
+
+  Map<String, dynamic> toJson() => _$JsonRpcRecordToJson(this);
 }

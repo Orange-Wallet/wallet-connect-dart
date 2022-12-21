@@ -8,8 +8,8 @@ import 'package:wallet_connect_v2/models/ethereum/wc_wallet_switch_network.dart'
 import 'package:wallet_connect_v2/models/exception/exceptions.dart';
 import 'package:wallet_connect_v2/models/jsonrpc/json_rpc_error.dart';
 import 'package:wallet_connect_v2/models/jsonrpc/json_rpc_error_response.dart';
-import 'package:wallet_connect_v2/models/jsonrpc/json_rpc_request.dart';
-import 'package:wallet_connect_v2/models/jsonrpc/json_rpc_response.dart';
+import 'package:wallet_connect_v2/apis/models/json_rpc_request.dart';
+import 'package:wallet_connect_v2/apis/models/json_rpc_response.dart';
 import 'package:wallet_connect_v2/models/message_type.dart';
 import 'package:wallet_connect_v2/models/session/wc_approve_session_response.dart';
 import 'package:wallet_connect_v2/models/session/wc_session.dart';

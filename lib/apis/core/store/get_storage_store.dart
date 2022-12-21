@@ -1,6 +1,7 @@
 import 'package:get_storage/get_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wallet_connect_v2/apis/core/store/i_store.dart';
+import 'package:wallet_connect_v2/apis/utils/constants.dart';
 import 'package:wallet_connect_v2/apis/utils/errors.dart';
 
 class GetStorageStore<T> implements IStore<T> {
@@ -18,11 +19,10 @@ class GetStorageStore<T> implements IStore<T> {
   @override
   List<T> get values => map.values.toList();
 
-  final String _storagePrefix;
   @override
-  String get storagePrefix => _storagePrefix;
+  String get storagePrefix => WalletConnectConstants.CORE_STORAGE_PREFIX;
 
-  GetStorageStore(this._storagePrefix);
+  GetStorageStore();
 
   /// Initializes the store, loading all persistent values into memory.
   @override

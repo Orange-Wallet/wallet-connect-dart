@@ -1,13 +1,16 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wallet_connect_v2/apis/core/core.dart';
 import 'package:wallet_connect_v2/apis/core/crypto/crypto.dart';
 import 'package:wallet_connect_v2/apis/core/crypto/crypto_models.dart';
 import 'package:wallet_connect_v2/apis/core/crypto/crypto_utils.dart';
 import 'package:wallet_connect_v2/apis/core/crypto/i_crypto.dart';
 import 'package:wallet_connect_v2/apis/core/crypto/i_crypto_utils.dart';
+import 'package:wallet_connect_v2/apis/core/i_core.dart';
 import 'package:wallet_connect_v2/apis/core/relay_client/relay_client.dart';
 import 'package:wallet_connect_v2/apis/core/relay_client/relay_client_models.dart';
 import 'package:wallet_connect_v2/apis/utils/constants.dart';
@@ -27,20 +30,19 @@ void main() {
   const TEST_PROJECT_ID = 'abc';
 
   group('Relay Client', () {
+    ICore core = Core('', '');
     late Crypto crypto;
     late RelayClient relayClient;
+    MockMessageTracker messageTracker = MockMessageTracker();
+    MockTopicMap topicMap = MockTopicMap();
 
     setUp(() async {
       crypto = MockCrypto();
 
-      MockStore messageTracker = MockStore();
-      MockStore topicMap = MockStore();
       when(topicMap.has(TEST_TOPIC)).thenReturn(true);
 
       relayClient = RelayClient(
-        TEST_PROJECT_ID,
-        crypto,
-        CryptoUtils(),
+        core,
         test: true,
         messageTracker: messageTracker,
         topicMap: topicMap,
@@ -58,23 +60,26 @@ void main() {
         counter++;
       });
 
+      when(messageTracker.messageIsRecorded(
+        TEST_TOPIC,
+        TEST_MESSAGE,
+      )).thenAnswer(
+        (_) => false,
+      );
+
       bool published = await relayClient.handlePublish(
         TEST_TOPIC,
         TEST_MESSAGE,
       );
       expect(published, true);
-      // await Future.delayed(const Duration(milliseconds: 500));
       expect(counter, 1);
 
-      Map<String, String>? message = relayClient.messageRecords[TEST_TOPIC];
-      if (message == null) {
-        expect(false, true);
-      }
-
-      expect(message, {
-        'f745695b2a861fd6f0d99893793b6c3ca63b333c7d95194d575165a35a7ca02d':
-            'swagmaster',
-      });
+      verify(
+        messageTracker.recordMessageEvent(
+          TEST_TOPIC,
+          TEST_MESSAGE,
+        ),
+      ).called(1);
     });
   });
 }

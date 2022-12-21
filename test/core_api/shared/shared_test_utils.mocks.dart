@@ -3,20 +3,25 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i6;
-import 'dart:typed_data' as _i8;
+import 'dart:async' as _i7;
+import 'dart:typed_data' as _i9;
 
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:shared_preferences/shared_preferences.dart' as _i4;
-import 'package:wallet_connect_v2/apis/core/crypto/crypto.dart' as _i9;
+import 'package:shared_preferences/shared_preferences.dart' as _i5;
+import 'package:wallet_connect_v2/apis/core/crypto/crypto.dart' as _i10;
 import 'package:wallet_connect_v2/apis/core/crypto/crypto_models.dart' as _i3;
-import 'package:wallet_connect_v2/apis/core/crypto/crypto_utils.dart' as _i7;
-import 'package:wallet_connect_v2/apis/core/crypto/i_crypto_utils.dart' as _i11;
-import 'package:wallet_connect_v2/apis/core/key_chain/i_key_chain.dart' as _i10;
-import 'package:wallet_connect_v2/apis/core/key_chain/key_chain.dart' as _i5;
+import 'package:wallet_connect_v2/apis/core/crypto/crypto_utils.dart' as _i8;
+import 'package:wallet_connect_v2/apis/core/crypto/i_crypto_utils.dart' as _i4;
+import 'package:wallet_connect_v2/apis/core/i_core.dart' as _i2;
+import 'package:wallet_connect_v2/apis/core/key_chain/i_key_chain.dart' as _i11;
+import 'package:wallet_connect_v2/apis/core/key_chain/key_chain.dart' as _i6;
 import 'package:wallet_connect_v2/apis/core/relay_auth/i_relay_auth.dart'
     as _i12;
-import 'package:wallet_connect_v2/apis/core/store/store.dart' as _i2;
+import 'package:wallet_connect_v2/apis/core/relay_client/message_tracker.dart'
+    as _i14;
+import 'package:wallet_connect_v2/apis/core/relay_client/topic_map.dart'
+    as _i15;
+import 'package:wallet_connect_v2/apis/core/store/store.dart' as _i13;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -29,8 +34,8 @@ import 'package:wallet_connect_v2/apis/core/store/store.dart' as _i2;
 // ignore_for_file: camel_case_types
 // ignore_for_file: subtype_of_sealed_class
 
-class _FakeStore_0 extends _i1.SmartFake implements _i2.Store {
-  _FakeStore_0(
+class _FakeICore_0 extends _i1.SmartFake implements _i2.ICore {
+  _FakeICore_0(
     Object parent,
     Invocation parentInvocation,
   ) : super(
@@ -71,9 +76,19 @@ class _FakeEncodingValidation_3 extends _i1.SmartFake
         );
 }
 
-class _FakeSharedPreferences_4 extends _i1.SmartFake
-    implements _i4.SharedPreferences {
-  _FakeSharedPreferences_4(
+class _FakeICryptoUtils_4 extends _i1.SmartFake implements _i4.ICryptoUtils {
+  _FakeICryptoUtils_4(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakeSharedPreferences_5 extends _i1.SmartFake
+    implements _i5.SharedPreferences {
+  _FakeSharedPreferences_5(
     Object parent,
     Invocation parentInvocation,
   ) : super(
@@ -85,46 +100,46 @@ class _FakeSharedPreferences_4 extends _i1.SmartFake
 /// A class which mocks [KeyChain].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockKeyChain extends _i1.Mock implements _i5.KeyChain {
+class MockKeyChain extends _i1.Mock implements _i6.KeyChain {
   MockKeyChain() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i2.Store get store => (super.noSuchMethod(
-        Invocation.getter(#store),
-        returnValue: _FakeStore_0(
+  _i2.ICore get core => (super.noSuchMethod(
+        Invocation.getter(#core),
+        returnValue: _FakeICore_0(
           this,
-          Invocation.getter(#store),
+          Invocation.getter(#core),
         ),
-      ) as _i2.Store);
+      ) as _i2.ICore);
   @override
-  set store(_i2.Store? _store) => super.noSuchMethod(
+  Map<String, String> get keyChain => (super.noSuchMethod(
+        Invocation.getter(#keyChain),
+        returnValue: <String, String>{},
+      ) as Map<String, String>);
+  @override
+  set keyChain(Map<String, String>? _keyChain) => super.noSuchMethod(
         Invocation.setter(
-          #store,
-          _store,
+          #keyChain,
+          _keyChain,
         ),
         returnValueForMissingStub: null,
       );
   @override
-  String get name => (super.noSuchMethod(
-        Invocation.getter(#name),
+  String get storageKey => (super.noSuchMethod(
+        Invocation.getter(#storageKey),
         returnValue: '',
       ) as String);
   @override
-  String get version => (super.noSuchMethod(
-        Invocation.getter(#version),
-        returnValue: '',
-      ) as String);
-  @override
-  _i6.Future<void> init() => (super.noSuchMethod(
+  _i7.Future<void> init() => (super.noSuchMethod(
         Invocation.method(
           #init,
           [],
         ),
-        returnValue: _i6.Future<void>.value(),
-        returnValueForMissingStub: _i6.Future<void>.value(),
-      ) as _i6.Future<void>);
+        returnValue: _i7.Future<void>.value(),
+        returnValueForMissingStub: _i7.Future<void>.value(),
+      ) as _i7.Future<void>);
   @override
   bool has(
     String? tag, {
@@ -152,7 +167,7 @@ class MockKeyChain extends _i1.Mock implements _i5.KeyChain {
         returnValue: '',
       ) as String);
   @override
-  _i6.Future<void> set(
+  _i7.Future<void> set(
     String? tag,
     String? key, {
     dynamic options,
@@ -166,11 +181,11 @@ class MockKeyChain extends _i1.Mock implements _i5.KeyChain {
           ],
           {#options: options},
         ),
-        returnValue: _i6.Future<void>.value(),
-        returnValueForMissingStub: _i6.Future<void>.value(),
-      ) as _i6.Future<void>);
+        returnValue: _i7.Future<void>.value(),
+        returnValueForMissingStub: _i7.Future<void>.value(),
+      ) as _i7.Future<void>);
   @override
-  _i6.Future<void> delete(
+  _i7.Future<void> delete(
     String? tag, {
     dynamic options,
   }) =>
@@ -180,15 +195,33 @@ class MockKeyChain extends _i1.Mock implements _i5.KeyChain {
           [tag],
           {#options: options},
         ),
-        returnValue: _i6.Future<void>.value(),
-        returnValueForMissingStub: _i6.Future<void>.value(),
-      ) as _i6.Future<void>);
+        returnValue: _i7.Future<void>.value(),
+        returnValueForMissingStub: _i7.Future<void>.value(),
+      ) as _i7.Future<void>);
+  @override
+  _i7.Future<void> persist() => (super.noSuchMethod(
+        Invocation.method(
+          #persist,
+          [],
+        ),
+        returnValue: _i7.Future<void>.value(),
+        returnValueForMissingStub: _i7.Future<void>.value(),
+      ) as _i7.Future<void>);
+  @override
+  _i7.Future<void> restore() => (super.noSuchMethod(
+        Invocation.method(
+          #restore,
+          [],
+        ),
+        returnValue: _i7.Future<void>.value(),
+        returnValueForMissingStub: _i7.Future<void>.value(),
+      ) as _i7.Future<void>);
 }
 
 /// A class which mocks [CryptoUtils].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockCryptoUtils extends _i1.Mock implements _i7.CryptoUtils {
+class MockCryptoUtils extends _i1.Mock implements _i8.CryptoUtils {
   MockCryptoUtils() {
     _i1.throwOnMissingStub(this);
   }
@@ -208,13 +241,13 @@ class MockCryptoUtils extends _i1.Mock implements _i7.CryptoUtils {
         ),
       ) as _i3.KeyPair);
   @override
-  _i8.Uint8List randomBytes(int? length) => (super.noSuchMethod(
+  _i9.Uint8List randomBytes(int? length) => (super.noSuchMethod(
         Invocation.method(
           #randomBytes,
           [length],
         ),
-        returnValue: _i8.Uint8List(0),
-      ) as _i8.Uint8List);
+        returnValue: _i9.Uint8List(0),
+      ) as _i9.Uint8List);
   @override
   String generateRandomBytes32() => (super.noSuchMethod(
         Invocation.method(
@@ -224,7 +257,7 @@ class MockCryptoUtils extends _i1.Mock implements _i7.CryptoUtils {
         returnValue: '',
       ) as String);
   @override
-  _i6.Future<String> deriveSymKey(
+  _i7.Future<String> deriveSymKey(
     String? privKeyA,
     String? pubKeyB,
   ) =>
@@ -236,8 +269,8 @@ class MockCryptoUtils extends _i1.Mock implements _i7.CryptoUtils {
             pubKeyB,
           ],
         ),
-        returnValue: _i6.Future<String>.value(''),
-      ) as _i6.Future<String>);
+        returnValue: _i7.Future<String>.value(''),
+      ) as _i7.Future<String>);
   @override
   String hashKey(String? key) => (super.noSuchMethod(
         Invocation.method(
@@ -255,7 +288,7 @@ class MockCryptoUtils extends _i1.Mock implements _i7.CryptoUtils {
         returnValue: '',
       ) as String);
   @override
-  _i6.Future<String> encrypt(
+  _i7.Future<String> encrypt(
     String? message,
     String? symKey, {
     int? type,
@@ -275,10 +308,10 @@ class MockCryptoUtils extends _i1.Mock implements _i7.CryptoUtils {
             #senderPublicKey: senderPublicKey,
           },
         ),
-        returnValue: _i6.Future<String>.value(''),
-      ) as _i6.Future<String>);
+        returnValue: _i7.Future<String>.value(''),
+      ) as _i7.Future<String>);
   @override
-  _i6.Future<String> decrypt(
+  _i7.Future<String> decrypt(
     String? symKey,
     String? encoded,
   ) =>
@@ -290,14 +323,14 @@ class MockCryptoUtils extends _i1.Mock implements _i7.CryptoUtils {
             encoded,
           ],
         ),
-        returnValue: _i6.Future<String>.value(''),
-      ) as _i6.Future<String>);
+        returnValue: _i7.Future<String>.value(''),
+      ) as _i7.Future<String>);
   @override
   String serialize(
     int? type,
-    _i8.Uint8List? sealed,
-    _i8.Uint8List? iv, {
-    _i8.Uint8List? senderPublicKey,
+    _i9.Uint8List? sealed,
+    _i9.Uint8List? iv, {
+    _i9.Uint8List? senderPublicKey,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -387,13 +420,29 @@ class MockCryptoUtils extends _i1.Mock implements _i7.CryptoUtils {
 /// A class which mocks [Crypto].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockCrypto extends _i1.Mock implements _i9.Crypto {
+class MockCrypto extends _i1.Mock implements _i10.Crypto {
   MockCrypto() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  set keyChain(_i10.IKeyChain? _keyChain) => super.noSuchMethod(
+  _i2.ICore get core => (super.noSuchMethod(
+        Invocation.getter(#core),
+        returnValue: _FakeICore_0(
+          this,
+          Invocation.getter(#core),
+        ),
+      ) as _i2.ICore);
+  @override
+  set core(_i2.ICore? _core) => super.noSuchMethod(
+        Invocation.setter(
+          #core,
+          _core,
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
+  set keyChain(_i11.IKeyChain? _keyChain) => super.noSuchMethod(
         Invocation.setter(
           #keyChain,
           _keyChain,
@@ -401,7 +450,7 @@ class MockCrypto extends _i1.Mock implements _i9.Crypto {
         returnValueForMissingStub: null,
       );
   @override
-  set utils(_i11.ICryptoUtils? _utils) => super.noSuchMethod(
+  set utils(_i4.ICryptoUtils? _utils) => super.noSuchMethod(
         Invocation.setter(
           #utils,
           _utils,
@@ -422,14 +471,14 @@ class MockCrypto extends _i1.Mock implements _i9.Crypto {
         returnValue: '',
       ) as String);
   @override
-  _i6.Future<void> init() => (super.noSuchMethod(
+  _i7.Future<void> init() => (super.noSuchMethod(
         Invocation.method(
           #init,
           [],
         ),
-        returnValue: _i6.Future<void>.value(),
-        returnValueForMissingStub: _i6.Future<void>.value(),
-      ) as _i6.Future<void>);
+        returnValue: _i7.Future<void>.value(),
+        returnValueForMissingStub: _i7.Future<void>.value(),
+      ) as _i7.Future<void>);
   @override
   bool hasKeys(String? tag) => (super.noSuchMethod(
         Invocation.method(
@@ -439,23 +488,23 @@ class MockCrypto extends _i1.Mock implements _i9.Crypto {
         returnValue: false,
       ) as bool);
   @override
-  _i6.Future<String> getClientId() => (super.noSuchMethod(
+  _i7.Future<String> getClientId() => (super.noSuchMethod(
         Invocation.method(
           #getClientId,
           [],
         ),
-        returnValue: _i6.Future<String>.value(''),
-      ) as _i6.Future<String>);
+        returnValue: _i7.Future<String>.value(''),
+      ) as _i7.Future<String>);
   @override
-  _i6.Future<String> generateKeyPair() => (super.noSuchMethod(
+  _i7.Future<String> generateKeyPair() => (super.noSuchMethod(
         Invocation.method(
           #generateKeyPair,
           [],
         ),
-        returnValue: _i6.Future<String>.value(''),
-      ) as _i6.Future<String>);
+        returnValue: _i7.Future<String>.value(''),
+      ) as _i7.Future<String>);
   @override
-  _i6.Future<String> generateSharedKey(
+  _i7.Future<String> generateSharedKey(
     String? selfPublicKey,
     String? peerPublicKey, {
     String? overrideTopic,
@@ -469,10 +518,10 @@ class MockCrypto extends _i1.Mock implements _i9.Crypto {
           ],
           {#overrideTopic: overrideTopic},
         ),
-        returnValue: _i6.Future<String>.value(''),
-      ) as _i6.Future<String>);
+        returnValue: _i7.Future<String>.value(''),
+      ) as _i7.Future<String>);
   @override
-  _i6.Future<String> setSymKey(
+  _i7.Future<String> setSymKey(
     String? symKey, {
     String? overrideTopic,
   }) =>
@@ -482,28 +531,28 @@ class MockCrypto extends _i1.Mock implements _i9.Crypto {
           [symKey],
           {#overrideTopic: overrideTopic},
         ),
-        returnValue: _i6.Future<String>.value(''),
-      ) as _i6.Future<String>);
+        returnValue: _i7.Future<String>.value(''),
+      ) as _i7.Future<String>);
   @override
-  _i6.Future<void> deleteKeyPair(String? publicKey) => (super.noSuchMethod(
+  _i7.Future<void> deleteKeyPair(String? publicKey) => (super.noSuchMethod(
         Invocation.method(
           #deleteKeyPair,
           [publicKey],
         ),
-        returnValue: _i6.Future<void>.value(),
-        returnValueForMissingStub: _i6.Future<void>.value(),
-      ) as _i6.Future<void>);
+        returnValue: _i7.Future<void>.value(),
+        returnValueForMissingStub: _i7.Future<void>.value(),
+      ) as _i7.Future<void>);
   @override
-  _i6.Future<void> deleteSymKey(String? topic) => (super.noSuchMethod(
+  _i7.Future<void> deleteSymKey(String? topic) => (super.noSuchMethod(
         Invocation.method(
           #deleteSymKey,
           [topic],
         ),
-        returnValue: _i6.Future<void>.value(),
-        returnValueForMissingStub: _i6.Future<void>.value(),
-      ) as _i6.Future<void>);
+        returnValue: _i7.Future<void>.value(),
+        returnValueForMissingStub: _i7.Future<void>.value(),
+      ) as _i7.Future<void>);
   @override
-  _i6.Future<String> encode(
+  _i7.Future<String> encode(
     String? topic,
     Map<String, dynamic>? payload, {
     _i3.EncodeOptions? options,
@@ -517,10 +566,10 @@ class MockCrypto extends _i1.Mock implements _i9.Crypto {
           ],
           {#options: options},
         ),
-        returnValue: _i6.Future<String>.value(''),
-      ) as _i6.Future<String>);
+        returnValue: _i7.Future<String>.value(''),
+      ) as _i7.Future<String>);
   @override
-  _i6.Future<String> decode(
+  _i7.Future<String> decode(
     String? topic,
     String? encoded, {
     _i3.DecodeOptions? options,
@@ -534,16 +583,16 @@ class MockCrypto extends _i1.Mock implements _i9.Crypto {
           ],
           {#options: options},
         ),
-        returnValue: _i6.Future<String>.value(''),
-      ) as _i6.Future<String>);
+        returnValue: _i7.Future<String>.value(''),
+      ) as _i7.Future<String>);
   @override
-  _i6.Future<String> signJWT(String? aud) => (super.noSuchMethod(
+  _i7.Future<String> signJWT(String? aud) => (super.noSuchMethod(
         Invocation.method(
           #signJWT,
           [aud],
         ),
-        returnValue: _i6.Future<String>.value(''),
-      ) as _i6.Future<String>);
+        returnValue: _i7.Future<String>.value(''),
+      ) as _i7.Future<String>);
   @override
   int getPayloadType(String? encoded) => (super.noSuchMethod(
         Invocation.method(
@@ -552,26 +601,40 @@ class MockCrypto extends _i1.Mock implements _i9.Crypto {
         ),
         returnValue: 0,
       ) as int);
+  @override
+  _i4.ICryptoUtils getUtils() => (super.noSuchMethod(
+        Invocation.method(
+          #getUtils,
+          [],
+        ),
+        returnValue: _FakeICryptoUtils_4(
+          this,
+          Invocation.method(
+            #getUtils,
+            [],
+          ),
+        ),
+      ) as _i4.ICryptoUtils);
 }
 
 /// A class which mocks [Store].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockStore extends _i1.Mock implements _i2.Store {
+class MockStore extends _i1.Mock implements _i13.Store {
   MockStore() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i4.SharedPreferences get prefs => (super.noSuchMethod(
+  _i5.SharedPreferences get prefs => (super.noSuchMethod(
         Invocation.getter(#prefs),
-        returnValue: _FakeSharedPreferences_4(
+        returnValue: _FakeSharedPreferences_5(
           this,
           Invocation.getter(#prefs),
         ),
-      ) as _i4.SharedPreferences);
+      ) as _i5.SharedPreferences);
   @override
-  set prefs(_i4.SharedPreferences? _prefs) => super.noSuchMethod(
+  set prefs(_i5.SharedPreferences? _prefs) => super.noSuchMethod(
         Invocation.setter(
           #prefs,
           _prefs,
@@ -599,14 +662,14 @@ class MockStore extends _i1.Mock implements _i2.Store {
         returnValue: '',
       ) as String);
   @override
-  _i6.Future<void> init() => (super.noSuchMethod(
+  _i7.Future<void> init() => (super.noSuchMethod(
         Invocation.method(
           #init,
           [],
         ),
-        returnValue: _i6.Future<void>.value(),
-        returnValueForMissingStub: _i6.Future<void>.value(),
-      ) as _i6.Future<void>);
+        returnValue: _i7.Future<void>.value(),
+        returnValueForMissingStub: _i7.Future<void>.value(),
+      ) as _i7.Future<void>);
   @override
   String get(String? key) => (super.noSuchMethod(
         Invocation.method(
@@ -632,7 +695,7 @@ class MockStore extends _i1.Mock implements _i2.Store {
         returnValue: <String>[],
       ) as List<String>);
   @override
-  _i6.Future<void> set(
+  _i7.Future<void> set(
     String? key,
     String? value,
   ) =>
@@ -644,11 +707,11 @@ class MockStore extends _i1.Mock implements _i2.Store {
             value,
           ],
         ),
-        returnValue: _i6.Future<void>.value(),
-        returnValueForMissingStub: _i6.Future<void>.value(),
-      ) as _i6.Future<void>);
+        returnValue: _i7.Future<void>.value(),
+        returnValueForMissingStub: _i7.Future<void>.value(),
+      ) as _i7.Future<void>);
   @override
-  _i6.Future<void> update(
+  _i7.Future<void> update(
     String? key,
     String? value,
   ) =>
@@ -660,16 +723,225 @@ class MockStore extends _i1.Mock implements _i2.Store {
             value,
           ],
         ),
-        returnValue: _i6.Future<void>.value(),
-        returnValueForMissingStub: _i6.Future<void>.value(),
-      ) as _i6.Future<void>);
+        returnValue: _i7.Future<void>.value(),
+        returnValueForMissingStub: _i7.Future<void>.value(),
+      ) as _i7.Future<void>);
   @override
-  _i6.Future<void> delete(String? key) => (super.noSuchMethod(
+  _i7.Future<void> delete(String? key) => (super.noSuchMethod(
         Invocation.method(
           #delete,
           [key],
         ),
-        returnValue: _i6.Future<void>.value(),
-        returnValueForMissingStub: _i6.Future<void>.value(),
-      ) as _i6.Future<void>);
+        returnValue: _i7.Future<void>.value(),
+        returnValueForMissingStub: _i7.Future<void>.value(),
+      ) as _i7.Future<void>);
+}
+
+/// A class which mocks [MessageTracker].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockMessageTracker extends _i1.Mock implements _i14.MessageTracker {
+  MockMessageTracker() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i2.ICore get core => (super.noSuchMethod(
+        Invocation.getter(#core),
+        returnValue: _FakeICore_0(
+          this,
+          Invocation.getter(#core),
+        ),
+      ) as _i2.ICore);
+  @override
+  Map<String, Map<String, String>> get messageRecords => (super.noSuchMethod(
+        Invocation.getter(#messageRecords),
+        returnValue: <String, Map<String, String>>{},
+      ) as Map<String, Map<String, String>>);
+  @override
+  set messageRecords(Map<String, Map<String, String>>? _messageRecords) =>
+      super.noSuchMethod(
+        Invocation.setter(
+          #messageRecords,
+          _messageRecords,
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
+  String get storageKey => (super.noSuchMethod(
+        Invocation.getter(#storageKey),
+        returnValue: '',
+      ) as String);
+  @override
+  _i7.Future<void> init() => (super.noSuchMethod(
+        Invocation.method(
+          #init,
+          [],
+        ),
+        returnValue: _i7.Future<void>.value(),
+        returnValueForMissingStub: _i7.Future<void>.value(),
+      ) as _i7.Future<void>);
+  @override
+  _i7.Future<void> recordMessageEvent(
+    String? topic,
+    String? message,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #recordMessageEvent,
+          [
+            topic,
+            message,
+          ],
+        ),
+        returnValue: _i7.Future<void>.value(),
+        returnValueForMissingStub: _i7.Future<void>.value(),
+      ) as _i7.Future<void>);
+  @override
+  bool messageIsRecorded(
+    String? topic,
+    String? message,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #messageIsRecorded,
+          [
+            topic,
+            message,
+          ],
+        ),
+        returnValue: false,
+      ) as bool);
+  @override
+  _i7.Future<void> deleteSubscriptionMessages(String? topic) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #deleteSubscriptionMessages,
+          [topic],
+        ),
+        returnValue: _i7.Future<void>.value(),
+        returnValueForMissingStub: _i7.Future<void>.value(),
+      ) as _i7.Future<void>);
+  @override
+  _i7.Future<void> persist() => (super.noSuchMethod(
+        Invocation.method(
+          #persist,
+          [],
+        ),
+        returnValue: _i7.Future<void>.value(),
+        returnValueForMissingStub: _i7.Future<void>.value(),
+      ) as _i7.Future<void>);
+  @override
+  _i7.Future<void> restore() => (super.noSuchMethod(
+        Invocation.method(
+          #restore,
+          [],
+        ),
+        returnValue: _i7.Future<void>.value(),
+        returnValueForMissingStub: _i7.Future<void>.value(),
+      ) as _i7.Future<void>);
+}
+
+/// A class which mocks [TopicMap].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockTopicMap extends _i1.Mock implements _i15.TopicMap {
+  MockTopicMap() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i2.ICore get core => (super.noSuchMethod(
+        Invocation.getter(#core),
+        returnValue: _FakeICore_0(
+          this,
+          Invocation.getter(#core),
+        ),
+      ) as _i2.ICore);
+  @override
+  Map<String, String> get topicMap => (super.noSuchMethod(
+        Invocation.getter(#topicMap),
+        returnValue: <String, String>{},
+      ) as Map<String, String>);
+  @override
+  set topicMap(Map<String, String>? _topicMap) => super.noSuchMethod(
+        Invocation.setter(
+          #topicMap,
+          _topicMap,
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
+  String get storageKey => (super.noSuchMethod(
+        Invocation.getter(#storageKey),
+        returnValue: '',
+      ) as String);
+  @override
+  _i7.Future<void> init() => (super.noSuchMethod(
+        Invocation.method(
+          #init,
+          [],
+        ),
+        returnValue: _i7.Future<void>.value(),
+        returnValueForMissingStub: _i7.Future<void>.value(),
+      ) as _i7.Future<void>);
+  @override
+  bool has(String? key) => (super.noSuchMethod(
+        Invocation.method(
+          #has,
+          [key],
+        ),
+        returnValue: false,
+      ) as bool);
+  @override
+  String get(String? key) => (super.noSuchMethod(
+        Invocation.method(
+          #get,
+          [key],
+        ),
+        returnValue: '',
+      ) as String);
+  @override
+  _i7.Future<void> set(
+    String? key,
+    String? value,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #set,
+          [
+            key,
+            value,
+          ],
+        ),
+        returnValue: _i7.Future<void>.value(),
+        returnValueForMissingStub: _i7.Future<void>.value(),
+      ) as _i7.Future<void>);
+  @override
+  _i7.Future<void> delete(String? key) => (super.noSuchMethod(
+        Invocation.method(
+          #delete,
+          [key],
+        ),
+        returnValue: _i7.Future<void>.value(),
+        returnValueForMissingStub: _i7.Future<void>.value(),
+      ) as _i7.Future<void>);
+  @override
+  _i7.Future<void> persist() => (super.noSuchMethod(
+        Invocation.method(
+          #persist,
+          [],
+        ),
+        returnValue: _i7.Future<void>.value(),
+        returnValueForMissingStub: _i7.Future<void>.value(),
+      ) as _i7.Future<void>);
+  @override
+  _i7.Future<void> restore() => (super.noSuchMethod(
+        Invocation.method(
+          #restore,
+          [],
+        ),
+        returnValue: _i7.Future<void>.value(),
+        returnValueForMissingStub: _i7.Future<void>.value(),
+      ) as _i7.Future<void>);
 }

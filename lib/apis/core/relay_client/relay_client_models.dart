@@ -9,9 +9,9 @@ class Relay {
   final String? data;
 
   Relay(
-    this.protocol,
+    this.protocol, {
     this.data,
-  );
+  });
 
   factory Relay.fromJson(Map<String, dynamic> json) => _$RelayFromJson(json);
 

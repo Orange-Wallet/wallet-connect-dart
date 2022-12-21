@@ -55,3 +55,22 @@ Map<String, dynamic> _$RedirectToJson(Redirect instance) => <String, dynamic>{
       'native': instance.native,
       'universal': instance.universal,
     };
+
+JsonRpcRecord _$JsonRpcRecordFromJson(Map<String, dynamic> json) =>
+    JsonRpcRecord(
+      json['id'] as int,
+      json['topic'] as String,
+      json['method'] as String,
+      json['params'],
+      chainId: json['chainId'] as String?,
+    )..response = json['response'];
+
+Map<String, dynamic> _$JsonRpcRecordToJson(JsonRpcRecord instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'topic': instance.topic,
+      'method': instance.method,
+      'params': instance.params,
+      'response': instance.response,
+      'chainId': instance.chainId,
+    };

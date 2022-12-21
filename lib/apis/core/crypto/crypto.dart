@@ -4,12 +4,14 @@ import 'dart:typed_data';
 import 'package:convert/convert.dart';
 import 'package:wallet_connect_v2/apis/core/crypto/crypto_models.dart';
 import 'package:wallet_connect_v2/apis/core/crypto/crypto_utils.dart';
+import 'package:wallet_connect_v2/apis/core/i_core.dart';
 import 'package:wallet_connect_v2/apis/core/key_chain/key_chain.dart';
 import 'package:wallet_connect_v2/apis/core/crypto/i_crypto.dart';
 import 'package:wallet_connect_v2/apis/core/crypto/i_crypto_utils.dart';
 import 'package:wallet_connect_v2/apis/core/key_chain/i_key_chain.dart';
 import 'package:wallet_connect_v2/apis/core/relay_auth/i_relay_auth.dart';
 import 'package:wallet_connect_v2/apis/core/relay_auth/relay_auth.dart';
+import 'package:wallet_connect_v2/apis/core/store/i_store.dart';
 import 'package:wallet_connect_v2/apis/utils/errors.dart';
 
 class Crypto implements ICrypto {
@@ -23,12 +25,19 @@ class Crypto implements ICrypto {
   @override
   String get name => CRYPTO_CONTEXT;
 
+  ICore core;
+
   @override
   IKeyChain? keyChain;
   ICryptoUtils? utils;
   IRelayAuth? relayAuth;
 
-  Crypto({this.keyChain, this.utils, this.relayAuth});
+  Crypto(
+    this.core, {
+    this.keyChain,
+    this.utils,
+    this.relayAuth,
+  });
 
   @override
   Future<void> init() async {
@@ -37,7 +46,7 @@ class Crypto implements ICrypto {
     }
 
     if (keyChain == null) {
-      keyChain = KeyChain();
+      keyChain = KeyChain(core);
     }
     if (utils == null) {
       utils = CryptoUtils();
@@ -248,5 +257,10 @@ class Crypto implements ICrypto {
     if (!_initialized) {
       throw Errors.getInternalError(Errors.NOT_INITIALIZED);
     }
+  }
+
+  @override
+  ICryptoUtils getUtils() {
+    return utils!;
   }
 }

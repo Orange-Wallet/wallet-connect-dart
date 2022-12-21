@@ -1,4 +1,5 @@
 import 'package:wallet_connect_v2/apis/core/crypto/crypto_models.dart';
+import 'package:wallet_connect_v2/apis/core/crypto/i_crypto_utils.dart';
 import 'package:wallet_connect_v2/apis/core/key_chain/i_key_chain.dart';
 
 abstract class ICrypto {
@@ -7,6 +8,7 @@ abstract class ICrypto {
   abstract IKeyChain? keyChain;
 
   Future<void> init();
+
   bool hasKeys(String tag);
   Future<String> getClientId();
   Future<String> generateKeyPair();
@@ -33,4 +35,6 @@ abstract class ICrypto {
   });
   Future<String> signJWT(String aud);
   int getPayloadType(String encoded);
+
+  ICryptoUtils getUtils();
 }

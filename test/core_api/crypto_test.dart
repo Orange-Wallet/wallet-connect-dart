@@ -3,9 +3,11 @@ import 'dart:convert';
 import 'package:convert/convert.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
+import 'package:wallet_connect_v2/apis/core/core.dart';
 import 'package:wallet_connect_v2/apis/core/crypto/crypto.dart';
 import 'package:wallet_connect_v2/apis/core/crypto/crypto_models.dart';
 import 'package:wallet_connect_v2/apis/core/crypto/crypto_utils.dart';
+import 'package:wallet_connect_v2/apis/core/i_core.dart';
 import 'package:wallet_connect_v2/apis/models/models.dart';
 
 import 'shared/shared_test_utils.mocks.dart';
@@ -35,13 +37,14 @@ void main() {
       "Af96fVdnw2KwoXrZIpnr23gx3L2aVpWcATaMdARUOzNCcXdlY2ZhYXNkYWRzeloehD3r+YsB1qdXGLXuJxFer6PKupcDyhxWAaavJBkEUyD67CBzzItrjcQ55j4hYS/ziDyGfgvc1yyDPrf3uyA0qew1wvsD2Tcy";
 
   group('Crypto API', () {
+    ICore core = Core('', '');
     late MockKeyChain keyChain;
     late MockCryptoUtils mockUtils;
     late Crypto cryptoAPI;
 
     setUp(() async {
       keyChain = MockKeyChain();
-      cryptoAPI = Crypto(keyChain: keyChain);
+      cryptoAPI = Crypto(core, keyChain: keyChain);
       await cryptoAPI.init();
     });
     test('Initializes the keychain a single time', () async {
@@ -53,7 +56,7 @@ void main() {
     group('generateKeyPair', () {
       test('Throws if not initialized', () async {
         keyChain = MockKeyChain();
-        cryptoAPI = Crypto(keyChain: keyChain);
+        cryptoAPI = Crypto(core, keyChain: keyChain);
         expect(
           () async => await cryptoAPI.generateKeyPair(),
           throwsA(isA<Error>()),
@@ -69,7 +72,7 @@ void main() {
           when(mockUtils.generateKeyPair()).thenReturn(
             KeyPair(privateKey, publicKey),
           );
-          cryptoAPI = Crypto(keyChain: keyChain, utils: mockUtils);
+          cryptoAPI = Crypto(core, keyChain: keyChain, utils: mockUtils);
           await cryptoAPI.init();
 
           final String pubKeyActual = await cryptoAPI.generateKeyPair();
@@ -83,7 +86,7 @@ void main() {
     group('generateSharedKey', () {
       test('Throws if not initialized', () async {
         keyChain = MockKeyChain();
-        cryptoAPI = Crypto(keyChain: keyChain);
+        cryptoAPI = Crypto(core, keyChain: keyChain);
         expect(
           () async => await cryptoAPI.generateSharedKey('a', 'b'),
           throwsA(isA<Error>()),
@@ -108,7 +111,7 @@ void main() {
             (_) async => expectedSymKey,
           );
           when(keyChain.get(selfKP.publicKey)).thenReturn(selfKP.privateKey);
-          cryptoAPI = Crypto(keyChain: keyChain, utils: mockUtils);
+          cryptoAPI = Crypto(core, keyChain: keyChain, utils: mockUtils);
           await cryptoAPI.init();
 
           final String topicActual = await cryptoAPI.generateSharedKey(
@@ -128,7 +131,7 @@ void main() {
     group('setSymKey', () {
       test('Throws if not initialized', () async {
         keyChain = MockKeyChain();
-        cryptoAPI = Crypto(keyChain: keyChain);
+        cryptoAPI = Crypto(core, keyChain: keyChain);
         expect(
           () async => await cryptoAPI.setSymKey('a'),
           throwsA(isA<Error>()),
@@ -169,7 +172,7 @@ void main() {
     group('deleteKeyPair', () {
       test('Throws if not initialized', () async {
         keyChain = MockKeyChain();
-        cryptoAPI = Crypto(keyChain: keyChain);
+        cryptoAPI = Crypto(core, keyChain: keyChain);
         expect(
           () async => await cryptoAPI.deleteKeyPair('a'),
           throwsA(isA<Error>()),
@@ -192,7 +195,7 @@ void main() {
     group('deleteSymKey', () {
       test('Throws if not initialized', () async {
         keyChain = MockKeyChain();
-        cryptoAPI = Crypto(keyChain: keyChain);
+        cryptoAPI = Crypto(core, keyChain: keyChain);
         expect(
           () async => await cryptoAPI.deleteSymKey('a'),
           throwsA(isA<Error>()),
@@ -221,7 +224,7 @@ void main() {
 
       test('Throws if not initialized', () async {
         keyChain = MockKeyChain();
-        cryptoAPI = Crypto(keyChain: keyChain);
+        cryptoAPI = Crypto(core, keyChain: keyChain);
         expect(
           () async => await cryptoAPI.encode('a', {}),
           throwsA(isA<Error>()),

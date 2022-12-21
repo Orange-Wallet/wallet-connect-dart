@@ -1,20 +1,21 @@
-import 'package:json_annotation/json_annotation.dart';
-import 'package:wallet_connect_v2/apis/core/store/store.dart';
+import 'package:wallet_connect_v2/apis/core/i_core.dart';
+import 'package:wallet_connect_v2/apis/core/store/i_store.dart';
 import 'package:wallet_connect_v2/apis/core/key_chain/i_key_chain.dart';
-import 'package:wallet_connect_v2/apis/models/models.dart';
-import 'package:wallet_connect_v2/apis/utils/constants.dart';
 import 'package:wallet_connect_v2/apis/utils/errors.dart';
 
 class KeyChain implements IKeyChain {
   static const KEYCHAIN = 'keychain';
   static const KEYCHAIN_STORAGE_VERSION = '0.3';
 
+  @override
+  String get storageKey => '$KEYCHAIN_STORAGE_VERSION//$KEYCHAIN';
+  @override
+  final ICore core;
+
   bool _initialized = false;
+  Map<String, String> keyChain = {};
 
-  String get name => KEYCHAIN;
-  String get version => KEYCHAIN_STORAGE_VERSION;
-
-  late Store store;
+  KeyChain(this.core);
 
   @override
   Future<void> init() async {
@@ -22,8 +23,9 @@ class KeyChain implements IKeyChain {
       return;
     }
 
-    store = Store(_storagePrefix);
-    await store.init();
+    // store = GetStorageStore(storageKey);
+    await core.storage.init();
+    await restore();
 
     _initialized = true;
   }
@@ -35,7 +37,7 @@ class KeyChain implements IKeyChain {
     dynamic options,
   }) {
     _checkInitialized();
-    return store.map.containsKey(_addPrefix(tag));
+    return keyChain.containsKey(tag);
   }
 
   /// Gets the key associated with the provided tag
@@ -45,7 +47,10 @@ class KeyChain implements IKeyChain {
     dynamic options,
   }) {
     _checkInitialized();
-    return store.get(tag);
+    if (keyChain.containsKey(tag)) {
+      return keyChain[tag]!;
+    }
+    return '';
   }
 
   /// Sets the value with the given key
@@ -56,7 +61,8 @@ class KeyChain implements IKeyChain {
     dynamic options,
   }) async {
     _checkInitialized();
-    await store.set(tag, key);
+    keyChain[tag] = key;
+    await persist();
   }
 
   /// Deletes the key from the keychain
@@ -66,14 +72,20 @@ class KeyChain implements IKeyChain {
     dynamic options,
   }) async {
     _checkInitialized();
-    await store.delete(tag);
+    keyChain.remove(tag);
+    await persist();
   }
 
-  String get _storagePrefix =>
-      '${WalletConnectConstants.CORE_STORAGE_PREFIX}$version//$name';
+  @override
+  Future<void> persist() async {
+    _checkInitialized();
+    await core.storage.set(storageKey, keyChain);
+  }
 
-  String _addPrefix(String key) {
-    return '$_storagePrefix$key';
+  @override
+  Future<void> restore() async {
+    _checkInitialized();
+    keyChain = core.storage.get(storageKey);
   }
 
   void _checkInitialized() {
