@@ -33,6 +33,8 @@ typedef EthTransaction = void Function(
 typedef CustomRequest = void Function(int id, String payload);
 typedef WalletSwitchNetwork = void Function(int id, int chainId);
 
+const DappDisconnectCode = -9898;
+
 class WCClient {
   late WebSocketChannel _webSocket;
   Stream _socketStream = Stream.empty();
@@ -329,6 +331,7 @@ class WCClient {
         final param = WCSessionUpdate.fromJson(request.params!.first);
         // print('SESSION_UPDATE $param');
         if (!param.approved) {
+          onDisconnect?.call(DappDisconnectCode, null);
           killSession();
         }
         break;
@@ -374,6 +377,21 @@ class WCClient {
           WCEthereumSignMessage(
             raw: params,
             type: WCSignType.TYPED_MESSAGE,
+          ),
+        );
+        break;
+      case WCMethod.ETH_SIGN_TYPE_DATA_V4:
+        // print('ETH_SIGN_TYPE_DATA $request');
+        final params = request.params!.cast<String>();
+        if (params.length < 2) {
+          throw InvalidJsonRpcParamsException(request.id);
+        }
+
+        onEthSign?.call(
+          request.id,
+          WCEthereumSignMessage(
+            raw: params,
+            type: WCSignType.TYPED_MESSAGE_V4,
           ),
         );
         break;
