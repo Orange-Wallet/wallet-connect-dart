@@ -174,7 +174,7 @@ class Errors {
       return new Error(
         INTERNAL_ERRORS[key]!['code']! as int,
         context != ''
-            ? "${INTERNAL_ERRORS[key]!['message']! as String}\n$context"
+            ? "${INTERNAL_ERRORS[key]!['message']! as String} $context"
             : INTERNAL_ERRORS[key]!['message']! as String,
       );
     }
@@ -189,7 +189,7 @@ class Errors {
       return new Error(
         SDK_ERRORS[key]!['code']! as int,
         context != ''
-            ? "${SDK_ERRORS[key]!['message']! as String}\n$context"
+            ? "${SDK_ERRORS[key]!['message']! as String} $context"
             : SDK_ERRORS[key]!['message']! as String,
       );
     }

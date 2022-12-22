@@ -14,6 +14,8 @@ import 'package:wallet_connect_v2/apis/core/i_core.dart';
 import 'package:wallet_connect_v2/apis/core/pairing/pairing_models.dart';
 import 'package:wallet_connect_v2/apis/core/relay_client/relay_client.dart';
 import 'package:wallet_connect_v2/apis/core/relay_client/relay_client_models.dart';
+import 'package:wallet_connect_v2/apis/models/json_rpc_error.dart';
+import 'package:wallet_connect_v2/apis/models/models.dart';
 import 'package:wallet_connect_v2/apis/utils/constants.dart';
 
 import 'shared/shared_test_utils.mocks.dart';
@@ -54,11 +56,11 @@ void main() {
     test('Create returns pairing topic and URI in expected format', () async {
       CreateResponse response = await coreA.pairing.create();
       expect(response.topic.length, 64);
-      print(response.uri);
-      print('${coreA.protocol}%3A${response.topic}@${coreA.version}');
+      // print(response.uri);
+      // print('${coreA.protocol}:${response.topic}@${coreA.version}');
       expect(
         response.uri.toString().startsWith(
-              '${coreA.protocol}%3A${response.topic}@${coreA.version}',
+              '${coreA.protocol}:${response.topic}@${coreA.version}',
             ),
         true,
       );
@@ -142,10 +144,94 @@ void main() {
         gotPing = true;
       });
 
-      await coreB.pairing.pair(response.uri);
+      await coreB.pairing.pair(response.uri, activatePairing: true);
+      await coreA.pairing.activate(response.topic);
       await coreA.pairing.ping(response.topic);
-      await Future.delayed(Duration(milliseconds: 500));
+      await Future.delayed(Duration(milliseconds: 100));
       expect(gotPing, true);
+    });
+
+    test("can disconnect from a known pairing", () async {
+      final CreateResponse response = await coreA.pairing.create();
+      bool hasDeleted = false;
+
+      coreA.pairing.onPairingDelete.subscribe((args) {
+        hasDeleted = true;
+      });
+
+      await coreB.pairing.pair(response.uri, activatePairing: true);
+      await coreB.pairing.disconnect(response.topic);
+      await Future.delayed(Duration(milliseconds: 100));
+      expect(hasDeleted, true);
+      expect(coreA.pairing.getStore().getAll().length, 0);
+      expect(coreB.pairing.getStore().getAll().length, 0);
+    });
+
+    group('Validations', () {
+      setUp(() async {
+        coreA = Core(TEST_RELAY_URL, TEST_PROJECT_ID, memoryStore: true);
+        await coreA.start();
+      });
+
+      tearDown(() async {
+        await coreA.relayClient.disconnect();
+      });
+
+      group('Pairing', () {
+        test("throws when no empty/invalid uri is provided", () async {
+          expect(
+            () async => await coreA.pairing.pair(Uri.parse('')),
+            throwsA(
+              predicate(
+                (e) => e is Error && e.message == 'Invalid URI: Missing @',
+              ),
+            ),
+          );
+          expect(
+            () async => await coreA.pairing.pair(Uri.parse('wc:abc')),
+            throwsA(
+              predicate(
+                (e) => e is Error && e.message == 'Invalid URI: Missing @',
+              ),
+            ),
+          );
+        });
+      });
+
+      group('Ping', () {
+        test("throws when unused topic is provided", () async {
+          expect(
+            () async => await coreA.pairing.ping('abc'),
+            throwsA(
+              predicate((e) =>
+                  e is JsonRpcError &&
+                  e.message ==
+                      "No matching key. pairing topic doesn't exist: abc"),
+            ),
+          );
+        });
+      });
+
+      group('Disconnect', () {
+        test("throws when unused topic is provided", () async {
+          expect(
+            () async => await coreA.pairing.disconnect('abc'),
+            throwsA(
+              predicate((e) =>
+                  e is JsonRpcError &&
+                  e.message ==
+                      "No matching key. pairing topic doesn't exist: abc"),
+            ),
+          );
+        });
+      });
+
+      // it("throws when invalid uri is provided", async () => {
+      //   // @ts-expect-error - ignore TS error to test runtime validation
+      //   await expect(coreA.pairing.pair({ uri: 123 })).rejects.toThrowError(
+      //     "Missing or invalid. pair() uri: 123",
+      //   );
+      // });
     });
   });
 }

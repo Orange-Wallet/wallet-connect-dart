@@ -30,7 +30,7 @@ void main() {
 
     // Expected secret key for above seed
     const EXPECTED_SECRET_KEY =
-        "58e0254c211b858ef7896b00e3f36beeb13d568d47c6031c4218b87718061295884ab67f787b69e534bfdba8d5beb4e719700e90ac06317ed177d49e5a33be5a";
+        "58e0254c211b858ef7896b00e3f36beeb13d568d47c6031c4218b87718061295";
 
     const EXPECTED_PUBLIC_KEY =
         "884ab67f787b69e534bfdba8d5beb4e719700e90ac06317ed177d49e5a33be5a";
@@ -100,8 +100,6 @@ void main() {
         keyPair,
         iat: TEST_IAT,
       );
-      print(jwt);
-      print(EXPECTED_JWT);
       expect(jwt, EXPECTED_JWT);
       bool verified = await relayApi.verifyJWT(jwt);
       expect(verified, true);

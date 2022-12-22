@@ -330,8 +330,8 @@ void main() {
       expect(params.type, 1);
       expect(params.senderPublicKey, TEST_SELF.publicKey);
       expect(params.receiverPublicKey, TEST_PEER.publicKey);
-      print(
-          await utils.deriveSymKey(TEST_PEER.privateKey, TEST_SELF.publicKey));
+      // print(
+      //     await utils.deriveSymKey(TEST_PEER.privateKey, TEST_SELF.publicKey));
       final String symKey = await utils.deriveSymKey(
           TEST_PEER.privateKey, params.senderPublicKey!);
       expect(symKey, TEST_SYM_KEY);

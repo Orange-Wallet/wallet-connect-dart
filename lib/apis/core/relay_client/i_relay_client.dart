@@ -19,7 +19,7 @@ abstract class IRelayClient {
     bool? prompt,
     int? tag,
   });
-  Future<void> subscribe(String topic);
+  Future<String> subscribe(String topic);
   Future<void> unsubscribe(String topic);
   Future<void> connect(String? relayUrl);
   Future<void> disconnect();

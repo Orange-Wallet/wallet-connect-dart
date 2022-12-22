@@ -80,7 +80,7 @@ class CryptoUtils extends ICryptoUtils {
       Uint8List.fromList(hex.decode(privKeyA)),
       Uint8List.fromList(hex.decode(pubKeyB)),
     );
-    print(sharedKey1);
+    // print(sharedKey1);
 
     Uint8List out = Uint8List(KEY_LENGTH);
 

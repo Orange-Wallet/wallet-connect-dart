@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:event/event.dart';
+import 'package:http/http.dart';
 import 'package:wallet_connect_v2/apis/core/crypto/i_crypto.dart';
 import 'package:wallet_connect_v2/apis/core/i_core.dart';
 import 'package:wallet_connect_v2/apis/core/pairing/i_pairing.dart';
@@ -44,6 +45,8 @@ class Pairing implements IPairing {
       return;
     }
 
+    _registerRelayEvents();
+    _registerExpirerEvents();
     pairings ??= PairingStore(core);
     await core.expirer.init();
     await pairings!.init();
@@ -59,7 +62,7 @@ class Pairing implements IPairing {
   }) async {
     _checkInitialized();
 
-    print(uri.queryParameters);
+    // print(uri.queryParameters);
     final int expiry = MiscUtils.calculateExpiry(
       WalletConnectConstants.FIVE_MINUTES,
     );
@@ -182,6 +185,7 @@ class Pairing implements IPairing {
         PairingConstants.WC_PAIRING_DELETE,
         Errors.getSdkError(Errors.USER_DISCONNECTED).toJson(),
       );
+      await pairings!.delete(topic);
     }
   }
 
@@ -209,7 +213,7 @@ class Pairing implements IPairing {
       topic,
       request,
     );
-    print('sent request');
+    // print('sent request');
     await core.relayClient.publish(topic, message, opts.ttl);
 
     return request.id;
@@ -298,7 +302,7 @@ class Pairing implements IPairing {
   }
 
   void _onMessageEvent(MessageEvent? event) async {
-    print('message');
+    // print('message');
     if (event == null) {
       return;
     }
@@ -310,10 +314,11 @@ class Pairing implements IPairing {
     // If it's an rpc request, handle it
     if (data.containsKey('method')) {
       final request = JsonRpcRequest.fromJson(data);
+      // print(request);
       if (routerMapRequest.containsKey(request.method)) {
-        routerMapRequest[request.method]!(event.topic, request.params);
+        routerMapRequest[request.method]!(event.topic, request);
       } else {
-        _onUnkownRpcMethodRequest(event.topic, request.params);
+        _onUnkownRpcMethodRequest(event.topic, request);
       }
     }
     // Otherwise handle it as a response
@@ -325,16 +330,17 @@ class Pairing implements IPairing {
       }
 
       if (routerMapRequest.containsKey(record.method)) {
-        routerMapRequest[record.method]!(event.topic, response.result);
+        routerMapRequest[record.method]!(event.topic, response);
       } else {
         _onUnkownRpcMethodResponse(record.method);
       }
     }
   }
 
-  Future<void> _onPairingPingRequest(String topic, dynamic params) async {
-    print('ping req');
-    final int id = params['id'];
+  Future<void> _onPairingPingRequest(
+      String topic, JsonRpcRequest request) async {
+    // print('ping req');
+    final int id = request.id;
     try {
       _isValidPing(topic);
       await _sendResult(id, topic, true);
@@ -349,8 +355,12 @@ class Pairing implements IPairing {
     }
   }
 
-  Future<void> _onPairingDeleteRequest(String topic, dynamic params) async {
-    final int id = params['id'];
+  Future<void> _onPairingDeleteRequest(
+    String topic,
+    JsonRpcRequest request,
+  ) async {
+    // print('delete');
+    final int id = request.id;
     try {
       _isValidDisconnect(topic);
       await _sendResult(id, topic, true);
@@ -366,9 +376,12 @@ class Pairing implements IPairing {
     }
   }
 
-  Future<void> _onUnkownRpcMethodRequest(String topic, dynamic params) async {
-    final int id = params['id'];
-    final String method = params['method'];
+  Future<void> _onUnkownRpcMethodRequest(
+    String topic,
+    JsonRpcRequest request,
+  ) async {
+    final int id = request.id;
+    final String method = request.method;
     try {
       if (routerMapRequest.containsKey(method)) {
         return;
@@ -383,10 +396,11 @@ class Pairing implements IPairing {
     }
   }
 
-  Future<void> _onPairingPingResponse(String topic, dynamic result) async {
-    final int id = result['id'];
-    await Future.delayed(const Duration(milliseconds: 500));
-    if (result.containsKey('result')) {
+  Future<void> _onPairingPingResponse(
+      String topic, JsonRpcResponse response) async {
+    final int id = response.id;
+
+    if (!response.result is JsonRpcError) {
       onPairingPing.broadcast(
         PairingEvent(
           id: id,
@@ -398,7 +412,7 @@ class Pairing implements IPairing {
         PairingEvent(
           id: id,
           topic: topic,
-          error: result['error'],
+          error: response.result,
         ),
       );
     }

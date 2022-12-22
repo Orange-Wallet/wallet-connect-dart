@@ -23,6 +23,8 @@ For all crypto related needs, such as generating keys and DH encryption/decrypti
 
 - Pull this repo and set it up: https://github.com/WalletConnect/relay
 
-Build using make dev, docket must be open.
+Build using make dev, docker must be open.
 Install dependencies using npm install.
 Run it using PORT=5555 npm run start.
+
+- Run `flutter test`

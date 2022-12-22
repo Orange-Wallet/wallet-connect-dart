@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:wallet_connect_v2/apis/core/relay_client/relay_client_models.dart';
+import 'package:wallet_connect_v2/apis/models/models.dart';
 
 class MiscUtils {
   static bool isExpired(int expiry) {
@@ -44,26 +45,6 @@ class MiscUtils {
     ].join('/');
   }
 
-  /// ---- URI HANDLING --- ///
-
-  static Map<String, dynamic> parseUri(Uri uri) {
-    Map<String, dynamic> ret = {};
-    String path = uri.path;
-    int colon = path.indexOf('%3A');
-    int at = path.indexOf('@');
-    ret['protocol'] = path.substring(0, colon);
-    ret['topic'] = path.substring(colon + 3, at);
-    ret['version'] = path.substring(at + 1);
-    ret['relay'] = Relay(
-      uri.queryParameters['relay-protocol']!,
-      data: uri.queryParameters.containsKey('relay-data')
-          ? uri.queryParameters['relay-data']
-          : null,
-    );
-    print(ret);
-    return ret;
-  }
-
   static String formatRelayRpcUrl(
     String protocol,
     String version,
@@ -73,14 +54,37 @@ class MiscUtils {
     String projectId,
   ) {
     List<String> splitUrl = relayUrl.split('?');
-    String ua = formatUA(
-      protocol,
-      version,
-      sdkVersion,
-    );
+    // String ua = formatUA(
+    //   protocol,
+    //   version,
+    //   sdkVersion,
+    // );
     String params = splitUrl.length > 1 ? splitUrl[1] : '';
-    String queryString = '$params&$auth&$ua&$projectId';
+    String queryString = 'auth=$auth&projectId=$projectId';
     return '${splitUrl[0]}?$queryString';
+  }
+
+  /// ---- URI HANDLING --- ///
+
+  static Map<String, dynamic> parseUri(Uri uri) {
+    Map<String, dynamic> ret = {};
+    String protocol = uri.scheme;
+    String path = uri.path;
+    int at = path.indexOf('@');
+    if (at == -1) {
+      throw Error(-1, 'Invalid URI: Missing @');
+    }
+    ret['protocol'] = protocol;
+    ret['topic'] = path.substring(0, at);
+    ret['version'] = path.substring(at + 1);
+    ret['relay'] = Relay(
+      uri.queryParameters['relay-protocol']!,
+      data: uri.queryParameters.containsKey('relay-data')
+          ? uri.queryParameters['relay-data']
+          : null,
+    );
+    // print(ret);
+    return ret;
   }
 
   static Map<String, String> formatRelayParams(
@@ -105,7 +109,8 @@ class MiscUtils {
     Map<String, String> params = formatRelayParams(relay);
     params['symKey'] = symKey;
 
-    return Uri(path: '$protocol:$topic@$version', queryParameters: params);
+    return Uri(
+        scheme: protocol, path: '$topic@$version', queryParameters: params);
   }
 
   static Map<String, T> convertMapTo<T>(Map<String, dynamic> inMap) {
