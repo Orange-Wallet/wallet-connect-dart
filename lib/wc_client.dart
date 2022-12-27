@@ -319,7 +319,7 @@ class WCClient {
     switch (request.method) {
       case WCMethod.SESSION_REQUEST:
         final param = WCSessionRequest.fromJson(request.params!.first);
-        //print('SESSION_REQUEST $param');
+        // print('SESSION_REQUEST $param');
         _handshakeId = request.id;
         _remotePeerId = param.peerId;
         _remotePeerMeta = param.peerMeta;
@@ -334,7 +334,7 @@ class WCClient {
         }
         break;
       case WCMethod.ETH_SIGN:
-        //print('ETH_SIGN $request');
+        // print('ETH_SIGN $request');
         final params = request.params!.cast<String>();
         if (params.length < 2) {
           throw InvalidJsonRpcParamsException(request.id);
@@ -349,7 +349,7 @@ class WCClient {
         );
         break;
       case WCMethod.ETH_PERSONAL_SIGN:
-        //print('ETH_PERSONAL_SIGN $request');
+        // print('ETH_PERSONAL_SIGN $request');
         final params = request.params!.cast<String>();
         if (params.length < 2) {
           throw InvalidJsonRpcParamsException(request.id);
@@ -364,7 +364,7 @@ class WCClient {
         );
         break;
       case WCMethod.ETH_SIGN_TYPE_DATA:
-        //print('ETH_SIGN_TYPE_DATA $request');
+        // print('ETH_SIGN_TYPE_DATA $request');
         final params = request.params!.cast<String>();
         if (params.length < 2) {
           throw InvalidJsonRpcParamsException(request.id);
@@ -379,17 +379,17 @@ class WCClient {
         );
         break;
       case WCMethod.ETH_SIGN_TRANSACTION:
-        //print('ETH_SIGN_TRANSACTION $request');
+        // print('ETH_SIGN_TRANSACTION $request');
         final param = WCEthereumTransaction.fromJson(request.params!.first);
         onEthSignTransaction?.call(request.id, param);
         break;
       case WCMethod.ETH_SEND_TRANSACTION:
-        //print('ETH_SEND_TRANSACTION $request');
+        // print('ETH_SEND_TRANSACTION $request');
         final param = WCEthereumTransaction.fromJson(request.params!.first);
         onEthSendTransaction?.call(request.id, param);
         break;
       case WCMethod.WALLET_SWITCH_NETWORK:
-        //print('WALLET_SWITCH_NETWORK $request');
+        // print('WALLET_SWITCH_NETWORK $request');
         final params = WCWalletSwitchNetwork.fromJson(request.params!.first);
         onWalletSwitchNetwork?.call(request.id, int.parse(params.chainId));
         break;
