@@ -11,10 +11,11 @@ class PairingUtils {
 
   static Map<String, dynamic> formatJsonRpcRequest(
     String method,
-    Map<String, dynamic> params,
-  ) {
+    Map<String, dynamic> params, {
+    int? id,
+  }) {
     return {
-      'id': payloadId(),
+      'id': id == null ? payloadId() : id,
       'jsonrpc': '2.0',
       'method': method,
       'params': params,

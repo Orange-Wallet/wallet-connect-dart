@@ -34,41 +34,33 @@ class RelayClient implements IRelayClient {
 
   /// Events ///
   /// Relay Client
-  Event _onRelayClientConnect = Event();
-  @override
-  Event<EventArgs> get onRelayClientConnect => _onRelayClientConnect;
 
-  Event _onRelayClientDisconnect = Event();
   @override
-  Event<EventArgs> get onRelayClientDisconnect => _onRelayClientDisconnect;
+  final Event<EventArgs> onRelayClientConnect = Event();
 
-  Event<ErrorEvent> _onRelayClientError = Event<ErrorEvent>();
   @override
-  Event<ErrorEvent> get onRelayClientError => _onRelayClientError;
+  final Event<EventArgs> onRelayClientDisconnect = Event();
 
-  Event<MessageEvent> _onRelayClientMessage = Event<MessageEvent>();
   @override
-  Event<MessageEvent> get onRelayClientMessage => _onRelayClientMessage;
+  final Event<ErrorEvent> onRelayClientError = Event<ErrorEvent>();
+
+  @override
+  final Event<MessageEvent> onRelayClientMessage = Event<MessageEvent>();
 
   /// Subscriptions
-  Event<SubscriptionEvent> _onSubscriptionCreated = Event<SubscriptionEvent>();
   @override
-  Event<SubscriptionEvent> get onSubscriptionCreated => _onSubscriptionCreated;
+  final Event<SubscriptionEvent> onSubscriptionCreated =
+      Event<SubscriptionEvent>();
 
-  Event<SubscriptionDeletionEvent> _onSubscriptionDeleted =
+  @override
+  final Event<SubscriptionDeletionEvent> onSubscriptionDeleted =
       Event<SubscriptionDeletionEvent>();
-  @override
-  Event<SubscriptionDeletionEvent> get onSubscriptionDeleted =>
-      _onSubscriptionDeleted;
 
-  Event _onSubscriptionResubscribed = Event();
   @override
-  Event<EventArgs> get onSubscriptionResubscribed =>
-      _onSubscriptionResubscribed;
+  final Event<EventArgs> onSubscriptionResubscribed = Event();
 
-  Event _onSubscriptionSync = Event();
   @override
-  Event<EventArgs> get onSubscriptionSync => _onSubscriptionSync;
+  final Event<EventArgs> onSubscriptionSync = Event();
 
   bool _initialized = false;
 
@@ -225,16 +217,6 @@ class RelayClient implements IRelayClient {
     }
 
     var auth = await core.crypto.signJWT(core.relayUrl);
-    // print('');
-    // print('building json rpc provider: ${MiscUtils.formatRelayRpcUrl(
-    //   PROTOCOL,
-    //   VERSION,
-    //   core.relayUrl,
-    //   '1.0.0',
-    //   auth,
-    //   core.projectId,
-    // )}');
-    // print('');
     socket = WebSocketChannel.connect(
       Uri.parse(
         MiscUtils.formatRelayRpcUrl(

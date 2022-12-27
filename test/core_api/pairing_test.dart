@@ -138,6 +138,7 @@ void main() {
 
     test("clients can ping each other", () async {
       final CreateResponse response = await coreA.pairing.create();
+      await coreB.pairing.pair(response.uri);
       bool gotPing = false;
 
       coreB.pairing.onPairingPing.subscribe((args) {
@@ -153,16 +154,31 @@ void main() {
 
     test("can disconnect from a known pairing", () async {
       final CreateResponse response = await coreA.pairing.create();
-      bool hasDeleted = false;
+      expect(coreA.pairing.getStore().getAll().length, 1);
+      expect(coreB.pairing.getStore().getAll().length, 0);
+      await coreB.pairing.pair(response.uri, activatePairing: true);
+      expect(coreA.pairing.getStore().getAll().length, 1);
+      expect(coreB.pairing.getStore().getAll().length, 1);
+      bool hasDeletedA = false;
+      bool hasDeletedB = false;
 
       coreA.pairing.onPairingDelete.subscribe((args) {
-        hasDeleted = true;
+        expect(args != null, true);
+        expect(args!.topic != null, true);
+        expect(args.error == null, true);
+        hasDeletedA = true;
+      });
+      coreB.pairing.onPairingDelete.subscribe((args) {
+        expect(args != null, true);
+        expect(args!.topic != null, true);
+        expect(args.error == null, true);
+        hasDeletedB = true;
       });
 
-      await coreB.pairing.pair(response.uri, activatePairing: true);
       await coreB.pairing.disconnect(response.topic);
       await Future.delayed(Duration(milliseconds: 100));
-      expect(hasDeleted, true);
+      expect(hasDeletedA, true);
+      expect(hasDeletedB, true);
       expect(coreA.pairing.getStore().getAll().length, 0);
       expect(coreB.pairing.getStore().getAll().length, 0);
     });

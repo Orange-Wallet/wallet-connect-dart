@@ -1,0 +1,1003 @@
+import 'dart:async';
+
+import 'package:wallet_connect_v2/apis/core/pairing/pairing_constants.dart';
+import 'package:wallet_connect_v2/apis/core/pairing/pairing_models.dart';
+import 'package:wallet_connect_v2/apis/core/i_core.dart';
+import 'package:event/src/event.dart';
+import 'package:wallet_connect_v2/apis/core/relay_client/relay_client_models.dart';
+import 'package:wallet_connect_v2/apis/models/json_rpc_error.dart';
+import 'package:wallet_connect_v2/apis/models/json_rpc_request.dart';
+import 'package:wallet_connect_v2/apis/models/models.dart';
+import 'package:wallet_connect_v2/apis/signing_api/i_engine.dart';
+import 'package:wallet_connect_v2/apis/signing_api/models/generic_models.dart';
+import 'package:wallet_connect_v2/apis/signing_api/models/json_rpc_models.dart';
+import 'package:wallet_connect_v2/apis/signing_api/models/proposal_models.dart';
+import 'package:wallet_connect_v2/apis/signing_api/models/sign_client_models.dart';
+import 'package:wallet_connect_v2/apis/signing_api/models/session_models.dart';
+import 'package:wallet_connect_v2/apis/signing_api/i_sessions.dart';
+import 'package:wallet_connect_v2/apis/signing_api/i_proposals.dart';
+import 'package:wallet_connect_v2/apis/signing_api/models/signing_models.dart';
+import 'package:wallet_connect_v2/apis/signing_api/utils/validator_utils.dart';
+import 'package:wallet_connect_v2/apis/utils/constants.dart';
+import 'package:wallet_connect_v2/apis/utils/errors.dart';
+import 'package:wallet_connect_v2/apis/utils/misc.dart';
+
+class Engine implements IEngine {
+  bool _initialized = false;
+
+  @override
+  final Event<SessionDelete> onSessionDelete = Event<SessionDelete>();
+
+  @override
+  final Event<SessionConnect> onSessionConnect = Event<SessionConnect>();
+
+  @override
+  final Event<SessionEvent> onSessionEvent = Event<SessionEvent>();
+
+  @override
+  final Event<SessionExpire> onSessionExpire = Event<SessionExpire>();
+
+  @override
+  final Event<SessionExtend> onSessionExtend = Event<SessionExtend>();
+
+  @override
+  final Event<SessionPing> onSessionPing = Event<SessionPing>();
+
+  @override
+  final Event<SessionProposal> onSessionProposal = Event<SessionProposal>();
+
+  @override
+  final Event<SessionRequest> onSessionRequest = Event<SessionRequest>();
+
+  @override
+  final Event<SessionUpdate> onSessionUpdate = Event<SessionUpdate>();
+
+  @override
+  ICore core;
+  @override
+  IProposals proposals;
+  @override
+  ISessions sessions;
+
+  Map<int, ConnectResponse> pendingProposals = {};
+
+  late PairingMetadata self;
+
+  Engine(
+    this.core,
+    this.proposals,
+    this.sessions, {
+    PairingMetadata? metadata,
+  }) {
+    if (metadata == null) {
+      self = PairingMetadata('', '', '', [], null);
+    } else {
+      self = metadata;
+    }
+  }
+
+  @override
+  Future<void> init() async {
+    if (_initialized) {
+      return;
+    }
+
+    await core.pairing.init();
+    await proposals.init();
+    await sessions.init();
+    _registerExpirerEvents();
+    _registerRelayClientFunctions();
+
+    _initialized = true;
+  }
+
+  @override
+  Future<ConnectResponse> connect(ConnectParams params) async {
+    _checkInitialized();
+
+    await _isValidConnect(
+      params.pairingTopic,
+      params.requiredNamespaces,
+      params.relays,
+    );
+    String? topic = params.pairingTopic;
+    Uri? uri;
+    bool active = false;
+
+    if (topic != null) {
+      final PairingInfo pairing = core.pairing.getStore().get(topic)!;
+      active = pairing.active;
+    }
+
+    if (topic == null || !active) {
+      final CreateResponse newTopicAndUri = await core.pairing.create();
+      topic = newTopicAndUri.topic;
+      uri = newTopicAndUri.uri;
+    }
+
+    final publicKey = await core.crypto.generateKeyPair();
+    final int id = 0;
+
+    final WcSessionProposeRequest request = WcSessionProposeRequest(
+      id,
+      params.relays.length == 0 ? [Relay('irn')] : params.relays,
+      params.requiredNamespaces,
+      ConnectionMetadata(
+        publicKey,
+        self,
+      ),
+    );
+
+    final expiry = MiscUtils.calculateExpiry(
+      WalletConnectConstants.FIVE_MINUTES,
+    );
+    final ProposalData proposal = ProposalData(
+      id,
+      expiry,
+      request.relays,
+      request.proposer,
+      request.requiredNamespaces,
+      topic,
+    );
+    await _setProposal(
+      id,
+      proposal,
+    );
+
+    // Completer completer = Completer.sync();
+
+    final String connectTopic = await core.pairing.sendRequest(
+      topic,
+      'wc_sessionPropose',
+      request.toJson(),
+    );
+
+    await core.pairing.activate(topic);
+    await _deleteProposal(id);
+
+    // final approvalCompleter = Completer<Map<String, dynamic>>();
+    // events.once('session_connect', (event) async {
+    //   final error = event['error'];
+    //   final session = event['session'];
+    //   if (error != null) {
+    //     approvalCompleter.completeError(error);
+    //   } else if (session != null) {
+    //     session['self']['publicKey'] = publicKey;
+    //     final completeSession = {
+    //       ...session,
+    //       'requiredNamespaces': requiredNamespaces
+    //     };
+    //     await client.session.set(session['topic'], completeSession);
+    //     await setExpiry(session['topic'], session['expiry']);
+    //     if (topic != null) {
+    //       await client.core.pairing.updateMetadata({
+    //         'topic': topic,
+    //         'metadata': session['peer']['metadata'],
+    //       });
+    //     }
+    //     approvalCompleter.complete(completeSession);
+    //   }
+    // });
+
+    final ConnectResponse resp = ConnectResponse(
+      uri: uri,
+    );
+    pendingProposals[id] = resp;
+    return resp;
+  }
+
+  @override
+  Future<PairingInfo> pair(PairParams params) async {
+    _checkInitialized();
+
+    return await core.pairing.pair(params.uri);
+  }
+
+  @override
+  Future<ApproveResponse> approve(ApproveParams params) async {
+    _checkInitialized();
+
+    await _isValidApprove(
+      params.id,
+      params.namespaces,
+      params.relayProtocol,
+    );
+    final ProposalData proposal = proposals.get(
+      params.id.toString(),
+    )!;
+
+    final String selfPubKey = await core.crypto.generateKeyPair();
+    final String peerPubKey = proposal.proposer.publicKey;
+    final String sessionTopic = await core.crypto.generateSharedKey(
+      selfPubKey,
+      peerPubKey,
+    );
+    final relay = Relay(
+      params.relayProtocol == null ? params.relayProtocol! : 'irn',
+    );
+    final int expiry = MiscUtils.calculateExpiry(
+      WalletConnectConstants.SEVEN_DAYS,
+    );
+    final request = WcSessionSettleRequest(
+      relay,
+      params.namespaces,
+      proposal.requiredNamespaces,
+      expiry,
+      ConnectionMetadata(
+        selfPubKey,
+        self,
+      ),
+    );
+
+    await core.relayClient.subscribe(sessionTopic);
+    bool approved = await core.pairing.sendRequest(
+      sessionTopic,
+      'wc_sessionSettle',
+      request.toJson(),
+    );
+
+    SessionData session = SessionData(
+      sessionTopic,
+      relay,
+      expiry,
+      false,
+      selfPubKey,
+      params.namespaces,
+      ConnectionMetadata('', self),
+      proposal.proposer,
+    );
+
+    await sessions.set(sessionTopic, session);
+
+    // If we have a pairing topic, update its metadata with the peer
+    if (proposal.pairingTopic != null) {
+      await core.pairing.updateMetadata(
+        proposal.pairingTopic!,
+        session.peer.metadata,
+      );
+
+      if (params.id > 0) {
+        await core.pairing.sendResult(
+          params.id,
+          sessionTopic,
+          'wc_sessionPropose',
+          proposal.pairingTopic!,
+        );
+        await _deleteProposal(params.id);
+        await core.pairing.activate(proposal.pairingTopic!);
+      }
+    }
+
+    return ApproveResponse(sessionTopic);
+  }
+
+  @override
+  Future<void> reject(RejectParams params) async {
+    _checkInitialized();
+
+    await _isValidReject(params);
+
+    ProposalData? proposal = proposals.get(params.id.toString());
+    if (proposal != null && proposal.pairingTopic != null) {
+      await core.pairing.sendError(
+        params.id,
+        proposal.pairingTopic!,
+        JsonRpcError.serverError('User rejected request'),
+      );
+      await _deleteProposal(params.id);
+    }
+  }
+
+  @override
+  Future<void> update(UpdateParams params) async {
+    _checkInitialized();
+    await _isValidUpdate(
+      params.topic,
+      params.namespaces,
+    );
+
+    await core.pairing.sendRequest(
+      params.topic,
+      'wc_sessionUpdate',
+      params.namespaces,
+    );
+  }
+
+  @override
+  Future<void> extend(ExtendParams params) async {
+    _checkInitialized();
+    await _isValidSessionTopic(params.topic);
+
+    await core.pairing.sendRequest(
+      params.topic,
+      'wc_sessionUpdate',
+      {},
+    );
+
+    await _setExpiry(
+      params.topic,
+      MiscUtils.calculateExpiry(
+        WalletConnectConstants.SEVEN_DAYS,
+      ),
+    );
+  }
+
+  @override
+  Future<dynamic> request(RequestParams params) async {
+    _checkInitialized();
+    await _isValidRequest(
+      params.topic,
+      params.request,
+      params.chainId,
+    );
+    Map<String, dynamic> payload = params.request.toJson();
+    payload['chainId'] = params.chainId;
+    return await core.pairing.sendRequest(
+      params.topic,
+      'wc_sessionRequest',
+      payload,
+    );
+  }
+
+  @override
+  Future<void> ping(PingParams params) async {
+    _checkInitialized();
+    await _isValidPing(params.topic);
+
+    if (sessions.has(params.topic)) {
+      bool pong = await core.pairing.sendRequest(
+        params.topic,
+        'wc_sessionPing',
+        {},
+      );
+    } else if (core.pairing.getStore().has(params.topic)) {
+      await core.pairing.ping(params.topic);
+    }
+  }
+
+  @override
+  Future<void> emit(EmitParams params) async {
+    _checkInitialized();
+    await _isValidEmit(
+      params.topic,
+      params.event,
+      params.chainId,
+    );
+    Map<String, dynamic> payload = params.event.toJson();
+    payload['chainId'] = params.chainId;
+    await core.pairing.sendRequest(
+      params.topic,
+      'wc_sessionEvent',
+      payload,
+    );
+  }
+
+  @override
+  Future<void> disconnect(DisconnectParams params) async {
+    _checkInitialized();
+    _isValidDisconnect(params.topic);
+
+    if (sessions.has(params.topic)) {
+      await core.pairing.sendRequest(
+        params.topic,
+        "wc_sessionDelete",
+        Errors.getSdkError(Errors.USER_DISCONNECTED).toJson(),
+      );
+      await _deleteSession(params.topic);
+    } else {
+      await core.pairing.disconnect(params.topic);
+    }
+  }
+
+  @override
+  SessionData find(FindParams params) {
+    _checkInitialized();
+    return sessions.getAll().firstWhere(
+      (element) {
+        return ValidatorUtils.isSessionCompatible(element, params);
+      },
+    );
+  }
+
+  /// ---- PRIVATE HELPERS ---- ////
+  void _checkInitialized() {
+    if (!_initialized) {
+      throw Errors.getInternalError(Errors.NOT_INITIALIZED);
+    }
+  }
+
+  Future<void> _deleteSession(
+    String topic, {
+    bool expirerHasDeleted = false,
+  }) async {
+    final SessionData? session = sessions.get(topic);
+    if (session == null) {
+      return;
+    }
+    await core.relayClient.unsubscribe(topic);
+    await Future.wait([
+      sessions.delete(topic),
+      core.crypto.deleteKeyPair(session.self.publicKey),
+      core.crypto.deleteSymKey(topic),
+      expirerHasDeleted ? Future.value() : core.expirer.delete(topic),
+    ]);
+  }
+
+  Future<void> _deleteProposal(
+    int id, {
+    bool expirerHasDeleted = false,
+  }) async {
+    await Future.wait([
+      proposals.delete(id.toString()),
+      expirerHasDeleted ? Future.value() : core.expirer.delete(id.toString()),
+    ]);
+  }
+
+  Future<void> _setExpiry(String topic, int expiry) async {
+    if (sessions.has(topic)) {
+      await sessions.update(
+        topic,
+        expiry: expiry,
+      );
+    }
+    core.expirer.set(topic, expiry);
+  }
+
+  Future<void> _setProposal(int id, ProposalData proposal) async {
+    await proposals.set(id.toString(), proposal);
+    core.expirer.set(id.toString(), proposal.expiry);
+  }
+
+  Future<void> _cleanup() async {
+    final List<String> sessionTopics = [];
+    final List<int> proposalIds = [];
+
+    for (final SessionData session in sessions.getAll()) {
+      if (MiscUtils.isExpired(session.expiry)) {
+        sessionTopics.add(session.topic);
+      }
+    }
+    for (final ProposalData proposal in proposals.getAll()) {
+      if (MiscUtils.isExpired(proposal.expiry)) {
+        proposalIds.add(proposal.id);
+      }
+    }
+    await Future.wait([
+      ...sessionTopics.map((topic) => _deleteSession(topic)),
+      ...proposalIds.map((id) => _deleteProposal(id)),
+    ]);
+  }
+
+  /// ---- Relay Events ---- ///
+
+  void _registerRelayClientFunctions() {
+    core.pairing.register('wc_sessionPropose', _onSessionProposeRequest);
+    core.pairing.register('wc_sessionSettle', _onSessionSettleRequest);
+    core.pairing.register('wc_sessionUpdate', _onSessionUpdateRequest);
+    core.pairing.register('wc_sessionExtend', _onSessionExtendRequest);
+    core.pairing.register('wc_sessionPing', _onSessionPingRequest);
+    core.pairing.register('wc_sessionDelete', _onSessionDeleteRequest);
+    core.pairing.register('wc_sessionRequest', _onSessionRequest);
+    core.pairing.register('wc_sessionEvent', _onSessionEventRequest);
+  }
+
+  Future<void> _onSessionProposeRequest(
+    String topic,
+    JsonRpcRequest payload,
+  ) async {
+    try {
+      final proposeRequest = WcSessionProposeRequest.fromJson(payload.params);
+      await _isValidConnect(
+        topic,
+        proposeRequest.requiredNamespaces,
+        proposeRequest.relays,
+      );
+      final expiry = MiscUtils.calculateExpiry(
+        WalletConnectConstants.FIVE_MINUTES,
+      );
+      final ProposalData proposal = ProposalData(
+        proposeRequest.id,
+        expiry,
+        proposeRequest.relays,
+        proposeRequest.proposer,
+        proposeRequest.requiredNamespaces,
+        topic,
+      );
+
+      await _setProposal(proposeRequest.id, proposal);
+      onSessionProposal.broadcast(SessionProposal(
+        proposeRequest.id,
+        proposal,
+      ));
+    } on Error catch (err) {
+      await core.pairing.sendError(
+        payload.id,
+        topic,
+        JsonRpcError.invalidParams(
+          err.message,
+        ),
+      );
+    }
+  }
+
+  Future<void> _onSessionSettleRequest(
+    String topic,
+    JsonRpcRequest payload,
+  ) async {
+    final request = WcSessionSettleRequest.fromJson(payload.params);
+    try {
+      await _isValidSessionSettleRequest(request.namespaces, request.expiry);
+
+      final SessionData session = SessionData(
+        topic,
+        request.relay,
+        request.expiry,
+        true,
+        request.controller.publicKey,
+        request.namespaces,
+        ConnectionMetadata('', self),
+        request.controller,
+      );
+
+      await core.pairing.sendResult(
+        payload.id,
+        topic,
+        'wc_sessionSettle',
+        true,
+      );
+      onSessionConnect.broadcast(
+        SessionConnect(session),
+      );
+    } on Error catch (err) {
+      await core.pairing.sendError(
+        payload.id,
+        topic,
+        JsonRpcError.invalidParams(
+          err.message,
+        ),
+      );
+    }
+  }
+
+  Future<void> _onSessionUpdateRequest(
+    String topic,
+    JsonRpcRequest payload,
+  ) async {
+    try {
+      final request = WcSessionUpdateRequest.fromJson(payload.params);
+      await _isValidUpdate(topic, request.namespaces);
+      await sessions.update(
+        topic,
+        namespaces: request.namespaces,
+      );
+      await core.pairing.sendResult(
+        payload.id,
+        topic,
+        'wc_sessionUpdate',
+        true,
+      );
+      onSessionUpdate.broadcast(
+        SessionUpdate(
+          payload.id,
+          topic,
+          request.namespaces,
+        ),
+      );
+    } on Error catch (err) {
+      await core.pairing.sendError(
+        payload.id,
+        topic,
+        JsonRpcError.invalidParams(
+          err.message,
+        ),
+      );
+    }
+  }
+
+  Future<void> _onSessionExtendRequest(
+    String topic,
+    JsonRpcRequest payload,
+  ) async {
+    try {
+      final request = WcSessionExtendRequest.fromJson(payload.params);
+      await _isValidSessionTopic(topic);
+      await _setExpiry(
+        topic,
+        MiscUtils.calculateExpiry(
+          WalletConnectConstants.SEVEN_DAYS,
+        ),
+      );
+      await core.pairing.sendResult(
+        payload.id,
+        topic,
+        'wc_sessionExtend',
+        true,
+      );
+      onSessionExtend.broadcast(
+        SessionExtend(
+          payload.id,
+          topic,
+        ),
+      );
+    } on Error catch (err) {
+      await core.pairing.sendError(
+        payload.id,
+        topic,
+        JsonRpcError.invalidParams(
+          err.message,
+        ),
+      );
+    }
+  }
+
+  Future<void> _onSessionPingRequest(
+    String topic,
+    JsonRpcRequest payload,
+  ) async {
+    try {
+      final request = WcSessionPingRequest.fromJson(payload.params);
+      await _isValidPing(topic);
+      await core.pairing.sendResult(
+        payload.id,
+        topic,
+        'wc_sessionPing',
+        true,
+      );
+      onSessionPing.broadcast(
+        SessionPing(
+          payload.id,
+          topic,
+        ),
+      );
+    } on Error catch (err) {
+      await core.pairing.sendError(
+        payload.id,
+        topic,
+        JsonRpcError.invalidParams(
+          err.message,
+        ),
+      );
+    }
+  }
+
+  Future<void> _onSessionDeleteRequest(
+    String topic,
+    JsonRpcRequest payload,
+  ) async {
+    try {
+      final request = WcSessionDeleteRequest.fromJson(payload.params);
+      await _isValidDisconnect(topic);
+      await _deleteSession(topic);
+      await core.pairing.sendResult(
+        payload.id,
+        topic,
+        'wc_sessionDelete',
+        true,
+      );
+      onSessionDelete.broadcast(
+        SessionDelete(
+          payload.id,
+          topic,
+        ),
+      );
+    } on Error catch (err) {
+      await core.pairing.sendError(
+        payload.id,
+        topic,
+        JsonRpcError.invalidParams(
+          err.message,
+        ),
+      );
+    }
+  }
+
+  Future<void> _onSessionRequest(
+    String topic,
+    JsonRpcRequest payload,
+  ) async {
+    try {
+      final request = WcSessionRequestRequest.fromJson(payload.params);
+      await _isValidRequest(
+        topic,
+        request,
+        request.chainId,
+      );
+      // await core.pairing.sendResult(
+      //   payload.id,
+      //   topic,
+      //   'wc_sessionDelete',
+      //   true,
+      // );
+      onSessionRequest.broadcast(
+        SessionRequest(
+          payload.id,
+          topic,
+          request.method,
+          request.chainId,
+          request.params,
+        ),
+      );
+    } on Error catch (err) {
+      await core.pairing.sendError(
+        payload.id,
+        topic,
+        JsonRpcError.invalidParams(
+          err.message,
+        ),
+      );
+    }
+  }
+
+  Future<void> _onSessionEventRequest(
+    String topic,
+    JsonRpcRequest payload,
+  ) async {
+    try {
+      final request = WcSessionEventRequest.fromJson(payload.params);
+      await _isValidEmit(
+        topic,
+        request,
+        request.chainId,
+      );
+      // await core.pairing.sendResult(
+      //   payload.id,
+      //   topic,
+      //   'wc_sessionDelete',
+      //   true,
+      // );
+      onSessionEvent.broadcast(
+        SessionEvent(
+          payload.id,
+          topic,
+          request.name,
+          request.chainId,
+          request.data,
+        ),
+      );
+    } on Error catch (err) {
+      await core.pairing.sendError(
+        payload.id,
+        topic,
+        JsonRpcError.invalidParams(
+          err.message,
+        ),
+      );
+    }
+  }
+
+  /// ---- Event Registers ---- ///
+
+  void _registerExpirerEvents() {
+    core.expirer.expired.subscribe(_onExpired);
+  }
+
+  Future<void> _onExpired(ExpirationEvent? event) async {
+    if (event == null) {
+      return;
+    }
+
+    if (sessions.has(event.target)) {
+      await _deleteSession(
+        event.target,
+        expirerHasDeleted: true,
+      );
+      onSessionExpire.broadcast(
+        SessionExpire(
+          event.target,
+        ),
+      );
+    } else if (proposals.has(event.target)) {
+      await _deleteProposal(
+        int.parse(event.target),
+        expirerHasDeleted: true,
+      );
+    }
+  }
+
+  /// ---- Validation Helpers ---- ///
+
+  bool _isValidPairingTopic(dynamic topic) {
+    if (!core.pairing.getStore().has(topic)) {
+      throw Errors.getInternalError(
+        "NO_MATCHING_KEY",
+        context: "pairing topic doesn't exist: $topic",
+      );
+    }
+
+    if (MiscUtils.isExpired(core.pairing.getStore().get(topic)!.expiry)) {
+      // await deletePairing(topic);
+      throw Errors.getInternalError(
+        Errors.EXPIRED,
+        context: "pairing topic: $topic",
+      );
+    }
+
+    return true;
+  }
+
+  Future<bool> _isValidSessionTopic(String topic) async {
+    if (!sessions.has(topic)) {
+      throw Errors.getInternalError(
+        "NO_MATCHING_KEY",
+        context: "session topic doesn't exist: $topic",
+      );
+    }
+
+    if (MiscUtils.isExpired(sessions.get(topic)!.expiry)) {
+      await _deleteSession(topic);
+      throw Errors.getInternalError(
+        "EXPIRED",
+        context: "session topic: $topic",
+      );
+    }
+
+    return true;
+  }
+
+  Future<bool> _isValidSessionOrPairingTopic(String topic) async {
+    if (sessions.has(topic)) {
+      await _isValidSessionTopic(topic);
+    } else if (core.pairing.getStore().has(topic)) {
+      _isValidPairingTopic(topic);
+    } else {
+      throw Errors.getInternalError(
+        "NO_MATCHING_KEY",
+        context: "session or pairing topic doesn't exist: $topic",
+      );
+    }
+
+    return true;
+  }
+
+  Future<bool> _isValidProposalId(int id) async {
+    if (!proposals.has(id.toString())) {
+      throw Errors.getInternalError(
+        "NO_MATCHING_KEY",
+        context: "proposal id doesn't exist: $id",
+      );
+    }
+    if (MiscUtils.isExpired(proposals.get(id.toString())!.expiry)) {
+      await _deleteProposal(id);
+      throw Errors.getInternalError(
+        "EXPIRED",
+        context: "proposal id: $id",
+      );
+    }
+
+    return true;
+  }
+
+  /// ---- Validations ---- ///
+
+  Future<bool> _isValidConnect(
+    String? pairingTopic,
+    Map<String, RequiredNamespace> requiredNamespaces,
+    List<Relay> relays,
+  ) async {
+    if (pairingTopic != null) {
+      _isValidPairingTopic(pairingTopic);
+    }
+
+    return ValidatorUtils.isValidRequiredNamespaces(
+        requiredNamespaces, "connect()");
+  }
+
+  Future<bool> _isValidApprove(
+    int id,
+    Map<String, Namespace> namespaces,
+    String? relayProtocol,
+  ) async {
+    final ProposalData? proposal = proposals.get(id.toString());
+    if (proposal == null) {
+      throw Errors.getInternalError(
+        Errors.NO_MATCHING_KEY,
+        context: 'No proposal matching id: $id',
+      );
+    }
+    ValidatorUtils.isValidNamespaces(namespaces, "approve()");
+    ValidatorUtils.isConformingNamespaces(
+        proposal.requiredNamespaces, namespaces, "update()");
+
+    return true;
+  }
+
+  Future<bool> _isValidReject(params) async {
+    return true;
+  }
+
+  Future<bool> _isValidSessionSettleRequest(
+    Map<String, Namespace> namespaces,
+    int expiry,
+  ) async {
+    ValidatorUtils.isValidNamespaces(namespaces, "onSessionSettleRequest()");
+    if (MiscUtils.isExpired(expiry)) {
+      throw Errors.getInternalError(
+        Errors.EXPIRED,
+        context: 'onSessionSettleRequest()',
+      );
+    }
+
+    return true;
+  }
+
+  Future<bool> _isValidUpdate(
+    String topic,
+    Map<String, Namespace> namespaces,
+  ) async {
+    await _isValidSessionTopic(topic);
+    ValidatorUtils.isValidNamespaces(namespaces, "onSessionSettleRequest()");
+    final SessionData session = sessions.get(topic)!;
+
+    ValidatorUtils.isConformingNamespaces(
+      session.requiredNamespaces == null ? {} : session.requiredNamespaces!,
+      namespaces,
+      'update()',
+    );
+
+    return true;
+  }
+
+  Future<bool> _isValidRequest(
+    String topic,
+    WcSessionRequestRequest request,
+    String chainId,
+  ) async {
+    await _isValidSessionTopic(topic);
+    final SessionData session = sessions.get(topic)!;
+    ValidatorUtils.isValidNamespacesChainId(
+      session.namespaces,
+      chainId,
+    );
+    ValidatorUtils.isValidNamespacesRequest(
+      session.namespaces,
+      chainId,
+      request.method,
+    );
+
+    return true;
+  }
+
+  Future<bool> _isValidResponse(
+    String topic,
+  ) async {
+    await _isValidSessionTopic(topic);
+
+    return true;
+  }
+
+  Future<bool> _isValidPing(
+    String topic,
+  ) async {
+    await _isValidSessionOrPairingTopic(topic);
+
+    return true;
+  }
+
+  Future<bool> _isValidEmit(
+    String topic,
+    WcSessionEventRequest event,
+    String chainId,
+  ) async {
+    await _isValidSessionTopic(topic);
+    final SessionData session = sessions.get(topic)!;
+    ValidatorUtils.isValidNamespacesChainId(
+      session.namespaces,
+      chainId,
+    );
+    ValidatorUtils.isValidNamespacesEvent(
+      session.namespaces,
+      chainId,
+      event.name,
+    );
+
+    return true;
+  }
+
+  Future<bool> _isValidDisconnect(
+    String topic,
+  ) async {
+    await _isValidSessionOrPairingTopic(topic);
+
+    return true;
+  }
+}
