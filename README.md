@@ -25,6 +25,6 @@ For all crypto related needs, such as generating keys and DH encryption/decrypti
 
 Build using make dev, docker must be open.
 Install dependencies using npm install.
-Run it using PORT=5555 npm run start.
+Run it using this command: `PORT=5555 npm run start`.
 
 - Run `flutter test`
