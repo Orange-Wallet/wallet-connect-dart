@@ -1,5 +1,4 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:wallet_connect_v2/utils/constants.dart';
 
 part 'json_rpc_request.g.dart';
 
@@ -11,7 +10,7 @@ class JsonRpcRequest {
   final dynamic params;
   JsonRpcRequest({
     required this.id,
-    this.jsonrpc = JSONRPC_VERSION,
+    this.jsonrpc = '2.0',
     required this.method,
     required this.params,
   });

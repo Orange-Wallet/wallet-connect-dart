@@ -9,7 +9,7 @@ part of 'json_rpc_request.dart';
 JsonRpcRequest _$JsonRpcRequestFromJson(Map<String, dynamic> json) =>
     JsonRpcRequest(
       id: json['id'] as int,
-      jsonrpc: json['jsonrpc'] as String? ?? JSONRPC_VERSION,
+      jsonrpc: json['jsonrpc'] as String? ?? '2.0',
       method: json['method'] as String,
       params: json['params'],
     );

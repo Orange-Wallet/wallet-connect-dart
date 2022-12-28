@@ -1,5 +1,4 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:wallet_connect_v2/utils/constants.dart';
 
 part 'json_rpc_response.g.dart';
 
@@ -10,7 +9,7 @@ class JsonRpcResponse<T> {
   final T result;
   JsonRpcResponse({
     required this.id,
-    this.jsonrpc = JSONRPC_VERSION,
+    this.jsonrpc = '2.0',
     required this.result,
   });
 
