@@ -20,6 +20,26 @@ class BaseRequiredNamespace {
       _$BaseRequiredNamespaceFromJson(json);
 
   Map<String, dynamic> toJson() => _$BaseRequiredNamespaceToJson(this);
+
+  @override
+  bool operator ==(Object other) {
+    return other is BaseRequiredNamespace && hashCode == other.hashCode;
+  }
+
+  @override
+  int get hashCode =>
+      chains.fold<int>(
+        0,
+        (prevValue, element) => prevValue + element.hashCode,
+      ) +
+      methods.fold<int>(
+        0,
+        (prevValue, element) => prevValue + element.hashCode,
+      ) +
+      events.fold<int>(
+        0,
+        (prevValue, element) => prevValue + element.hashCode,
+      );
 }
 
 @JsonSerializable()
@@ -27,10 +47,10 @@ class RequiredNamespace extends BaseRequiredNamespace {
   final List<BaseRequiredNamespace> extension;
 
   RequiredNamespace(
-    this.extension,
     List<String> chains,
     List<String> methods,
     List<String> events,
+    this.extension,
   ) : super(
           chains,
           methods,
@@ -41,6 +61,19 @@ class RequiredNamespace extends BaseRequiredNamespace {
       _$RequiredNamespaceFromJson(json);
 
   Map<String, dynamic> toJson() => _$RequiredNamespaceToJson(this);
+
+  @override
+  bool operator ==(Object other) {
+    return other is RequiredNamespace && hashCode == other.hashCode;
+  }
+
+  @override
+  int get hashCode =>
+      super.hashCode +
+      extension.fold<int>(
+        0,
+        (previousValue, element) => previousValue + element.hashCode,
+      );
 }
 
 @JsonSerializable()

@@ -37,9 +37,11 @@ class ConnectParams {
 }
 
 class ConnectResponse {
+  final Completer session;
   final Uri? uri;
 
-  ConnectResponse({
+  ConnectResponse(
+    this.session, {
     this.uri,
   });
 }
@@ -64,17 +66,19 @@ class ApproveParams {
 
 class ApproveResponse {
   final String topic;
+  final SessionData session;
   // final Completer acknowledged;
 
   ApproveResponse(
     this.topic,
+    this.session,
     // this.acknowledged,
   );
 }
 
 class RejectParams {
   final int id;
-  final ErrorResponse reason;
+  final String reason;
 
   RejectParams(
     this.id,
@@ -84,7 +88,7 @@ class RejectParams {
 
 class UpdateParams {
   final String topic;
-  final Map<String, Namespace> namespaces;
+  final WcSessionUpdateRequest namespaces;
 
   UpdateParams(
     this.topic,

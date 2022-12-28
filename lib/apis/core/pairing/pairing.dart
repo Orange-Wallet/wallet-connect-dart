@@ -8,7 +8,7 @@ import 'package:wallet_connect_v2/apis/core/crypto/i_crypto.dart';
 import 'package:wallet_connect_v2/apis/core/i_core.dart';
 import 'package:wallet_connect_v2/apis/core/pairing/i_pairing.dart';
 import 'package:wallet_connect_v2/apis/core/pairing/i_pairing_store.dart';
-import 'package:wallet_connect_v2/apis/core/pairing/pairing_constants.dart';
+import 'package:wallet_connect_v2/apis/utils/rpc_constants.dart';
 import 'package:wallet_connect_v2/apis/core/pairing/pairing_models.dart';
 import 'package:wallet_connect_v2/apis/core/pairing/pairing_store.dart';
 import 'package:wallet_connect_v2/apis/core/pairing/pairing_utils.dart';
@@ -176,7 +176,7 @@ class Pairing implements IPairing {
       try {
         final bool response = await sendRequest(
           topic,
-          PairingConstants.WC_PAIRING_PING,
+          RPCConstants.WC_PAIRING_PING,
           {},
         );
         onPairingPing.broadcast(
@@ -204,7 +204,7 @@ class Pairing implements IPairing {
       try {
         await sendRequest(
           topic,
-          PairingConstants.WC_PAIRING_DELETE,
+          RPCConstants.WC_PAIRING_DELETE,
           Errors.getSdkError(Errors.USER_DISCONNECTED).toJson(),
         );
         await pairings!.delete(topic);
@@ -245,7 +245,7 @@ class Pairing implements IPairing {
     final JsonRpcRequest request = JsonRpcRequest.fromJson(payload);
     final String message = await core.crypto.encode(topic, payload);
     final RpcOptions opts =
-        PairingConstants.PAIRING_RPC_OPTS[method]['req'] as RpcOptions;
+        RPCConstants.PAIRING_RPC_OPTS[method]['req'] as RpcOptions;
     await core.history.set(
       topic,
       request,
@@ -280,7 +280,7 @@ class Pairing implements IPairing {
     // if (record == null) {
     //   return;
     // }
-    final RpcOptions opts = PairingConstants.PAIRING_RPC_OPTS[method]['res'];
+    final RpcOptions opts = RPCConstants.PAIRING_RPC_OPTS[method]['res'];
     await core.relayClient.publish(topic, message, opts.ttl);
     // await core.history.resolve(payload);
   }
@@ -300,10 +300,10 @@ class Pairing implements IPairing {
       return;
     }
     final RpcOptions opts =
-        PairingConstants.PAIRING_RPC_OPTS.containsKey(record.method)
-            ? PairingConstants.PAIRING_RPC_OPTS[record.method]['res']
-            : PairingConstants
-                .PAIRING_RPC_OPTS[PairingConstants.UNREGISTERED_METHOD]['res'];
+        RPCConstants.PAIRING_RPC_OPTS.containsKey(record.method)
+            ? RPCConstants.PAIRING_RPC_OPTS[record.method]['res']
+            : RPCConstants.PAIRING_RPC_OPTS[RPCConstants.UNREGISTERED_METHOD]
+                ['res'];
     await core.relayClient.publish(topic, message, opts.ttl);
     await core.history.resolve(payload);
   }

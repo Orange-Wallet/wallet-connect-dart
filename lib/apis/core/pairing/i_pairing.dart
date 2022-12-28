@@ -24,7 +24,21 @@ abstract class IPairing {
   Future<void> disconnect(String topic);
   IPairingStore getStore();
 
-  Future sendRequest(String topic, String method, Map<String, dynamic> params);
-  Future<void> sendResult(int id, String topic, String method, dynamic result);
-  Future<void> sendError(int id, String topic, JsonRpcError error);
+  Future sendRequest(
+    String topic,
+    String method,
+    Map<String, dynamic> params, {
+    int? id,
+  });
+  Future<void> sendResult(
+    int id,
+    String method,
+    String topic,
+    dynamic result,
+  );
+  Future<void> sendError(
+    int id,
+    String topic,
+    JsonRpcError error,
+  );
 }

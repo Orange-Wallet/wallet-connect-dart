@@ -17,4 +17,12 @@ class ConnectionMetadata {
       _$ConnectionMetadataFromJson(json);
 
   Map<String, dynamic> toJson() => _$ConnectionMetadataToJson(this);
+
+  @override
+  bool operator ==(Object other) {
+    return other is ConnectionMetadata && hashCode == other.hashCode;
+  }
+
+  @override
+  int get hashCode => publicKey.hashCode + metadata.hashCode;
 }

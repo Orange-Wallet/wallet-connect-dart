@@ -1,9 +1,25 @@
+import 'dart:async';
+
 import 'package:json_annotation/json_annotation.dart';
 import 'package:wallet_connect_v2/apis/core/relay_client/relay_client_models.dart';
 import 'package:wallet_connect_v2/apis/signing_api/models/generic_models.dart';
 import 'package:wallet_connect_v2/apis/signing_api/models/proposal_models.dart';
 
 part 'session_models.g.dart';
+
+class SessionProposalCompleter {
+  String selfPublicKey;
+  String pairingTopic;
+  Map<String, RequiredNamespace> requiredNamespaces;
+  Completer completer;
+
+  SessionProposalCompleter(
+    this.selfPublicKey,
+    this.pairingTopic,
+    this.requiredNamespaces,
+    this.completer,
+  );
+}
 
 @JsonSerializable()
 class BaseNamespace {
@@ -21,6 +37,26 @@ class BaseNamespace {
       _$BaseNamespaceFromJson(json);
 
   Map<String, dynamic> toJson() => _$BaseNamespaceToJson(this);
+
+  @override
+  bool operator ==(Object other) {
+    return other is BaseNamespace && hashCode == other.hashCode;
+  }
+
+  @override
+  int get hashCode =>
+      accounts.fold<int>(
+        0,
+        (prevValue, element) => prevValue + element.hashCode,
+      ) +
+      methods.fold<int>(
+        0,
+        (prevValue, element) => prevValue + element.hashCode,
+      ) +
+      events.fold<int>(
+        0,
+        (prevValue, element) => prevValue + element.hashCode,
+      );
 }
 
 @JsonSerializable()
@@ -28,10 +64,10 @@ class Namespace extends BaseNamespace {
   final List<BaseNamespace> extension;
 
   Namespace(
-    this.extension,
     List<String> accounts,
     List<String> methods,
     List<String> events,
+    this.extension,
   ) : super(
           accounts,
           methods,
@@ -42,6 +78,19 @@ class Namespace extends BaseNamespace {
       _$NamespaceFromJson(json);
 
   Map<String, dynamic> toJson() => _$NamespaceToJson(this);
+
+  @override
+  bool operator ==(Object other) {
+    return other is Namespace && hashCode == other.hashCode;
+  }
+
+  @override
+  int get hashCode =>
+      super.hashCode +
+      extension.fold<int>(
+        0,
+        (previousValue, element) => previousValue + element.hashCode,
+      );
 }
 
 @JsonSerializable()

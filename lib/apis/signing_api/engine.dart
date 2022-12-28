@@ -1,6 +1,7 @@
 import 'dart:async';
 
-import 'package:wallet_connect_v2/apis/core/pairing/pairing_constants.dart';
+import 'package:wallet_connect_v2/apis/core/pairing/pairing_utils.dart';
+import 'package:wallet_connect_v2/apis/utils/rpc_constants.dart';
 import 'package:wallet_connect_v2/apis/core/pairing/pairing_models.dart';
 import 'package:wallet_connect_v2/apis/core/i_core.dart';
 import 'package:event/src/event.dart';
@@ -59,20 +60,22 @@ class Engine implements IEngine {
   @override
   ISessions sessions;
 
-  Map<int, ConnectResponse> pendingProposals = {};
+  // Map<int, ConnectResponse> pendingProposals = {};
+  Map<int, SessionProposalCompleter> pendingProposals = {};
+  // Map<int, Function(SessionConnect?)> pendingProposalSubs = {};
 
-  late PairingMetadata self;
+  late PairingMetadata selfMetadata;
 
   Engine(
     this.core,
     this.proposals,
     this.sessions, {
-    PairingMetadata? metadata,
+    PairingMetadata? selfMetadata,
   }) {
-    if (metadata == null) {
-      self = PairingMetadata('', '', '', [], null);
+    if (selfMetadata == null) {
+      this.selfMetadata = PairingMetadata('', '', '', []);
     } else {
-      self = metadata;
+      this.selfMetadata = selfMetadata;
     }
   }
 
@@ -113,10 +116,11 @@ class Engine implements IEngine {
       final CreateResponse newTopicAndUri = await core.pairing.create();
       topic = newTopicAndUri.topic;
       uri = newTopicAndUri.uri;
+      // print('connect generated topic: $topic');
     }
 
     final publicKey = await core.crypto.generateKeyPair();
-    final int id = 0;
+    final int id = PairingUtils.payloadId();
 
     final WcSessionProposeRequest request = WcSessionProposeRequest(
       id,
@@ -124,7 +128,7 @@ class Engine implements IEngine {
       params.requiredNamespaces,
       ConnectionMetadata(
         publicKey,
-        self,
+        selfMetadata,
       ),
     );
 
@@ -144,46 +148,57 @@ class Engine implements IEngine {
       proposal,
     );
 
-    // Completer completer = Completer.sync();
+    Completer completer = Completer.sync();
 
-    final String connectTopic = await core.pairing.sendRequest(
+    pendingProposals[id] = SessionProposalCompleter(
+      publicKey,
+      topic,
+      request.requiredNamespaces,
+      completer,
+    );
+    connectResponseHandler(
+      topic,
+      request,
+      id,
+    );
+
+    final ConnectResponse resp = ConnectResponse(
+      completer,
+      uri: uri,
+    );
+
+    return resp;
+  }
+
+  Future<void> connectResponseHandler(
+    String topic,
+    WcSessionProposeRequest request,
+    int requestId,
+  ) async {
+    // print("sending proposal for $topic");
+    // print('connectResponseHandler requestId: $requestId');
+    final Map<String, dynamic> resp = await core.pairing.sendRequest(
       topic,
       'wc_sessionPropose',
       request.toJson(),
+      id: requestId,
     );
+    final String peerPublicKey = resp['responderPublicKey'];
 
+    final ProposalData proposal = proposals.get(
+      requestId.toString(),
+    )!;
+    final String sessionTopic = await core.crypto.generateSharedKey(
+      proposal.proposer.publicKey,
+      peerPublicKey,
+    );
+    // print('connectResponseHandler session topic: $sessionTopic');
+
+    // Delete the proposal, we are done with it
+    await _deleteProposal(requestId);
+
+    await core.relayClient.subscribe(sessionTopic);
     await core.pairing.activate(topic);
-    await _deleteProposal(id);
-
-    // final approvalCompleter = Completer<Map<String, dynamic>>();
-    // events.once('session_connect', (event) async {
-    //   final error = event['error'];
-    //   final session = event['session'];
-    //   if (error != null) {
-    //     approvalCompleter.completeError(error);
-    //   } else if (session != null) {
-    //     session['self']['publicKey'] = publicKey;
-    //     final completeSession = {
-    //       ...session,
-    //       'requiredNamespaces': requiredNamespaces
-    //     };
-    //     await client.session.set(session['topic'], completeSession);
-    //     await setExpiry(session['topic'], session['expiry']);
-    //     if (topic != null) {
-    //       await client.core.pairing.updateMetadata({
-    //         'topic': topic,
-    //         'metadata': session['peer']['metadata'],
-    //       });
-    //     }
-    //     approvalCompleter.complete(completeSession);
-    //   }
-    // });
-
-    final ConnectResponse resp = ConnectResponse(
-      uri: uri,
-    );
-    pendingProposals[id] = resp;
-    return resp;
   }
 
   @override
@@ -193,6 +208,8 @@ class Engine implements IEngine {
     return await core.pairing.pair(params.uri);
   }
 
+  /// Approves a proposal with the id provided in the parameters.
+  /// Assumes the proposal is already created.
   @override
   Future<ApproveResponse> approve(ApproveParams params) async {
     _checkInitialized();
@@ -212,25 +229,53 @@ class Engine implements IEngine {
       selfPubKey,
       peerPubKey,
     );
+    // print('approve session topic: $sessionTopic');
     final relay = Relay(
-      params.relayProtocol == null ? params.relayProtocol! : 'irn',
+      params.relayProtocol != null ? params.relayProtocol! : 'irn',
     );
     final int expiry = MiscUtils.calculateExpiry(
       WalletConnectConstants.SEVEN_DAYS,
     );
     final request = WcSessionSettleRequest(
+      params.id,
       relay,
       params.namespaces,
       proposal.requiredNamespaces,
       expiry,
       ConnectionMetadata(
         selfPubKey,
-        self,
+        selfMetadata,
       ),
     );
 
+    // If we received this request from somewhere, respond with the sessionTopic
+    // so they can update their listener.
+    // print('approve requestId: ${params.id}');
+
+    if (proposal.pairingTopic != null && params.id > 0) {
+      // print('approve proposal topic: ${proposal.pairingTopic!}');
+      await core.pairing.sendResult(
+        params.id,
+        'wc_sessionPropose',
+        proposal.pairingTopic!,
+        WcSessionProposeResponse(
+          Relay(
+            params.relayProtocol != null ? params.relayProtocol! : 'irn',
+          ),
+          selfPubKey,
+        ).toJson(),
+      );
+      await _deleteProposal(params.id);
+      await core.pairing.activate(proposal.pairingTopic!);
+
+      await core.pairing.updateMetadata(
+        proposal.pairingTopic!,
+        proposal.proposer.metadata,
+      );
+    }
+
     await core.relayClient.subscribe(sessionTopic);
-    bool approved = await core.pairing.sendRequest(
+    bool acknowledged = await core.pairing.sendRequest(
       sessionTopic,
       'wc_sessionSettle',
       request.toJson(),
@@ -240,35 +285,22 @@ class Engine implements IEngine {
       sessionTopic,
       relay,
       expiry,
-      false,
+      acknowledged,
       selfPubKey,
       params.namespaces,
-      ConnectionMetadata('', self),
+      ConnectionMetadata(selfPubKey, selfMetadata),
       proposal.proposer,
     );
 
     await sessions.set(sessionTopic, session);
 
     // If we have a pairing topic, update its metadata with the peer
-    if (proposal.pairingTopic != null) {
-      await core.pairing.updateMetadata(
-        proposal.pairingTopic!,
-        session.peer.metadata,
-      );
+    if (proposal.pairingTopic != null) {}
 
-      if (params.id > 0) {
-        await core.pairing.sendResult(
-          params.id,
-          sessionTopic,
-          'wc_sessionPropose',
-          proposal.pairingTopic!,
-        );
-        await _deleteProposal(params.id);
-        await core.pairing.activate(proposal.pairingTopic!);
-      }
-    }
-
-    return ApproveResponse(sessionTopic);
+    return ApproveResponse(
+      sessionTopic,
+      session,
+    );
   }
 
   @override
@@ -293,13 +325,18 @@ class Engine implements IEngine {
     _checkInitialized();
     await _isValidUpdate(
       params.topic,
-      params.namespaces,
+      params.namespaces.namespaces,
+    );
+
+    await sessions.update(
+      params.topic,
+      namespaces: params.namespaces.namespaces,
     );
 
     await core.pairing.sendRequest(
       params.topic,
       'wc_sessionUpdate',
-      params.namespaces,
+      params.namespaces.toJson(),
     );
   }
 
@@ -487,6 +524,7 @@ class Engine implements IEngine {
   ) async {
     try {
       final proposeRequest = WcSessionProposeRequest.fromJson(payload.params);
+      proposeRequest.id = payload.id;
       await _isValidConnect(
         topic,
         proposeRequest.requiredNamespaces,
@@ -524,10 +562,14 @@ class Engine implements IEngine {
     String topic,
     JsonRpcRequest payload,
   ) async {
+    // print('wc session settle');
     final request = WcSessionSettleRequest.fromJson(payload.params);
     try {
       await _isValidSessionSettleRequest(request.namespaces, request.expiry);
+      SessionProposalCompleter sProposalCompleter =
+          pendingProposals.remove(request.id)!;
 
+      // Create the session
       final SessionData session = SessionData(
         topic,
         request.relay,
@@ -535,14 +577,31 @@ class Engine implements IEngine {
         true,
         request.controller.publicKey,
         request.namespaces,
-        ConnectionMetadata('', self),
+        ConnectionMetadata(
+          sProposalCompleter.selfPublicKey,
+          selfMetadata,
+        ),
         request.controller,
+        requiredNamespaces: sProposalCompleter.requiredNamespaces,
       );
 
+      // Update all the things: session, expiry, metadata, pairing
+      sessions.set(topic, session);
+      _setExpiry(topic, session.expiry);
+      await core.pairing.updateMetadata(
+        sProposalCompleter.pairingTopic,
+        request.controller.metadata,
+      );
+      await core.pairing.activate(topic);
+
+      // Send the session back to the completer
+      sProposalCompleter.completer.complete(session);
+
+      // Send back a success!
       await core.pairing.sendResult(
         payload.id,
-        topic,
         'wc_sessionSettle',
+        topic,
         true,
       );
       onSessionConnect.broadcast(
@@ -564,6 +623,7 @@ class Engine implements IEngine {
     JsonRpcRequest payload,
   ) async {
     try {
+      print(payload.params);
       final request = WcSessionUpdateRequest.fromJson(payload.params);
       await _isValidUpdate(topic, request.namespaces);
       await sessions.update(
@@ -572,8 +632,8 @@ class Engine implements IEngine {
       );
       await core.pairing.sendResult(
         payload.id,
-        topic,
         'wc_sessionUpdate',
+        topic,
         true,
       );
       onSessionUpdate.broadcast(
@@ -609,8 +669,8 @@ class Engine implements IEngine {
       );
       await core.pairing.sendResult(
         payload.id,
-        topic,
         'wc_sessionExtend',
+        topic,
         true,
       );
       onSessionExtend.broadcast(
@@ -639,8 +699,8 @@ class Engine implements IEngine {
       await _isValidPing(topic);
       await core.pairing.sendResult(
         payload.id,
-        topic,
         'wc_sessionPing',
+        topic,
         true,
       );
       onSessionPing.broadcast(
@@ -670,8 +730,8 @@ class Engine implements IEngine {
       await _deleteSession(topic);
       await core.pairing.sendResult(
         payload.id,
-        topic,
         'wc_sessionDelete',
+        topic,
         true,
       );
       onSessionDelete.broadcast(
@@ -704,8 +764,8 @@ class Engine implements IEngine {
       );
       // await core.pairing.sendResult(
       //   payload.id,
-      //   topic,
       //   'wc_sessionDelete',
+      //   topic,
       //   true,
       // );
       onSessionRequest.broadcast(
@@ -741,8 +801,8 @@ class Engine implements IEngine {
       );
       // await core.pairing.sendResult(
       //   payload.id,
-      //   topic,
       //   'wc_sessionDelete',
+      //   topic,
       //   true,
       // );
       onSessionEvent.broadcast(

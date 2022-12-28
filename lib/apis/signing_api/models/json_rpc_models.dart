@@ -34,7 +34,7 @@ class WcPairingPingRequest {
 
 @JsonSerializable()
 class WcSessionProposeRequest {
-  final int id;
+  int id;
   final List<Relay> relays;
   final Map<String, RequiredNamespace> requiredNamespaces;
   final ConnectionMetadata proposer;
@@ -53,7 +53,24 @@ class WcSessionProposeRequest {
 }
 
 @JsonSerializable()
+class WcSessionProposeResponse {
+  Relay relay;
+  String responderPublicKey;
+
+  WcSessionProposeResponse(
+    this.relay,
+    this.responderPublicKey,
+  );
+
+  factory WcSessionProposeResponse.fromJson(Map<String, dynamic> json) =>
+      _$WcSessionProposeResponseFromJson(json);
+
+  Map<String, dynamic> toJson() => _$WcSessionProposeResponseToJson(this);
+}
+
+@JsonSerializable()
 class WcSessionSettleRequest {
+  final int id;
   final Relay relay;
   final Map<String, Namespace> namespaces;
   final Map<String, RequiredNamespace> requiredNamespaces;
@@ -61,6 +78,7 @@ class WcSessionSettleRequest {
   final ConnectionMetadata controller;
 
   WcSessionSettleRequest(
+    this.id,
     this.relay,
     this.namespaces,
     this.requiredNamespaces,

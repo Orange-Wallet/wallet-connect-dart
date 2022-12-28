@@ -128,6 +128,8 @@ class CryptoUtils extends ICryptoUtils {
     String? senderPublicKey,
   }) async {
     final int decodedType = type != null ? type : TYPE_0;
+    // print(message);
+    // print(symKey);
 
     // Check for type 1 envelope, throw an error if data is invalid
     if (decodedType == TYPE_1 && senderPublicKey == null) {

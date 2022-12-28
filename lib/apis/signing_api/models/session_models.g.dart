@@ -21,12 +21,12 @@ Map<String, dynamic> _$BaseNamespaceToJson(BaseNamespace instance) =>
     };
 
 Namespace _$NamespaceFromJson(Map<String, dynamic> json) => Namespace(
-      (json['extension'] as List<dynamic>)
-          .map((e) => BaseNamespace.fromJson(e as Map<String, dynamic>))
-          .toList(),
       (json['accounts'] as List<dynamic>).map((e) => e as String).toList(),
       (json['methods'] as List<dynamic>).map((e) => e as String).toList(),
       (json['events'] as List<dynamic>).map((e) => e as String).toList(),
+      (json['extension'] as List<dynamic>)
+          .map((e) => BaseNamespace.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
 
 Map<String, dynamic> _$NamespaceToJson(Namespace instance) => <String, dynamic>{
@@ -34,17 +34,6 @@ Map<String, dynamic> _$NamespaceToJson(Namespace instance) => <String, dynamic>{
       'methods': instance.methods,
       'events': instance.events,
       'extension': instance.extension,
-    };
-
-Namespaces _$NamespacesFromJson(Map<String, dynamic> json) => Namespaces(
-      (json['namespaces'] as Map<String, dynamic>).map(
-        (k, e) => MapEntry(k, Namespace.fromJson(e as Map<String, dynamic>)),
-      ),
-    );
-
-Map<String, dynamic> _$NamespacesToJson(Namespaces instance) =>
-    <String, dynamic>{
-      'namespaces': instance.namespaces,
     };
 
 SessionData _$SessionDataFromJson(Map<String, dynamic> json) => SessionData(
@@ -56,12 +45,13 @@ SessionData _$SessionDataFromJson(Map<String, dynamic> json) => SessionData(
       (json['namespaces'] as Map<String, dynamic>).map(
         (k, e) => MapEntry(k, Namespace.fromJson(e as Map<String, dynamic>)),
       ),
-      (json['requiredNamespaces'] as Map<String, dynamic>).map(
+      ConnectionMetadata.fromJson(json['self'] as Map<String, dynamic>),
+      ConnectionMetadata.fromJson(json['peer'] as Map<String, dynamic>),
+      requiredNamespaces:
+          (json['requiredNamespaces'] as Map<String, dynamic>?)?.map(
         (k, e) =>
             MapEntry(k, RequiredNamespace.fromJson(e as Map<String, dynamic>)),
       ),
-      ConnectionMetadata.fromJson(json['self'] as Map<String, dynamic>),
-      ConnectionMetadata.fromJson(json['peer'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$SessionDataToJson(SessionData instance) =>

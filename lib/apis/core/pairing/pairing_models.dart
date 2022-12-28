@@ -41,14 +41,35 @@ class PairingMetadata {
     this.name,
     this.description,
     this.url,
-    this.icons,
+    this.icons, {
     this.redirect,
-  );
+  });
 
   factory PairingMetadata.fromJson(Map<String, dynamic> json) =>
       _$PairingMetadataFromJson(json);
 
   Map<String, dynamic> toJson() => _$PairingMetadataToJson(this);
+
+  @override
+  String toString() {
+    return 'Name: $name, Description: $description, Url: $url, Icons: $icons';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is PairingMetadata && hashCode == other.hashCode;
+  }
+
+  @override
+  int get hashCode =>
+      name.hashCode +
+      description.hashCode +
+      url.hashCode +
+      icons.fold<int>(
+        0,
+        (prevValue, element) => prevValue + element.hashCode,
+      ) +
+      (redirect == null ? 1 : redirect.hashCode);
 }
 
 @JsonSerializable()
@@ -65,6 +86,16 @@ class Redirect {
       _$RedirectFromJson(json);
 
   Map<String, dynamic> toJson() => _$RedirectToJson(this);
+
+  @override
+  bool operator ==(Object other) {
+    return other is Redirect && hashCode == other.hashCode;
+  }
+
+  @override
+  int get hashCode =>
+      (native == null ? 1 : native!.hashCode) +
+      (universal == null ? 1 : universal!.hashCode);
 }
 
 class CreateResponse {

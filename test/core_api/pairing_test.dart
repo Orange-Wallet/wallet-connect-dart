@@ -122,7 +122,6 @@ void main() {
         'Mock Metadata',
         'https://mockurl.com',
         [],
-        null,
       );
 
       expect(

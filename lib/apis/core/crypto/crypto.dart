@@ -104,6 +104,7 @@ class Crypto implements ICrypto {
 
     final String topic =
         overrideTopic == null ? utils!.hashKey(symKey) : overrideTopic;
+    // print('crypto setSymKey, symKey: $symKey, overrideTopic: $topic');
     await keyChain!.set(topic, symKey);
     return topic;
   }
@@ -223,6 +224,7 @@ class Crypto implements ICrypto {
   }
 
   String _getSymKey(String topic) {
+    // print('crypto getSymKey: $topic');
     return keyChain!.get(topic);
   }
 

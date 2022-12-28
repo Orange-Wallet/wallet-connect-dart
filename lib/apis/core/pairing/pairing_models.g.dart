@@ -32,7 +32,7 @@ PairingMetadata _$PairingMetadataFromJson(Map<String, dynamic> json) =>
       json['description'] as String,
       json['url'] as String,
       (json['icons'] as List<dynamic>).map((e) => e as String).toList(),
-      json['redirect'] == null
+      redirect: json['redirect'] == null
           ? null
           : Redirect.fromJson(json['redirect'] as Map<String, dynamic>),
     );

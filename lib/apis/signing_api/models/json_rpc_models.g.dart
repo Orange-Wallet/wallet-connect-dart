@@ -35,6 +35,7 @@ Map<String, dynamic> _$WcPairingPingRequestToJson(
 WcSessionProposeRequest _$WcSessionProposeRequestFromJson(
         Map<String, dynamic> json) =>
     WcSessionProposeRequest(
+      json['id'] as int,
       (json['relays'] as List<dynamic>)
           .map((e) => Relay.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -48,16 +49,38 @@ WcSessionProposeRequest _$WcSessionProposeRequestFromJson(
 Map<String, dynamic> _$WcSessionProposeRequestToJson(
         WcSessionProposeRequest instance) =>
     <String, dynamic>{
+      'id': instance.id,
       'relays': instance.relays,
       'requiredNamespaces': instance.requiredNamespaces,
       'proposer': instance.proposer,
     };
 
+WcSessionProposeResponse _$WcSessionProposeResponseFromJson(
+        Map<String, dynamic> json) =>
+    WcSessionProposeResponse(
+      Relay.fromJson(json['relay'] as Map<String, dynamic>),
+      json['responderPublicKey'] as String,
+    );
+
+Map<String, dynamic> _$WcSessionProposeResponseToJson(
+        WcSessionProposeResponse instance) =>
+    <String, dynamic>{
+      'relay': instance.relay,
+      'responderPublicKey': instance.responderPublicKey,
+    };
+
 WcSessionSettleRequest _$WcSessionSettleRequestFromJson(
         Map<String, dynamic> json) =>
     WcSessionSettleRequest(
+      json['id'] as int,
       Relay.fromJson(json['relay'] as Map<String, dynamic>),
-      Namespaces.fromJson(json['namespaces'] as Map<String, dynamic>),
+      (json['namespaces'] as Map<String, dynamic>).map(
+        (k, e) => MapEntry(k, Namespace.fromJson(e as Map<String, dynamic>)),
+      ),
+      (json['requiredNamespaces'] as Map<String, dynamic>).map(
+        (k, e) =>
+            MapEntry(k, RequiredNamespace.fromJson(e as Map<String, dynamic>)),
+      ),
       json['expiry'] as int,
       ConnectionMetadata.fromJson(json['controller'] as Map<String, dynamic>),
     );
@@ -65,8 +88,10 @@ WcSessionSettleRequest _$WcSessionSettleRequestFromJson(
 Map<String, dynamic> _$WcSessionSettleRequestToJson(
         WcSessionSettleRequest instance) =>
     <String, dynamic>{
+      'id': instance.id,
       'relay': instance.relay,
       'namespaces': instance.namespaces,
+      'requiredNamespaces': instance.requiredNamespaces,
       'expiry': instance.expiry,
       'controller': instance.controller,
     };
@@ -74,7 +99,9 @@ Map<String, dynamic> _$WcSessionSettleRequestToJson(
 WcSessionUpdateRequest _$WcSessionUpdateRequestFromJson(
         Map<String, dynamic> json) =>
     WcSessionUpdateRequest(
-      Namespaces.fromJson(json['namespaces'] as Map<String, dynamic>),
+      (json['namespaces'] as Map<String, dynamic>).map(
+        (k, e) => MapEntry(k, Namespace.fromJson(e as Map<String, dynamic>)),
+      ),
     );
 
 Map<String, dynamic> _$WcSessionUpdateRequestToJson(
