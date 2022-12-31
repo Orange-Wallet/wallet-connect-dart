@@ -1,7 +1,6 @@
 import 'dart:typed_data';
 
 import 'package:convert/convert.dart';
-import 'package:pinenacl/ed25519.dart';
 
 class KeyPair {
   final String privateKey;
@@ -15,14 +14,6 @@ class KeyPair {
 
   Uint8List getPublicKeyBytes() {
     return Uint8List.fromList(hex.decode(publicKey));
-  }
-
-  SigningKey toSigningKey() {
-    return SigningKey.fromValidBytes(getPrivateKeyBytes());
-  }
-
-  List<int> sign(Uint8List data) {
-    return toSigningKey().sign(data).toList();
   }
 }
 

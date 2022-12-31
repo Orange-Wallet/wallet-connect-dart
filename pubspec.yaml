@@ -16,7 +16,6 @@ dependencies:
   collection: ^1.16.0
   json_annotation: ^4.7.0
   shared_preferences: ^2.0.15
-  pinenacl: ^0.5.1
   pointycastle: ^3.6.2
   x25519: ^0.1.1
   mockito: ^5.3.2
