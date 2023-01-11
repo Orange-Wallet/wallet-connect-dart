@@ -27,11 +27,11 @@ class BaseNamespace {
   final List<String> methods;
   final List<String> events;
 
-  BaseNamespace(
-    this.accounts,
-    this.methods,
-    this.events,
-  );
+  BaseNamespace({
+    required this.accounts,
+    required this.methods,
+    required this.events,
+  });
 
   factory BaseNamespace.fromJson(Map<String, dynamic> json) =>
       _$BaseNamespaceFromJson(json);
@@ -63,15 +63,15 @@ class BaseNamespace {
 class Namespace extends BaseNamespace {
   final List<BaseNamespace> extension;
 
-  Namespace(
-    List<String> accounts,
-    List<String> methods,
-    List<String> events,
-    this.extension,
-  ) : super(
-          accounts,
-          methods,
-          events,
+  Namespace({
+    required List<String> accounts,
+    required List<String> methods,
+    List<String> events = const [],
+    this.extension = const [],
+  }) : super(
+          accounts: accounts,
+          methods: methods,
+          events: events,
         );
 
   factory Namespace.fromJson(Map<String, dynamic> json) =>
@@ -105,15 +105,15 @@ class SessionData {
   ConnectionMetadata self;
   ConnectionMetadata peer;
 
-  SessionData(
-    this.topic,
-    this.relay,
-    this.expiry,
-    this.acknowledged,
-    this.controller,
-    this.namespaces,
-    this.self,
-    this.peer, {
+  SessionData({
+    required this.topic,
+    required this.relay,
+    required this.expiry,
+    required this.acknowledged,
+    required this.controller,
+    required this.namespaces,
+    required this.self,
+    required this.peer,
     this.requiredNamespaces,
   });
 

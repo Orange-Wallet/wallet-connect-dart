@@ -8,10 +8,10 @@ class ConnectionMetadata {
   String publicKey;
   PairingMetadata metadata;
 
-  ConnectionMetadata(
-    this.publicKey,
-    this.metadata,
-  );
+  ConnectionMetadata({
+    required this.publicKey,
+    required this.metadata,
+  });
 
   factory ConnectionMetadata.fromJson(Map<String, dynamic> json) =>
       _$ConnectionMetadataFromJson(json);

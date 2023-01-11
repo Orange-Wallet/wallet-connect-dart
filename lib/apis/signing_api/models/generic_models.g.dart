@@ -8,8 +8,9 @@ part of 'generic_models.dart';
 
 ConnectionMetadata _$ConnectionMetadataFromJson(Map<String, dynamic> json) =>
     ConnectionMetadata(
-      json['publicKey'] as String,
-      PairingMetadata.fromJson(json['metadata'] as Map<String, dynamic>),
+      publicKey: json['publicKey'] as String,
+      metadata:
+          PairingMetadata.fromJson(json['metadata'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$ConnectionMetadataToJson(ConnectionMetadata instance) =>

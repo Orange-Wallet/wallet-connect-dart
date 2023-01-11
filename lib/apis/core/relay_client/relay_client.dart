@@ -17,7 +17,7 @@ import 'package:wallet_connect_v2/apis/core/store/get_storage_store.dart';
 import 'package:wallet_connect_v2/apis/core/store/store.dart';
 import 'package:wallet_connect_v2/apis/utils/constants.dart';
 import 'package:wallet_connect_v2/apis/utils/errors.dart';
-import 'package:wallet_connect_v2/apis/utils/misc.dart';
+import 'package:wallet_connect_v2/apis/utils/wallet_connect_utils.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 import 'i_topic_map.dart';
@@ -219,7 +219,7 @@ class RelayClient implements IRelayClient {
     var auth = await core.crypto.signJWT(core.relayUrl);
     socket = WebSocketChannel.connect(
       Uri.parse(
-        MiscUtils.formatRelayRpcUrl(
+        WalletConnectUtils.formatRelayRpcUrl(
           PROTOCOL,
           VERSION,
           core.relayUrl,
@@ -241,6 +241,7 @@ class RelayClient implements IRelayClient {
 
   Future<bool> handlePublish(String topic, String message) async {
     // If we want to ignore the message, stop
+    // print('handle publish');
     if (await _shouldIgnoreMessageEvent(topic, message)) return false;
 
     // Record a message event

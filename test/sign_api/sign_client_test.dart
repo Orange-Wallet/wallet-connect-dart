@@ -1,13 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:wallet_connect_v2/apis/core/core.dart';
-import 'package:wallet_connect_v2/apis/core/pairing/pairing_models.dart';
-import 'package:wallet_connect_v2/apis/models/models.dart';
-import 'package:wallet_connect_v2/apis/signing_api/i_sign_client.dart';
-import 'package:wallet_connect_v2/apis/signing_api/models/json_rpc_models.dart';
-import 'package:wallet_connect_v2/apis/signing_api/models/session_models.dart';
-import 'package:wallet_connect_v2/apis/signing_api/models/signing_models.dart';
-import 'package:wallet_connect_v2/apis/signing_api/sign_client.dart';
-import 'package:wallet_connect_v2/apis/utils/errors.dart';
+import 'package:wallet_connect_v2/wallet_connect_v2.dart';
 
 import 'sign_client_helpers.dart';
 
@@ -18,8 +10,8 @@ void main() {
   const TEST_PROJECT_ID = '7e984f90b95f0236d3c12d791537f233';
 
   group('Signing API', () {
-    late ISignClient clientA;
-    late ISignClient clientB;
+    late SignClient clientA;
+    late SignClient clientB;
 
     setUp(() async {
       clientA = await SignClient.createInstance(
@@ -94,8 +86,8 @@ void main() {
           final reason = Errors.getSdkError("USER_DISCONNECTED");
           await clientA.disconnect(
             DisconnectParams(
-              pairingATopic,
-              ErrorResponse(0, reason),
+              topic: pairingATopic,
+              reason: ErrorResponse(0, reason),
             ),
           );
           expect(
@@ -106,7 +98,7 @@ void main() {
           await clientA.core.relayClient.disconnect();
           final promise = clientA.ping(
             PingParams(
-              pairingATopic,
+              topic: pairingATopic,
             ),
           );
           expect(
@@ -132,8 +124,8 @@ void main() {
           final reason = Errors.getSdkError("USER_DISCONNECTED");
           await clientA.disconnect(
             DisconnectParams(
-              sessionATopic,
-              ErrorResponse(0, reason),
+              topic: sessionATopic,
+              reason: ErrorResponse(0, reason),
             ),
           );
           await clientA.core.relayClient.disconnect();
@@ -149,7 +141,7 @@ void main() {
         final fakeTopic = "nonsense";
         final promise = clientA.ping(
           PingParams(
-            fakeTopic,
+            topic: fakeTopic,
           ),
         );
         expect(
@@ -171,7 +163,7 @@ void main() {
             clientB,
           );
           final pairingATopic = connectionInfo.pairing.topic;
-          await clientA.ping(PingParams(pairingATopic));
+          await clientA.ping(PingParams(topic: pairingATopic));
         });
         test("B pings A", () async {
           final connectionInfo = await SignClientHelpers.testConnectMethod(
@@ -179,7 +171,7 @@ void main() {
             clientB,
           );
           final pairingATopic = connectionInfo.pairing.topic;
-          await clientB.ping(PingParams(pairingATopic));
+          await clientB.ping(PingParams(topic: pairingATopic));
         });
       });
     });
@@ -192,7 +184,7 @@ void main() {
             clientB,
           );
           final pairingATopic = connectionInfo.pairing.topic;
-          await clientA.ping(PingParams(pairingATopic));
+          await clientA.ping(PingParams(topic: pairingATopic));
         });
         test("B pings A", () async {
           final connectionInfo = await SignClientHelpers.testConnectMethod(
@@ -200,7 +192,7 @@ void main() {
             clientB,
           );
           final pairingATopic = connectionInfo.pairing.topic;
-          await clientB.ping(PingParams(pairingATopic));
+          await clientB.ping(PingParams(topic: pairingATopic));
         });
       });
     });
@@ -218,16 +210,18 @@ void main() {
         final namespacesAfter = {
           ...namespacesBefore,
           'eip9001': Namespace(
-              ["eip9001:1:0x000000000000000000000000000000000000dead"],
-              ["eth_sendTransaction"],
-              ["accountsChanged"],
-              []),
+            accounts: ["eip9001:1:0x000000000000000000000000000000000000dead"],
+            methods: ["eth_sendTransaction"],
+            events: ["accountsChanged"],
+          ),
         };
 
         await clientA.update(
           UpdateParams(
-            sessionATopic,
-            WcSessionUpdateRequest(namespacesAfter),
+            topic: sessionATopic,
+            namespaces: WcSessionUpdateRequest(
+              namespaces: namespacesAfter,
+            ),
           ),
         );
         final resultA = clientA.engine.sessions.get(sessionATopic)!.namespaces;

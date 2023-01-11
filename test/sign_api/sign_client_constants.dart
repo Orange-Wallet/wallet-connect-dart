@@ -45,19 +45,17 @@ class SignClientConstants {
 
   static final TEST_REQUIRED_NAMESPACES = {
     "eip155": RequiredNamespace(
-      TEST_CHAINS,
-      TEST_METHODS,
-      TEST_EVENTS,
-      [],
+      chains: TEST_CHAINS,
+      methods: TEST_METHODS,
+      events: TEST_EVENTS,
     ),
   };
 
   static final TEST_NAMESPACES = {
     "eip155": Namespace(
-      TEST_ACCOUNTS,
-      TEST_METHODS,
-      TEST_EVENTS,
-      [],
+      accounts: TEST_ACCOUNTS,
+      methods: TEST_METHODS,
+      events: TEST_EVENTS,
     ),
     // {
     //   "methods": TEST_METHODS,
@@ -68,19 +66,17 @@ class SignClientConstants {
 
   static final TEST_NAMESPACES_INVALID_METHODS = {
     "eip155": Namespace(
-      TEST_ACCOUNTS,
-      ["eth_invalid"],
-      TEST_EVENTS,
-      [],
+      accounts: TEST_ACCOUNTS,
+      methods: ["eth_invalid"],
+      events: TEST_EVENTS,
     ),
   };
   static final TEST_NAMESPACES_INVALID_CHAIN = {
     "eip1111": {
       Namespace(
-        TEST_ACCOUNTS,
-        TEST_METHODS,
-        TEST_EVENTS,
-        [],
+        accounts: TEST_ACCOUNTS,
+        methods: TEST_METHODS,
+        events: TEST_EVENTS,
       )
     }
   };
@@ -102,31 +98,32 @@ class SignClientConstants {
   static const TEST_RANDOM_REQUEST = {"method": "random_method", "params": []};
 
   static final TEST_CONNECT_PARAMS = ConnectParams(
-    TEST_REQUIRED_NAMESPACES,
-    '',
-    [Relay('irn')],
+    requiredNamespaces: TEST_REQUIRED_NAMESPACES,
+    relays: [Relay('irn')],
   );
 
-  static final TEST_APPROVE_PARAMS = ApproveParams(123, TEST_NAMESPACES);
+  static final TEST_APPROVE_PARAMS = ApproveParams(
+    id: 123,
+    namespaces: TEST_NAMESPACES,
+  );
 
   static final TEST_REJECT_PARAMS = RejectParams(
-    123,
-    'GENERIC',
+    id: 123,
+    reason: 'GENERIC',
   );
 
   static final TEST_UPDATE_PARAMS = UpdateParams(
-    '123',
-    WcSessionUpdateRequest(TEST_NAMESPACES),
+    topic: '123',
+    namespaces: WcSessionUpdateRequest(namespaces: TEST_NAMESPACES),
   );
 
   static final TEST_REQUEST_PARAMS = RequestParams(
-    '123',
-    WcSessionRequestRequest(
-      TEST_METHODS[0],
-      {},
-      TEST_CHAINS[0],
+    topic: '123',
+    request: WcSessionRequestRequest(
+      method: TEST_CHAINS[0],
+      chainId: TEST_METHODS[0],
+      params: {},
     ),
-    TEST_CHAINS[0],
   );
 
   static const TEST_RESPOND_PARAMS = {

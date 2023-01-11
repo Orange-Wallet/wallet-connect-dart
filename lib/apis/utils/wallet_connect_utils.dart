@@ -1,9 +1,9 @@
 import 'dart:io';
 
 import 'package:wallet_connect_v2/apis/core/relay_client/relay_client_models.dart';
-import 'package:wallet_connect_v2/apis/models/models.dart';
+import 'package:wallet_connect_v2/apis/models/basic_errors.dart';
 
-class MiscUtils {
+class WalletConnectUtils {
   static bool isExpired(int expiry) {
     return DateTime.now().toUtc().compareTo(
               DateTime.fromMillisecondsSinceEpoch(

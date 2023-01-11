@@ -9,7 +9,7 @@ import 'package:pointycastle/key_derivators/hkdf.dart';
 import 'package:pointycastle/pointycastle.dart' show HkdfParameters;
 import 'package:wallet_connect_v2/apis/core/crypto/crypto_models.dart';
 import 'package:wallet_connect_v2/apis/core/crypto/i_crypto_utils.dart';
-import 'package:wallet_connect_v2/apis/models/models.dart';
+import 'package:wallet_connect_v2/apis/models/basic_errors.dart';
 import 'package:x25519/x25519.dart' as x;
 
 class CryptoUtils extends ICryptoUtils {

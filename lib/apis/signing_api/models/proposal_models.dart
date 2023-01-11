@@ -10,11 +10,11 @@ class BaseRequiredNamespace {
   final List<String> methods;
   final List<String> events;
 
-  BaseRequiredNamespace(
-    this.chains,
-    this.methods,
-    this.events,
-  );
+  BaseRequiredNamespace({
+    required this.chains,
+    required this.methods,
+    required this.events,
+  });
 
   factory BaseRequiredNamespace.fromJson(Map<String, dynamic> json) =>
       _$BaseRequiredNamespaceFromJson(json);
@@ -46,15 +46,15 @@ class BaseRequiredNamespace {
 class RequiredNamespace extends BaseRequiredNamespace {
   final List<BaseRequiredNamespace> extension;
 
-  RequiredNamespace(
-    List<String> chains,
-    List<String> methods,
-    List<String> events,
-    this.extension,
-  ) : super(
-          chains,
-          methods,
-          events,
+  RequiredNamespace({
+    required List<String> chains,
+    required List<String> methods,
+    List<String> events = const [],
+    this.extension = const [],
+  }) : super(
+          chains: chains,
+          methods: methods,
+          events: events,
         );
 
   factory RequiredNamespace.fromJson(Map<String, dynamic> json) =>
@@ -85,14 +85,14 @@ class ProposalData {
   final Map<String, RequiredNamespace> requiredNamespaces;
   final String? pairingTopic;
 
-  ProposalData(
-    this.id,
-    this.expiry,
-    this.relays,
-    this.proposer,
-    this.requiredNamespaces,
-    this.pairingTopic,
-  );
+  ProposalData({
+    required this.id,
+    required this.expiry,
+    required this.relays,
+    required this.proposer,
+    required this.requiredNamespaces,
+    required this.pairingTopic,
+  });
 
   factory ProposalData.fromJson(Map<String, dynamic> json) =>
       _$ProposalDataFromJson(json);

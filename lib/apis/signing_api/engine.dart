@@ -8,7 +8,7 @@ import 'package:event/src/event.dart';
 import 'package:wallet_connect_v2/apis/core/relay_client/relay_client_models.dart';
 import 'package:wallet_connect_v2/apis/models/json_rpc_error.dart';
 import 'package:wallet_connect_v2/apis/models/json_rpc_request.dart';
-import 'package:wallet_connect_v2/apis/models/models.dart';
+import 'package:wallet_connect_v2/apis/models/basic_errors.dart';
 import 'package:wallet_connect_v2/apis/signing_api/i_engine.dart';
 import 'package:wallet_connect_v2/apis/signing_api/models/generic_models.dart';
 import 'package:wallet_connect_v2/apis/signing_api/models/json_rpc_models.dart';
@@ -21,7 +21,7 @@ import 'package:wallet_connect_v2/apis/signing_api/models/signing_models.dart';
 import 'package:wallet_connect_v2/apis/signing_api/utils/validator_utils.dart';
 import 'package:wallet_connect_v2/apis/utils/constants.dart';
 import 'package:wallet_connect_v2/apis/utils/errors.dart';
-import 'package:wallet_connect_v2/apis/utils/misc.dart';
+import 'package:wallet_connect_v2/apis/utils/wallet_connect_utils.dart';
 
 class Engine implements IEngine {
   bool _initialized = false;
@@ -99,8 +99,8 @@ class Engine implements IEngine {
     _checkInitialized();
 
     await _isValidConnect(
-      params.pairingTopic,
       params.requiredNamespaces,
+      params.pairingTopic,
       params.relays,
     );
     String? topic = params.pairingTopic;
@@ -123,25 +123,25 @@ class Engine implements IEngine {
     final int id = PairingUtils.payloadId();
 
     final WcSessionProposeRequest request = WcSessionProposeRequest(
-      id,
-      params.relays.length == 0 ? [Relay('irn')] : params.relays,
-      params.requiredNamespaces,
-      ConnectionMetadata(
-        publicKey,
-        selfMetadata,
+      id: id,
+      relays: params.relays == null ? [Relay('irn')] : params.relays!,
+      requiredNamespaces: params.requiredNamespaces,
+      proposer: ConnectionMetadata(
+        publicKey: publicKey,
+        metadata: selfMetadata,
       ),
     );
 
-    final expiry = MiscUtils.calculateExpiry(
+    final expiry = WalletConnectUtils.calculateExpiry(
       WalletConnectConstants.FIVE_MINUTES,
     );
     final ProposalData proposal = ProposalData(
-      id,
-      expiry,
-      request.relays,
-      request.proposer,
-      request.requiredNamespaces,
-      topic,
+      id: id,
+      expiry: expiry,
+      relays: request.relays,
+      proposer: request.proposer,
+      requiredNamespaces: request.requiredNamespaces,
+      pairingTopic: topic,
     );
     await _setProposal(
       id,
@@ -163,7 +163,7 @@ class Engine implements IEngine {
     );
 
     final ConnectResponse resp = ConnectResponse(
-      completer,
+      session: completer,
       uri: uri,
     );
 
@@ -233,18 +233,18 @@ class Engine implements IEngine {
     final relay = Relay(
       params.relayProtocol != null ? params.relayProtocol! : 'irn',
     );
-    final int expiry = MiscUtils.calculateExpiry(
+    final int expiry = WalletConnectUtils.calculateExpiry(
       WalletConnectConstants.SEVEN_DAYS,
     );
     final request = WcSessionSettleRequest(
-      params.id,
-      relay,
-      params.namespaces,
-      proposal.requiredNamespaces,
-      expiry,
-      ConnectionMetadata(
-        selfPubKey,
-        selfMetadata,
+      id: params.id,
+      relay: relay,
+      namespaces: params.namespaces,
+      requiredNamespaces: proposal.requiredNamespaces,
+      expiry: expiry,
+      controller: ConnectionMetadata(
+        publicKey: selfPubKey,
+        metadata: selfMetadata,
       ),
     );
 
@@ -256,13 +256,13 @@ class Engine implements IEngine {
       // print('approve proposal topic: ${proposal.pairingTopic!}');
       await core.pairing.sendResult(
         params.id,
-        'wc_sessionPropose',
         proposal.pairingTopic!,
+        'wc_sessionPropose',
         WcSessionProposeResponse(
-          Relay(
+          relay: Relay(
             params.relayProtocol != null ? params.relayProtocol! : 'irn',
           ),
-          selfPubKey,
+          responderPublicKey: selfPubKey,
         ).toJson(),
       );
       await _deleteProposal(params.id);
@@ -282,14 +282,17 @@ class Engine implements IEngine {
     );
 
     SessionData session = SessionData(
-      sessionTopic,
-      relay,
-      expiry,
-      acknowledged,
-      selfPubKey,
-      params.namespaces,
-      ConnectionMetadata(selfPubKey, selfMetadata),
-      proposal.proposer,
+      topic: sessionTopic,
+      relay: relay,
+      expiry: expiry,
+      acknowledged: acknowledged,
+      controller: selfPubKey,
+      namespaces: params.namespaces,
+      self: ConnectionMetadata(
+        publicKey: selfPubKey,
+        metadata: selfMetadata,
+      ),
+      peer: proposal.proposer,
     );
 
     await sessions.set(sessionTopic, session);
@@ -298,8 +301,8 @@ class Engine implements IEngine {
     if (proposal.pairingTopic != null) {}
 
     return ApproveResponse(
-      sessionTopic,
-      session,
+      topic: sessionTopic,
+      session: session,
     );
   }
 
@@ -314,6 +317,7 @@ class Engine implements IEngine {
       await core.pairing.sendError(
         params.id,
         proposal.pairingTopic!,
+        'wc_sessionPropose',
         JsonRpcError.serverError('User rejected request'),
       );
       await _deleteProposal(params.id);
@@ -353,22 +357,37 @@ class Engine implements IEngine {
 
     await _setExpiry(
       params.topic,
-      MiscUtils.calculateExpiry(
+      WalletConnectUtils.calculateExpiry(
         WalletConnectConstants.SEVEN_DAYS,
       ),
     );
   }
 
+  /// Maps a request using chainId:method to its handler
+  Map<String, dynamic Function(dynamic)> requestHandlers = {};
+
+  String getRequestMethodKey(String chainId, String method) {
+    return '$chainId:$method';
+  }
+
+  void registerRequestHandler(
+    String chainId,
+    String method,
+    dynamic Function(dynamic) handler,
+  ) {
+    _checkInitialized();
+    requestHandlers[getRequestMethodKey(chainId, method)] = handler;
+  }
+
   @override
-  Future<dynamic> request(RequestParams params) async {
+  Future request(RequestParams params) async {
     _checkInitialized();
     await _isValidRequest(
       params.topic,
       params.request,
-      params.chainId,
     );
     Map<String, dynamic> payload = params.request.toJson();
-    payload['chainId'] = params.chainId;
+    payload['chainId'] = params.request.chainId;
     return await core.pairing.sendRequest(
       params.topic,
       'wc_sessionRequest',
@@ -490,12 +509,12 @@ class Engine implements IEngine {
     final List<int> proposalIds = [];
 
     for (final SessionData session in sessions.getAll()) {
-      if (MiscUtils.isExpired(session.expiry)) {
+      if (WalletConnectUtils.isExpired(session.expiry)) {
         sessionTopics.add(session.topic);
       }
     }
     for (final ProposalData proposal in proposals.getAll()) {
-      if (MiscUtils.isExpired(proposal.expiry)) {
+      if (WalletConnectUtils.isExpired(proposal.expiry)) {
         proposalIds.add(proposal.id);
       }
     }
@@ -526,20 +545,20 @@ class Engine implements IEngine {
       final proposeRequest = WcSessionProposeRequest.fromJson(payload.params);
       proposeRequest.id = payload.id;
       await _isValidConnect(
-        topic,
         proposeRequest.requiredNamespaces,
+        topic,
         proposeRequest.relays,
       );
-      final expiry = MiscUtils.calculateExpiry(
+      final expiry = WalletConnectUtils.calculateExpiry(
         WalletConnectConstants.FIVE_MINUTES,
       );
       final ProposalData proposal = ProposalData(
-        proposeRequest.id,
-        expiry,
-        proposeRequest.relays,
-        proposeRequest.proposer,
-        proposeRequest.requiredNamespaces,
-        topic,
+        id: proposeRequest.id,
+        expiry: expiry,
+        relays: proposeRequest.relays,
+        proposer: proposeRequest.proposer,
+        requiredNamespaces: proposeRequest.requiredNamespaces,
+        pairingTopic: topic,
       );
 
       await _setProposal(proposeRequest.id, proposal);
@@ -551,6 +570,7 @@ class Engine implements IEngine {
       await core.pairing.sendError(
         payload.id,
         topic,
+        payload.method,
         JsonRpcError.invalidParams(
           err.message,
         ),
@@ -571,17 +591,17 @@ class Engine implements IEngine {
 
       // Create the session
       final SessionData session = SessionData(
-        topic,
-        request.relay,
-        request.expiry,
-        true,
-        request.controller.publicKey,
-        request.namespaces,
-        ConnectionMetadata(
-          sProposalCompleter.selfPublicKey,
-          selfMetadata,
+        topic: topic,
+        relay: request.relay,
+        expiry: request.expiry,
+        acknowledged: true,
+        controller: request.controller.publicKey,
+        namespaces: request.namespaces,
+        self: ConnectionMetadata(
+          publicKey: sProposalCompleter.selfPublicKey,
+          metadata: selfMetadata,
         ),
-        request.controller,
+        peer: request.controller,
         requiredNamespaces: sProposalCompleter.requiredNamespaces,
       );
 
@@ -600,8 +620,8 @@ class Engine implements IEngine {
       // Send back a success!
       await core.pairing.sendResult(
         payload.id,
-        'wc_sessionSettle',
         topic,
+        'wc_sessionSettle',
         true,
       );
       onSessionConnect.broadcast(
@@ -611,6 +631,7 @@ class Engine implements IEngine {
       await core.pairing.sendError(
         payload.id,
         topic,
+        payload.method,
         JsonRpcError.invalidParams(
           err.message,
         ),
@@ -623,7 +644,7 @@ class Engine implements IEngine {
     JsonRpcRequest payload,
   ) async {
     try {
-      print(payload.params);
+      // print(payload.params);
       final request = WcSessionUpdateRequest.fromJson(payload.params);
       await _isValidUpdate(topic, request.namespaces);
       await sessions.update(
@@ -632,8 +653,8 @@ class Engine implements IEngine {
       );
       await core.pairing.sendResult(
         payload.id,
-        'wc_sessionUpdate',
         topic,
+        'wc_sessionUpdate',
         true,
       );
       onSessionUpdate.broadcast(
@@ -647,6 +668,7 @@ class Engine implements IEngine {
       await core.pairing.sendError(
         payload.id,
         topic,
+        payload.method,
         JsonRpcError.invalidParams(
           err.message,
         ),
@@ -663,14 +685,14 @@ class Engine implements IEngine {
       await _isValidSessionTopic(topic);
       await _setExpiry(
         topic,
-        MiscUtils.calculateExpiry(
+        WalletConnectUtils.calculateExpiry(
           WalletConnectConstants.SEVEN_DAYS,
         ),
       );
       await core.pairing.sendResult(
         payload.id,
-        'wc_sessionExtend',
         topic,
+        'wc_sessionExtend',
         true,
       );
       onSessionExtend.broadcast(
@@ -683,6 +705,7 @@ class Engine implements IEngine {
       await core.pairing.sendError(
         payload.id,
         topic,
+        payload.method,
         JsonRpcError.invalidParams(
           err.message,
         ),
@@ -699,8 +722,8 @@ class Engine implements IEngine {
       await _isValidPing(topic);
       await core.pairing.sendResult(
         payload.id,
-        'wc_sessionPing',
         topic,
+        'wc_sessionPing',
         true,
       );
       onSessionPing.broadcast(
@@ -713,6 +736,7 @@ class Engine implements IEngine {
       await core.pairing.sendError(
         payload.id,
         topic,
+        payload.method,
         JsonRpcError.invalidParams(
           err.message,
         ),
@@ -730,8 +754,8 @@ class Engine implements IEngine {
       await _deleteSession(topic);
       await core.pairing.sendResult(
         payload.id,
-        'wc_sessionDelete',
         topic,
+        'wc_sessionDelete',
         true,
       );
       onSessionDelete.broadcast(
@@ -744,6 +768,7 @@ class Engine implements IEngine {
       await core.pairing.sendError(
         payload.id,
         topic,
+        payload.method,
         JsonRpcError.invalidParams(
           err.message,
         ),
@@ -751,6 +776,9 @@ class Engine implements IEngine {
     }
   }
 
+  /// Called when a session request is received
+  /// Will attempt to find a handler for the request, if it doesn't,
+  /// it will throw an error.
   Future<void> _onSessionRequest(
     String topic,
     JsonRpcRequest payload,
@@ -760,27 +788,60 @@ class Engine implements IEngine {
       await _isValidRequest(
         topic,
         request,
-        request.chainId,
       );
-      // await core.pairing.sendResult(
-      //   payload.id,
-      //   'wc_sessionDelete',
-      //   topic,
-      //   true,
-      // );
-      onSessionRequest.broadcast(
-        SessionRequest(
+
+      final String methodKey = getRequestMethodKey(
+        request.chainId,
+        request.method,
+      );
+      // print('method key: $methodKey');
+      if (requestHandlers.containsKey(methodKey)) {
+        final handler = requestHandlers[methodKey]!;
+        try {
+          final result = await handler(
+            request.params,
+          );
+          await core.pairing.sendResult(
+            payload.id,
+            topic,
+            'wc_sessionRequest',
+            result,
+          );
+        } catch (err) {
+          await core.pairing.sendError(
+            payload.id,
+            topic,
+            payload.method,
+            JsonRpcError.invalidParams(
+              err.toString(),
+            ),
+          );
+        }
+      } else {
+        await core.pairing.sendError(
           payload.id,
           topic,
-          request.method,
-          request.chainId,
-          request.params,
-        ),
-      );
+          payload.method,
+          JsonRpcError.methodNotFound(
+            'No handler found for method: ${methodKey}',
+          ),
+        );
+      }
+
+      // onSessionRequest.broadcast(
+      //   SessionRequest(
+      //     payload.id,
+      //     topic,
+      //     request.method,
+      //     request.chainId,
+      //     request.params,
+      //   ),
+      // );
     } on Error catch (err) {
       await core.pairing.sendError(
         payload.id,
         topic,
+        payload.method,
         JsonRpcError.invalidParams(
           err.message,
         ),
@@ -818,6 +879,7 @@ class Engine implements IEngine {
       await core.pairing.sendError(
         payload.id,
         topic,
+        payload.method,
         JsonRpcError.invalidParams(
           err.message,
         ),
@@ -864,7 +926,8 @@ class Engine implements IEngine {
       );
     }
 
-    if (MiscUtils.isExpired(core.pairing.getStore().get(topic)!.expiry)) {
+    if (WalletConnectUtils.isExpired(
+        core.pairing.getStore().get(topic)!.expiry)) {
       // await deletePairing(topic);
       throw Errors.getInternalError(
         Errors.EXPIRED,
@@ -883,7 +946,7 @@ class Engine implements IEngine {
       );
     }
 
-    if (MiscUtils.isExpired(sessions.get(topic)!.expiry)) {
+    if (WalletConnectUtils.isExpired(sessions.get(topic)!.expiry)) {
       await _deleteSession(topic);
       throw Errors.getInternalError(
         "EXPIRED",
@@ -916,7 +979,7 @@ class Engine implements IEngine {
         context: "proposal id doesn't exist: $id",
       );
     }
-    if (MiscUtils.isExpired(proposals.get(id.toString())!.expiry)) {
+    if (WalletConnectUtils.isExpired(proposals.get(id.toString())!.expiry)) {
       await _deleteProposal(id);
       throw Errors.getInternalError(
         "EXPIRED",
@@ -930,9 +993,9 @@ class Engine implements IEngine {
   /// ---- Validations ---- ///
 
   Future<bool> _isValidConnect(
-    String? pairingTopic,
     Map<String, RequiredNamespace> requiredNamespaces,
-    List<Relay> relays,
+    String? pairingTopic,
+    List<Relay>? relays,
   ) async {
     if (pairingTopic != null) {
       _isValidPairingTopic(pairingTopic);
@@ -970,7 +1033,7 @@ class Engine implements IEngine {
     int expiry,
   ) async {
     ValidatorUtils.isValidNamespaces(namespaces, "onSessionSettleRequest()");
-    if (MiscUtils.isExpired(expiry)) {
+    if (WalletConnectUtils.isExpired(expiry)) {
       throw Errors.getInternalError(
         Errors.EXPIRED,
         context: 'onSessionSettleRequest()',
@@ -1000,17 +1063,16 @@ class Engine implements IEngine {
   Future<bool> _isValidRequest(
     String topic,
     WcSessionRequestRequest request,
-    String chainId,
   ) async {
     await _isValidSessionTopic(topic);
     final SessionData session = sessions.get(topic)!;
     ValidatorUtils.isValidNamespacesChainId(
       session.namespaces,
-      chainId,
+      request.chainId,
     );
     ValidatorUtils.isValidNamespacesRequest(
       session.namespaces,
-      chainId,
+      request.chainId,
       request.method,
     );
 

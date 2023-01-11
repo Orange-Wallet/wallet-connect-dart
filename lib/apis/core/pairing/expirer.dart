@@ -6,7 +6,7 @@ import 'package:wallet_connect_v2/apis/core/pairing/pairing_models.dart';
 import 'package:wallet_connect_v2/apis/core/store/i_store.dart';
 import 'package:wallet_connect_v2/apis/core/key_chain/i_key_chain.dart';
 import 'package:wallet_connect_v2/apis/utils/errors.dart';
-import 'package:wallet_connect_v2/apis/utils/misc.dart';
+import 'package:wallet_connect_v2/apis/utils/wallet_connect_utils.dart';
 
 class Expirer implements IExpirer {
   static const CONTEXT = 'expirer';
@@ -94,7 +94,7 @@ class Expirer implements IExpirer {
 
   @override
   bool checkExpiry(String key, int expiry) {
-    int msToTimeout = MiscUtils.toMilliseconds(expiry) -
+    int msToTimeout = WalletConnectUtils.toMilliseconds(expiry) -
         DateTime.now().toUtc().millisecondsSinceEpoch;
     if (msToTimeout <= 0) {
       expire(key);
@@ -126,7 +126,7 @@ class Expirer implements IExpirer {
 
   @override
   Future<void> restore() async {
-    expirations = MiscUtils.convertMapTo<int>(
+    expirations = WalletConnectUtils.convertMapTo<int>(
       core.storage.get(storageKey),
     );
   }

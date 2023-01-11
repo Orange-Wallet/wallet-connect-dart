@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:wallet_connect_v2/apis/core/relay_client/relay_client_models.dart';
 import 'package:wallet_connect_v2/apis/models/json_rpc_response.dart';
-import 'package:wallet_connect_v2/apis/models/models.dart';
+import 'package:wallet_connect_v2/apis/models/basic_errors.dart';
 import 'package:wallet_connect_v2/apis/signing_api/models/json_rpc_models.dart';
 import 'package:wallet_connect_v2/apis/signing_api/models/proposal_models.dart';
 import 'package:wallet_connect_v2/apis/signing_api/models/session_models.dart';
@@ -27,21 +27,21 @@ class UriParameters {
 class ConnectParams {
   final Map<String, RequiredNamespace> requiredNamespaces;
   final String? pairingTopic;
-  final List<Relay> relays;
+  final List<Relay>? relays;
 
-  ConnectParams(
-    this.requiredNamespaces,
+  ConnectParams({
+    required this.requiredNamespaces,
     this.pairingTopic,
     this.relays,
-  );
+  });
 }
 
 class ConnectResponse {
   final Completer session;
   final Uri? uri;
 
-  ConnectResponse(
-    this.session, {
+  ConnectResponse({
+    required this.session,
     this.uri,
   });
 }
@@ -49,7 +49,9 @@ class ConnectResponse {
 class PairParams {
   final Uri uri;
 
-  PairParams(this.uri);
+  PairParams({
+    required this.uri,
+  });
 }
 
 class ApproveParams {
@@ -57,9 +59,9 @@ class ApproveParams {
   final Map<String, Namespace> namespaces;
   final String? relayProtocol;
 
-  ApproveParams(
-    this.id,
-    this.namespaces, {
+  ApproveParams({
+    required this.id,
+    required this.namespaces,
     this.relayProtocol,
   });
 }
@@ -67,70 +69,69 @@ class ApproveParams {
 class ApproveResponse {
   final String topic;
   final SessionData session;
-  // final Completer acknowledged;
 
-  ApproveResponse(
-    this.topic,
-    this.session,
-    // this.acknowledged,
-  );
+  ApproveResponse({
+    required this.topic,
+    required this.session,
+  });
 }
 
 class RejectParams {
   final int id;
   final String reason;
 
-  RejectParams(
-    this.id,
-    this.reason,
-  );
+  RejectParams({
+    required this.id,
+    required this.reason,
+  });
 }
 
 class UpdateParams {
   final String topic;
   final WcSessionUpdateRequest namespaces;
 
-  UpdateParams(
-    this.topic,
-    this.namespaces,
-  );
+  UpdateParams({
+    required this.topic,
+    required this.namespaces,
+  });
 }
 
 class ExtendParams {
   final String topic;
 
-  ExtendParams(
-    this.topic,
-  );
+  ExtendParams({
+    required this.topic,
+  });
 }
 
 class RequestParams {
   final String topic;
   final WcSessionRequestRequest request;
-  final String chainId;
 
-  RequestParams(
-    this.topic,
-    this.request,
-    this.chainId,
-  );
+  RequestParams({
+    required this.topic,
+    required this.request,
+  });
 }
 
 class RespondParams {
   final String topic;
   final JsonRpcResponse response;
 
-  RespondParams(
-    this.topic,
-    this.response,
-  );
+  RespondParams({
+    required this.topic,
+    required this.response,
+  });
 }
 
 class EmitEvent {
   String name;
   dynamic data;
 
-  EmitEvent(this.name, this.data);
+  EmitEvent({
+    required this.name,
+    required this.data,
+  });
 }
 
 class EmitParams {
@@ -138,31 +139,35 @@ class EmitParams {
   final WcSessionEventRequest event;
   final String chainId;
 
-  EmitParams(
-    this.topic,
-    this.event,
-    this.chainId,
-  );
+  EmitParams({
+    required this.topic,
+    required this.event,
+    required this.chainId,
+  });
 }
 
 class PingParams {
   final String topic;
 
-  PingParams(this.topic);
+  PingParams({
+    required this.topic,
+  });
 }
 
 class DisconnectParams {
   final String topic;
   final ErrorResponse reason;
 
-  DisconnectParams(
-    this.topic,
-    this.reason,
-  );
+  DisconnectParams({
+    required this.topic,
+    required this.reason,
+  });
 }
 
 class FindParams {
   final Map<String, RequiredNamespace> requiredNamespaces;
 
-  FindParams(this.requiredNamespaces);
+  FindParams({
+    required this.requiredNamespaces,
+  });
 }

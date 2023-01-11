@@ -5,7 +5,7 @@ import 'package:wallet_connect_v2/apis/core/pairing/pairing_models.dart';
 import 'package:wallet_connect_v2/apis/signing_api/i_proposals.dart';
 import 'package:wallet_connect_v2/apis/signing_api/models/proposal_models.dart';
 import 'package:wallet_connect_v2/apis/utils/errors.dart';
-import 'package:wallet_connect_v2/apis/utils/misc.dart';
+import 'package:wallet_connect_v2/apis/utils/wallet_connect_utils.dart';
 
 class Proposals implements IProposals {
   static const CONTEXT = 'proposals';
@@ -82,7 +82,7 @@ class Proposals implements IProposals {
 
   @override
   Future<void> restore() async {
-    dataStrings = MiscUtils.convertMapTo<String>(
+    dataStrings = WalletConnectUtils.convertMapTo<String>(
       core.storage.get(storageKey),
     );
     for (var entry in dataStrings.entries) {

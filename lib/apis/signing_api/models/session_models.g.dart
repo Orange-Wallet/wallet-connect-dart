@@ -8,9 +8,12 @@ part of 'session_models.dart';
 
 BaseNamespace _$BaseNamespaceFromJson(Map<String, dynamic> json) =>
     BaseNamespace(
-      (json['accounts'] as List<dynamic>).map((e) => e as String).toList(),
-      (json['methods'] as List<dynamic>).map((e) => e as String).toList(),
-      (json['events'] as List<dynamic>).map((e) => e as String).toList(),
+      accounts:
+          (json['accounts'] as List<dynamic>).map((e) => e as String).toList(),
+      methods:
+          (json['methods'] as List<dynamic>).map((e) => e as String).toList(),
+      events:
+          (json['events'] as List<dynamic>).map((e) => e as String).toList(),
     );
 
 Map<String, dynamic> _$BaseNamespaceToJson(BaseNamespace instance) =>
@@ -21,10 +24,13 @@ Map<String, dynamic> _$BaseNamespaceToJson(BaseNamespace instance) =>
     };
 
 Namespace _$NamespaceFromJson(Map<String, dynamic> json) => Namespace(
-      (json['accounts'] as List<dynamic>).map((e) => e as String).toList(),
-      (json['methods'] as List<dynamic>).map((e) => e as String).toList(),
-      (json['events'] as List<dynamic>).map((e) => e as String).toList(),
-      (json['extension'] as List<dynamic>)
+      accounts:
+          (json['accounts'] as List<dynamic>).map((e) => e as String).toList(),
+      methods:
+          (json['methods'] as List<dynamic>).map((e) => e as String).toList(),
+      events:
+          (json['events'] as List<dynamic>).map((e) => e as String).toList(),
+      extension: (json['extension'] as List<dynamic>)
           .map((e) => BaseNamespace.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -37,16 +43,16 @@ Map<String, dynamic> _$NamespaceToJson(Namespace instance) => <String, dynamic>{
     };
 
 SessionData _$SessionDataFromJson(Map<String, dynamic> json) => SessionData(
-      json['topic'] as String,
-      Relay.fromJson(json['relay'] as Map<String, dynamic>),
-      json['expiry'] as int,
-      json['acknowledged'] as bool,
-      json['controller'] as String,
-      (json['namespaces'] as Map<String, dynamic>).map(
+      topic: json['topic'] as String,
+      relay: Relay.fromJson(json['relay'] as Map<String, dynamic>),
+      expiry: json['expiry'] as int,
+      acknowledged: json['acknowledged'] as bool,
+      controller: json['controller'] as String,
+      namespaces: (json['namespaces'] as Map<String, dynamic>).map(
         (k, e) => MapEntry(k, Namespace.fromJson(e as Map<String, dynamic>)),
       ),
-      ConnectionMetadata.fromJson(json['self'] as Map<String, dynamic>),
-      ConnectionMetadata.fromJson(json['peer'] as Map<String, dynamic>),
+      self: ConnectionMetadata.fromJson(json['self'] as Map<String, dynamic>),
+      peer: ConnectionMetadata.fromJson(json['peer'] as Map<String, dynamic>),
       requiredNamespaces:
           (json['requiredNamespaces'] as Map<String, dynamic>?)?.map(
         (k, e) =>

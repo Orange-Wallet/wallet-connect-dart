@@ -1,7 +1,7 @@
 import 'package:wallet_connect_v2/apis/core/i_core.dart';
 import 'package:wallet_connect_v2/apis/core/relay_client/i_topic_map.dart';
 import 'package:wallet_connect_v2/apis/utils/errors.dart';
-import 'package:wallet_connect_v2/apis/utils/misc.dart';
+import 'package:wallet_connect_v2/apis/utils/wallet_connect_utils.dart';
 
 class TopicMap implements ITopicMap {
   static const CONTEXT = 'topicMap';
@@ -66,7 +66,7 @@ class TopicMap implements ITopicMap {
 
   @override
   Future<void> restore() async {
-    topicMap = MiscUtils.convertMapTo<String>(
+    topicMap = WalletConnectUtils.convertMapTo<String>(
       core.storage.get(storageKey),
     );
   }

@@ -8,7 +8,7 @@ import 'package:wallet_connect_v2/apis/core/crypto/crypto.dart';
 import 'package:wallet_connect_v2/apis/core/crypto/crypto_models.dart';
 import 'package:wallet_connect_v2/apis/core/crypto/crypto_utils.dart';
 import 'package:wallet_connect_v2/apis/core/i_core.dart';
-import 'package:wallet_connect_v2/apis/models/models.dart';
+import 'package:wallet_connect_v2/apis/models/basic_errors.dart';
 
 import 'shared/shared_test_utils.mocks.dart';
 import 'shared/shared_test_values.dart';

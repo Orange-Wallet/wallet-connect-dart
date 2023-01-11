@@ -9,9 +9,12 @@ part of 'proposal_models.dart';
 BaseRequiredNamespace _$BaseRequiredNamespaceFromJson(
         Map<String, dynamic> json) =>
     BaseRequiredNamespace(
-      (json['chains'] as List<dynamic>).map((e) => e as String).toList(),
-      (json['methods'] as List<dynamic>).map((e) => e as String).toList(),
-      (json['events'] as List<dynamic>).map((e) => e as String).toList(),
+      chains:
+          (json['chains'] as List<dynamic>).map((e) => e as String).toList(),
+      methods:
+          (json['methods'] as List<dynamic>).map((e) => e as String).toList(),
+      events:
+          (json['events'] as List<dynamic>).map((e) => e as String).toList(),
     );
 
 Map<String, dynamic> _$BaseRequiredNamespaceToJson(
@@ -24,10 +27,13 @@ Map<String, dynamic> _$BaseRequiredNamespaceToJson(
 
 RequiredNamespace _$RequiredNamespaceFromJson(Map<String, dynamic> json) =>
     RequiredNamespace(
-      (json['chains'] as List<dynamic>).map((e) => e as String).toList(),
-      (json['methods'] as List<dynamic>).map((e) => e as String).toList(),
-      (json['events'] as List<dynamic>).map((e) => e as String).toList(),
-      (json['extension'] as List<dynamic>)
+      chains:
+          (json['chains'] as List<dynamic>).map((e) => e as String).toList(),
+      methods:
+          (json['methods'] as List<dynamic>).map((e) => e as String).toList(),
+      events:
+          (json['events'] as List<dynamic>).map((e) => e as String).toList(),
+      extension: (json['extension'] as List<dynamic>)
           .map((e) => BaseRequiredNamespace.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -41,17 +47,19 @@ Map<String, dynamic> _$RequiredNamespaceToJson(RequiredNamespace instance) =>
     };
 
 ProposalData _$ProposalDataFromJson(Map<String, dynamic> json) => ProposalData(
-      json['id'] as int,
-      json['expiry'] as int,
-      (json['relays'] as List<dynamic>)
+      id: json['id'] as int,
+      expiry: json['expiry'] as int,
+      relays: (json['relays'] as List<dynamic>)
           .map((e) => Relay.fromJson(e as Map<String, dynamic>))
           .toList(),
-      ConnectionMetadata.fromJson(json['proposer'] as Map<String, dynamic>),
-      (json['requiredNamespaces'] as Map<String, dynamic>).map(
+      proposer:
+          ConnectionMetadata.fromJson(json['proposer'] as Map<String, dynamic>),
+      requiredNamespaces:
+          (json['requiredNamespaces'] as Map<String, dynamic>).map(
         (k, e) =>
             MapEntry(k, RequiredNamespace.fromJson(e as Map<String, dynamic>)),
       ),
-      json['pairingTopic'] as String?,
+      pairingTopic: json['pairingTopic'] as String?,
     );
 
 Map<String, dynamic> _$ProposalDataToJson(ProposalData instance) =>

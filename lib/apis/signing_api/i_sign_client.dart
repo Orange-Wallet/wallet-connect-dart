@@ -31,6 +31,11 @@ abstract class ISignClient {
   Future<void> reject(RejectParams params);
   Future<void> update(UpdateParams params);
   Future<void> extend(ExtendParams params);
+  void registerRequestHandler(
+    String chainId,
+    String method,
+    dynamic Function(dynamic) handler,
+  );
   Future<dynamic> request(RequestParams params);
   // Future<void> respond(RespondParams params);
   Future<void> emit(EmitParams params);

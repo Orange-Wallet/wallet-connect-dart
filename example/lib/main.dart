@@ -55,12 +55,11 @@ enum MenuItems {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  late WCClient _wcClient;
+  late SignClient _signClient;
   late SharedPreferences _prefs;
   late InAppWebViewController _webViewController;
   late String walletAddress, privateKey;
   bool connected = false;
-  WCSessionStore? _sessionStore;
   final _web3client = Web3Client(rpcUri, http.Client());
 
   @override
@@ -70,16 +69,11 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   _initialize() async {
-    _wcClient = WCClient(
-      onSessionRequest: _onSessionRequest,
-      onFailure: _onSessionError,
-      onDisconnect: _onSessionClosed,
-      onEthSign: _onSign,
-      onEthSignTransaction: _onSignTransaction,
-      onEthSendTransaction: _onSendTransaction,
-      onCustomRequest: (_, __) {},
-      onConnect: _onConnect,
-      onWalletSwitchNetwork: _onSwitchNetwork,
+    _signClient = await SignClient.createInstance(
+      Core(
+        'https://relay.walletconnect.com',
+        '',
+      ),
     );
     walletAddress = WALLET_ADDRESS;
     privateKey = PRIVATE_KEY;

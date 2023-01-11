@@ -12,7 +12,7 @@ class WcPairingDeleteRequest {
   final int code;
   final String message;
 
-  WcPairingDeleteRequest(this.code, this.message);
+  WcPairingDeleteRequest({required this.code, required this.message});
 
   factory WcPairingDeleteRequest.fromJson(Map<String, dynamic> json) =>
       _$WcPairingDeleteRequestFromJson(json);
@@ -24,7 +24,7 @@ class WcPairingDeleteRequest {
 class WcPairingPingRequest {
   final Map<String, dynamic> data;
 
-  WcPairingPingRequest(this.data);
+  WcPairingPingRequest({required this.data});
 
   factory WcPairingPingRequest.fromJson(Map<String, dynamic> json) =>
       _$WcPairingPingRequestFromJson(json);
@@ -39,12 +39,12 @@ class WcSessionProposeRequest {
   final Map<String, RequiredNamespace> requiredNamespaces;
   final ConnectionMetadata proposer;
 
-  WcSessionProposeRequest(
-    this.id,
-    this.relays,
-    this.requiredNamespaces,
-    this.proposer,
-  );
+  WcSessionProposeRequest({
+    required this.id,
+    required this.relays,
+    required this.requiredNamespaces,
+    required this.proposer,
+  });
 
   factory WcSessionProposeRequest.fromJson(Map<String, dynamic> json) =>
       _$WcSessionProposeRequestFromJson(json);
@@ -57,10 +57,10 @@ class WcSessionProposeResponse {
   Relay relay;
   String responderPublicKey;
 
-  WcSessionProposeResponse(
-    this.relay,
-    this.responderPublicKey,
-  );
+  WcSessionProposeResponse({
+    required this.relay,
+    required this.responderPublicKey,
+  });
 
   factory WcSessionProposeResponse.fromJson(Map<String, dynamic> json) =>
       _$WcSessionProposeResponseFromJson(json);
@@ -77,14 +77,14 @@ class WcSessionSettleRequest {
   final int expiry;
   final ConnectionMetadata controller;
 
-  WcSessionSettleRequest(
-    this.id,
-    this.relay,
-    this.namespaces,
-    this.requiredNamespaces,
-    this.expiry,
-    this.controller,
-  );
+  WcSessionSettleRequest({
+    required this.id,
+    required this.relay,
+    required this.namespaces,
+    required this.requiredNamespaces,
+    required this.expiry,
+    required this.controller,
+  });
 
   factory WcSessionSettleRequest.fromJson(Map<String, dynamic> json) =>
       _$WcSessionSettleRequestFromJson(json);
@@ -96,7 +96,7 @@ class WcSessionSettleRequest {
 class WcSessionUpdateRequest {
   final Map<String, Namespace> namespaces;
 
-  WcSessionUpdateRequest(this.namespaces);
+  WcSessionUpdateRequest({required this.namespaces});
 
   factory WcSessionUpdateRequest.fromJson(Map<String, dynamic> json) =>
       _$WcSessionUpdateRequestFromJson(json);
@@ -108,7 +108,7 @@ class WcSessionUpdateRequest {
 class WcSessionExtendRequest {
   final Map<String, dynamic> data;
 
-  WcSessionExtendRequest(this.data);
+  WcSessionExtendRequest({required this.data});
 
   factory WcSessionExtendRequest.fromJson(Map<String, dynamic> json) =>
       _$WcSessionExtendRequestFromJson(json);
@@ -121,7 +121,7 @@ class WcSessionDeleteRequest {
   final int code;
   final String message;
 
-  WcSessionDeleteRequest(this.code, this.message);
+  WcSessionDeleteRequest({required this.code, required this.message});
 
   factory WcSessionDeleteRequest.fromJson(Map<String, dynamic> json) =>
       _$WcSessionDeleteRequestFromJson(json);
@@ -133,7 +133,7 @@ class WcSessionDeleteRequest {
 class WcSessionPingRequest {
   final Map<String, dynamic> data;
 
-  WcSessionPingRequest(this.data);
+  WcSessionPingRequest({required this.data});
 
   factory WcSessionPingRequest.fromJson(Map<String, dynamic> json) =>
       _$WcSessionPingRequestFromJson(json);
@@ -143,15 +143,15 @@ class WcSessionPingRequest {
 
 @JsonSerializable()
 class WcSessionRequestRequest {
+  final String chainId;
   final String method;
   final dynamic params;
-  final String chainId;
 
-  WcSessionRequestRequest(
-    this.method,
-    this.params,
-    this.chainId,
-  );
+  WcSessionRequestRequest({
+    required this.chainId,
+    required this.method,
+    required this.params,
+  });
 
   factory WcSessionRequestRequest.fromJson(Map<String, dynamic> json) =>
       _$WcSessionRequestRequestFromJson(json);
@@ -165,11 +165,11 @@ class WcSessionEventRequest {
   final dynamic data;
   final String chainId;
 
-  WcSessionEventRequest(
-    this.name,
-    this.data,
-    this.chainId,
-  );
+  WcSessionEventRequest({
+    required this.name,
+    required this.data,
+    required this.chainId,
+  });
 
   factory WcSessionEventRequest.fromJson(Map<String, dynamic> json) =>
       _$WcSessionEventRequestFromJson(json);

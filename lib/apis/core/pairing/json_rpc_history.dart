@@ -6,7 +6,7 @@ import 'package:wallet_connect_v2/apis/core/pairing/pairing_models.dart';
 import 'package:wallet_connect_v2/apis/models/json_rpc_request.dart';
 import 'package:wallet_connect_v2/apis/models/json_rpc_response.dart';
 import 'package:wallet_connect_v2/apis/utils/errors.dart';
-import 'package:wallet_connect_v2/apis/utils/misc.dart';
+import 'package:wallet_connect_v2/apis/utils/wallet_connect_utils.dart';
 
 class JsonRpcHistory implements IJsonRpcHistory {
   static const CONTEXT = 'jsonRpcHistory';
@@ -127,7 +127,7 @@ class JsonRpcHistory implements IJsonRpcHistory {
 
   @override
   Future<void> restore() async {
-    history = MiscUtils.convertMapTo<Map<String, dynamic>>(
+    history = WalletConnectUtils.convertMapTo<Map<String, dynamic>>(
       core.storage.get(storageKey),
     );
   }

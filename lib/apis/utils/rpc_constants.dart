@@ -1,4 +1,4 @@
-import 'package:wallet_connect_v2/apis/models/models.dart';
+import 'package:wallet_connect_v2/apis/models/basic_errors.dart';
 import 'package:wallet_connect_v2/apis/utils/constants.dart';
 
 class RPCConstants {

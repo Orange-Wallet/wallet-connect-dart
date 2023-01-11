@@ -5,7 +5,7 @@ import 'package:wallet_connect_v2/apis/signing_api/i_sessions.dart';
 import 'package:wallet_connect_v2/apis/signing_api/models/proposal_models.dart';
 import 'package:wallet_connect_v2/apis/signing_api/models/session_models.dart';
 import 'package:wallet_connect_v2/apis/utils/errors.dart';
-import 'package:wallet_connect_v2/apis/utils/misc.dart';
+import 'package:wallet_connect_v2/apis/utils/wallet_connect_utils.dart';
 
 class Sessions implements ISessions {
   static const CONTEXT = 'proposals';
@@ -105,7 +105,7 @@ class Sessions implements ISessions {
 
   @override
   Future<void> restore() async {
-    dataStrings = MiscUtils.convertMapTo<String>(
+    dataStrings = WalletConnectUtils.convertMapTo<String>(
       core.storage.get(storageKey),
     );
     for (var entry in dataStrings.entries) {

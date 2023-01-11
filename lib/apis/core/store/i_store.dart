@@ -1,4 +1,4 @@
-import 'package:wallet_connect_v2/apis/models/models.dart';
+import 'package:wallet_connect_v2/apis/models/basic_errors.dart';
 
 abstract class IStore<T> {
   abstract final Map<String, T> map;

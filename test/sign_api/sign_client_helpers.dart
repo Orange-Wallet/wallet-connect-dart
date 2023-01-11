@@ -2,16 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:wallet_connect_v2/apis/core/pairing/pairing_models.dart';
-import 'package:wallet_connect_v2/apis/core/relay_client/relay_client_models.dart';
-import 'package:wallet_connect_v2/apis/models/models.dart';
-import 'package:wallet_connect_v2/apis/signing_api/i_sign_client.dart';
-import 'package:wallet_connect_v2/apis/signing_api/models/json_rpc_models.dart';
-import 'package:wallet_connect_v2/apis/signing_api/models/proposal_models.dart';
-import 'package:wallet_connect_v2/apis/signing_api/models/session_models.dart';
-import 'package:wallet_connect_v2/apis/signing_api/models/sign_client_models.dart';
-import 'package:wallet_connect_v2/apis/signing_api/models/signing_models.dart';
-import 'package:wallet_connect_v2/apis/utils/misc.dart';
+import 'package:wallet_connect_v2/wallet_connect_v2.dart';
 
 import 'sign_client_constants.dart';
 
@@ -31,8 +22,8 @@ class TestConnectMethodReturn {
 
 class SignClientHelpers {
   static Future<TestConnectMethodReturn> testConnectMethod(
-    ISignClient a,
-    ISignClient b, {
+    SignClient a,
+    SignClient b, {
     Map<String, Namespace>? namespaces,
     Map<String, RequiredNamespace>? requiredNamespaces,
     List<Relay>? relays,
@@ -41,11 +32,11 @@ class SignClientHelpers {
   }) async {
     final start = DateTime.now().millisecondsSinceEpoch;
     final connectParams = ConnectParams(
-      requiredNamespaces != null
+      requiredNamespaces: requiredNamespaces != null
           ? requiredNamespaces
           : SignClientConstants.TEST_REQUIRED_NAMESPACES,
-      pairingTopic,
-      relays != null ? relays : [],
+      pairingTopic: pairingTopic,
+      relays: relays != null ? relays : [],
     );
 
     Map<String, Namespace> workingNamespaces =
@@ -64,8 +55,8 @@ class SignClientHelpers {
 
       ApproveResponse response = await b.approve(
         ApproveParams(
-          args.id,
-          workingNamespaces,
+          id: args.id,
+          namespaces: workingNamespaces,
         ),
       );
       sessionB = response.session;
@@ -100,7 +91,7 @@ class SignClientHelpers {
         );
       }
 
-      final uriParams = MiscUtils.parseUri(connectResponse.uri!);
+      final uriParams = WalletConnectUtils.parseUri(connectResponse.uri!);
       pairingA = a.pairings.get(uriParams['topic']);
       expect(pairingA != null, true);
       expect(pairingA!.topic, uriParams['topic']);
@@ -113,7 +104,7 @@ class SignClientHelpers {
       final timeout = Timer(Duration(milliseconds: pairTimeoutMs), () {
         throw Exception("Pair timed out after $pairTimeoutMs ms");
       });
-      pairingB = await b.pair(PairParams(uri));
+      pairingB = await b.pair(PairParams(uri: uri));
       timeout.cancel();
       expect(pairingA.topic, pairingB.topic);
       expect(pairingA.relay.protocol, pairingB.relay.protocol);

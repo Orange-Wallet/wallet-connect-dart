@@ -144,12 +144,29 @@ class SignClient implements ISignClient {
   }
 
   @override
-  Future request(RequestParams params) async {
+  void registerRequestHandler(
+    String chainId,
+    String method,
+    void Function(dynamic) handler,
+  ) {
     try {
-      return await engine.request(params);
+      return engine.registerRequestHandler(
+        chainId,
+        method,
+        handler,
+      );
     } catch (e) {
       throw e;
     }
+  }
+
+  @override
+  Future request(RequestParams params) async {
+    return await engine.request(params);
+    // try {
+    // } catch (e) {
+    //   throw e;
+    // }
   }
 
   @override
