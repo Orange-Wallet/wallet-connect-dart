@@ -1,5 +1,4 @@
 import 'package:get_storage/get_storage.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wallet_connect_v2/apis/core/store/i_store.dart';
 import 'package:wallet_connect_v2/apis/utils/constants.dart';
 import 'package:wallet_connect_v2/apis/utils/errors.dart';
