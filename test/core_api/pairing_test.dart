@@ -3,7 +3,6 @@ import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wallet_connect_v2/apis/core/core.dart';
 import 'package:wallet_connect_v2/apis/core/crypto/crypto.dart';
 import 'package:wallet_connect_v2/apis/core/crypto/crypto_models.dart';

@@ -14,7 +14,6 @@ import 'package:wallet_connect_v2/apis/core/pairing/pairing_store.dart';
 import 'package:wallet_connect_v2/apis/core/pairing/pairing_utils.dart';
 import 'package:wallet_connect_v2/apis/core/relay_client/i_relay_client.dart';
 import 'package:wallet_connect_v2/apis/core/relay_client/relay_client_models.dart';
-import 'package:wallet_connect_v2/apis/core/store/store.dart';
 import 'package:wallet_connect_v2/apis/models/json_rpc_error.dart';
 import 'package:wallet_connect_v2/apis/models/json_rpc_request.dart';
 import 'package:wallet_connect_v2/apis/models/json_rpc_response.dart';

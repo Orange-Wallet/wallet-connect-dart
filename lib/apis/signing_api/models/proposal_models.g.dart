@@ -31,11 +31,15 @@ RequiredNamespace _$RequiredNamespaceFromJson(Map<String, dynamic> json) =>
           (json['chains'] as List<dynamic>).map((e) => e as String).toList(),
       methods:
           (json['methods'] as List<dynamic>).map((e) => e as String).toList(),
-      events:
-          (json['events'] as List<dynamic>).map((e) => e as String).toList(),
-      extension: (json['extension'] as List<dynamic>)
-          .map((e) => BaseRequiredNamespace.fromJson(e as Map<String, dynamic>))
-          .toList(),
+      events: (json['events'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const [],
+      extension: (json['extension'] as List<dynamic>?)
+              ?.map((e) =>
+                  BaseRequiredNamespace.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
     );
 
 Map<String, dynamic> _$RequiredNamespaceToJson(RequiredNamespace instance) =>

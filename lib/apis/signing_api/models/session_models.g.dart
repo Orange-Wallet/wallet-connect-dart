@@ -28,11 +28,14 @@ Namespace _$NamespaceFromJson(Map<String, dynamic> json) => Namespace(
           (json['accounts'] as List<dynamic>).map((e) => e as String).toList(),
       methods:
           (json['methods'] as List<dynamic>).map((e) => e as String).toList(),
-      events:
-          (json['events'] as List<dynamic>).map((e) => e as String).toList(),
-      extension: (json['extension'] as List<dynamic>)
-          .map((e) => BaseNamespace.fromJson(e as Map<String, dynamic>))
-          .toList(),
+      events: (json['events'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const [],
+      extension: (json['extension'] as List<dynamic>?)
+              ?.map((e) => BaseNamespace.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
     );
 
 Map<String, dynamic> _$NamespaceToJson(Namespace instance) => <String, dynamic>{
