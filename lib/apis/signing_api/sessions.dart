@@ -1,10 +1,10 @@
 import 'dart:convert';
 
-import 'package:wallet_connect_v2/apis/core/i_core.dart';
-import 'package:wallet_connect_v2/apis/signing_api/i_sessions.dart';
-import 'package:wallet_connect_v2/apis/signing_api/models/session_models.dart';
-import 'package:wallet_connect_v2/apis/utils/errors.dart';
-import 'package:wallet_connect_v2/apis/utils/wallet_connect_utils.dart';
+import 'package:wallet_connect_v2_dart/apis/core/i_core.dart';
+import 'package:wallet_connect_v2_dart/apis/signing_api/i_sessions.dart';
+import 'package:wallet_connect_v2_dart/apis/signing_api/models/session_models.dart';
+import 'package:wallet_connect_v2_dart/apis/utils/errors.dart';
+import 'package:wallet_connect_v2_dart/apis/utils/wallet_connect_utils.dart';
 
 class Sessions implements ISessions {
   static const CONTEXT = 'proposals';

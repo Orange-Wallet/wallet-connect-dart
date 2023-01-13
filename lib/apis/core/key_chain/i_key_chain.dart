@@ -1,4 +1,4 @@
-import 'package:wallet_connect_v2/apis/core/store/i_store_user.dart';
+import 'package:wallet_connect_v2_dart/apis/core/store/i_store_user.dart';
 
 abstract class IKeyChain extends IStoreUser {
   Future<void> init();

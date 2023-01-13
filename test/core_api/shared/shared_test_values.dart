@@ -1,4 +1,4 @@
-import 'package:wallet_connect_v2/apis/core/crypto/crypto_models.dart';
+import 'package:wallet_connect_v2_dart/apis/core/crypto/crypto_models.dart';
 
 const TEST_PAIRING_TOPIC = '';
 const TEST_SESSION_TOPIC = '';

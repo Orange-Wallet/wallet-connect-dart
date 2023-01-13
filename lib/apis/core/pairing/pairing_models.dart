@@ -1,7 +1,7 @@
 import 'package:event/event.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:wallet_connect_v2/apis/core/relay_client/relay_client_models.dart';
-import 'package:wallet_connect_v2/apis/models/json_rpc_error.dart';
+import 'package:wallet_connect_v2_dart/apis/core/relay_client/relay_client_models.dart';
+import 'package:wallet_connect_v2_dart/apis/models/json_rpc_error.dart';
 
 part 'pairing_models.g.dart';
 

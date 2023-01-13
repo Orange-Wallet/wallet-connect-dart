@@ -1,11 +1,11 @@
 import 'dart:async';
 
-import 'package:wallet_connect_v2/apis/core/relay_client/relay_client_models.dart';
-import 'package:wallet_connect_v2/apis/models/json_rpc_response.dart';
-import 'package:wallet_connect_v2/apis/models/basic_errors.dart';
-import 'package:wallet_connect_v2/apis/signing_api/models/json_rpc_models.dart';
-import 'package:wallet_connect_v2/apis/signing_api/models/proposal_models.dart';
-import 'package:wallet_connect_v2/apis/signing_api/models/session_models.dart';
+import 'package:wallet_connect_v2_dart/apis/core/relay_client/relay_client_models.dart';
+import 'package:wallet_connect_v2_dart/apis/models/json_rpc_response.dart';
+import 'package:wallet_connect_v2_dart/apis/models/basic_errors.dart';
+import 'package:wallet_connect_v2_dart/apis/signing_api/models/json_rpc_models.dart';
+import 'package:wallet_connect_v2_dart/apis/signing_api/models/proposal_models.dart';
+import 'package:wallet_connect_v2_dart/apis/signing_api/models/session_models.dart';
 
 class UriParameters {
   final String protocol;

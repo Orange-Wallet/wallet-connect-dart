@@ -1,5 +1,5 @@
-import 'package:wallet_connect_v2/apis/core/pairing/pairing_models.dart';
-import 'package:wallet_connect_v2/apis/core/store/i_store_user.dart';
+import 'package:wallet_connect_v2_dart/apis/core/pairing/pairing_models.dart';
+import 'package:wallet_connect_v2_dart/apis/core/store/i_store_user.dart';
 
 abstract class IPairingStore extends IStoreUser {
   Future<void> init();

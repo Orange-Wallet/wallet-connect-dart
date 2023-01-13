@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import 'package:wallet_connect_v2/apis/core/relay_client/relay_client_models.dart';
-import 'package:wallet_connect_v2/apis/models/basic_errors.dart';
+import 'package:wallet_connect_v2_dart/apis/core/relay_client/relay_client_models.dart';
+import 'package:wallet_connect_v2_dart/apis/models/basic_errors.dart';
 
 class WalletConnectUtils {
   static bool isExpired(int expiry) {

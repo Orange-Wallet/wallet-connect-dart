@@ -1,5 +1,5 @@
 import 'package:event/event.dart';
-import 'package:wallet_connect_v2/apis/core/relay_client/relay_client_models.dart';
+import 'package:wallet_connect_v2_dart/apis/core/relay_client/relay_client_models.dart';
 
 class PublishOptions {
   final Relay? relay;

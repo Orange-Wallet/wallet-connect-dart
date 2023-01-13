@@ -1,4 +1,4 @@
-import 'package:wallet_connect_v2/apis/core/i_core.dart';
+import 'package:wallet_connect_v2_dart/apis/core/i_core.dart';
 
 abstract class IStoreUser {
   abstract final ICore core;

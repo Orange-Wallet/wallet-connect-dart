@@ -1,8 +1,8 @@
-import 'package:wallet_connect_v2/apis/core/relay_client/relay_client_models.dart';
-import 'package:wallet_connect_v2/apis/signing_api/models/json_rpc_models.dart';
-import 'package:wallet_connect_v2/apis/signing_api/models/proposal_models.dart';
-import 'package:wallet_connect_v2/apis/signing_api/models/session_models.dart';
-import 'package:wallet_connect_v2/apis/signing_api/models/signing_models.dart';
+import 'package:wallet_connect_v2_dart/apis/core/relay_client/relay_client_models.dart';
+import 'package:wallet_connect_v2_dart/apis/signing_api/models/json_rpc_models.dart';
+import 'package:wallet_connect_v2_dart/apis/signing_api/models/proposal_models.dart';
+import 'package:wallet_connect_v2_dart/apis/signing_api/models/session_models.dart';
+import 'package:wallet_connect_v2_dart/apis/signing_api/models/signing_models.dart';
 
 class SignClientConstants {
   static const TEST_RELAY_PROTOCOL = "irn";

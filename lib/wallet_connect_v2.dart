@@ -1,4 +1,4 @@
-library wallet_connect_v2;
+library wallet_connect_v2_dart;
 
 export 'apis/core/core.dart';
 export 'apis/core/relay_client/relay_client_models.dart';

@@ -1,9 +1,9 @@
 import 'package:event/event.dart';
-import 'package:wallet_connect_v2/apis/core/i_core.dart';
-import 'package:wallet_connect_v2/apis/core/pairing/i_expirer.dart';
-import 'package:wallet_connect_v2/apis/core/pairing/pairing_models.dart';
-import 'package:wallet_connect_v2/apis/utils/errors.dart';
-import 'package:wallet_connect_v2/apis/utils/wallet_connect_utils.dart';
+import 'package:wallet_connect_v2_dart/apis/core/i_core.dart';
+import 'package:wallet_connect_v2_dart/apis/core/pairing/i_expirer.dart';
+import 'package:wallet_connect_v2_dart/apis/core/pairing/pairing_models.dart';
+import 'package:wallet_connect_v2_dart/apis/utils/errors.dart';
+import 'package:wallet_connect_v2_dart/apis/utils/wallet_connect_utils.dart';
 
 class Expirer implements IExpirer {
   static const CONTEXT = 'expirer';

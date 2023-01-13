@@ -23,6 +23,7 @@ dependencies:
   json_rpc_2: ^3.0.2
   event: ^2.1.2
   get_storage: ^2.0.3
+  stream_channel: ^2.1.0
 
 dev_dependencies:
   flutter_test:

@@ -1,7 +1,7 @@
 import 'package:event/event.dart';
-import 'package:wallet_connect_v2/apis/core/pairing/i_pairing_store.dart';
-import 'package:wallet_connect_v2/apis/core/pairing/pairing_models.dart';
-import 'package:wallet_connect_v2/apis/models/json_rpc_error.dart';
+import 'package:wallet_connect_v2_dart/apis/core/pairing/i_pairing_store.dart';
+import 'package:wallet_connect_v2_dart/apis/core/pairing/pairing_models.dart';
+import 'package:wallet_connect_v2_dart/apis/models/json_rpc_error.dart';
 
 abstract class IPairing {
   abstract final Event<PairingEvent> onPairingPing;

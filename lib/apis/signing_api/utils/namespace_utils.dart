@@ -1,4 +1,4 @@
-import 'package:wallet_connect_v2/apis/signing_api/models/session_models.dart';
+import 'package:wallet_connect_v2_dart/apis/signing_api/models/session_models.dart';
 
 class NamespaceUtils {
   static List<String> getAccountsChains(List<String> accounts) {

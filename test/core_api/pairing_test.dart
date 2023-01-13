@@ -1,10 +1,10 @@
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:wallet_connect_v2/apis/core/core.dart';
-import 'package:wallet_connect_v2/apis/core/i_core.dart';
-import 'package:wallet_connect_v2/apis/core/pairing/pairing_models.dart';
-import 'package:wallet_connect_v2/apis/models/json_rpc_error.dart';
-import 'package:wallet_connect_v2/apis/models/basic_errors.dart';
+import 'package:wallet_connect_v2_dart/apis/core/core.dart';
+import 'package:wallet_connect_v2_dart/apis/core/i_core.dart';
+import 'package:wallet_connect_v2_dart/apis/core/pairing/pairing_models.dart';
+import 'package:wallet_connect_v2_dart/apis/models/json_rpc_error.dart';
+import 'package:wallet_connect_v2_dart/apis/models/basic_errors.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

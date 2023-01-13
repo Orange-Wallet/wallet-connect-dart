@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:wallet_connect_v2/apis/core/crypto/crypto_models.dart';
-import 'package:wallet_connect_v2/apis/core/relay_auth/relay_auth.dart';
-import 'package:wallet_connect_v2/apis/core/relay_auth/relay_auth_models.dart';
+import 'package:wallet_connect_v2_dart/apis/core/crypto/crypto_models.dart';
+import 'package:wallet_connect_v2_dart/apis/core/relay_auth/relay_auth.dart';
+import 'package:wallet_connect_v2_dart/apis/core/relay_auth/relay_auth_models.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
