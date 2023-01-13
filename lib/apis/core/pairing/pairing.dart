@@ -1,10 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:cryptography/cryptography.dart';
 import 'package:event/event.dart';
-import 'package:http/http.dart';
-import 'package:wallet_connect_v2/apis/core/crypto/i_crypto.dart';
 import 'package:wallet_connect_v2/apis/core/i_core.dart';
 import 'package:wallet_connect_v2/apis/core/pairing/i_pairing.dart';
 import 'package:wallet_connect_v2/apis/core/pairing/i_pairing_store.dart';
@@ -12,7 +9,6 @@ import 'package:wallet_connect_v2/apis/utils/rpc_constants.dart';
 import 'package:wallet_connect_v2/apis/core/pairing/pairing_models.dart';
 import 'package:wallet_connect_v2/apis/core/pairing/pairing_store.dart';
 import 'package:wallet_connect_v2/apis/core/pairing/pairing_utils.dart';
-import 'package:wallet_connect_v2/apis/core/relay_client/i_relay_client.dart';
 import 'package:wallet_connect_v2/apis/core/relay_client/relay_client_models.dart';
 import 'package:wallet_connect_v2/apis/models/json_rpc_error.dart';
 import 'package:wallet_connect_v2/apis/models/json_rpc_request.dart';

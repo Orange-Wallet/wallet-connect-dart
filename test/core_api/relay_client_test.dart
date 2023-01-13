@@ -1,19 +1,12 @@
-import 'dart:convert';
-import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:wallet_connect_v2/apis/core/core.dart';
 import 'package:wallet_connect_v2/apis/core/crypto/crypto.dart';
-import 'package:wallet_connect_v2/apis/core/crypto/crypto_models.dart';
-import 'package:wallet_connect_v2/apis/core/crypto/crypto_utils.dart';
-import 'package:wallet_connect_v2/apis/core/crypto/i_crypto.dart';
-import 'package:wallet_connect_v2/apis/core/crypto/i_crypto_utils.dart';
 import 'package:wallet_connect_v2/apis/core/i_core.dart';
 import 'package:wallet_connect_v2/apis/core/pairing/pairing_models.dart';
 import 'package:wallet_connect_v2/apis/core/relay_client/relay_client.dart';
 import 'package:wallet_connect_v2/apis/core/relay_client/relay_client_models.dart';
-import 'package:wallet_connect_v2/apis/utils/constants.dart';
 
 import 'shared/shared_test_utils.mocks.dart';
 

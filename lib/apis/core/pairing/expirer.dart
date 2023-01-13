@@ -1,10 +1,7 @@
-import 'package:event/src/eventargs.dart';
-import 'package:event/src/event.dart';
+import 'package:event/event.dart';
 import 'package:wallet_connect_v2/apis/core/i_core.dart';
 import 'package:wallet_connect_v2/apis/core/pairing/i_expirer.dart';
 import 'package:wallet_connect_v2/apis/core/pairing/pairing_models.dart';
-import 'package:wallet_connect_v2/apis/core/store/i_store.dart';
-import 'package:wallet_connect_v2/apis/core/key_chain/i_key_chain.dart';
 import 'package:wallet_connect_v2/apis/utils/errors.dart';
 import 'package:wallet_connect_v2/apis/utils/wallet_connect_utils.dart';
 

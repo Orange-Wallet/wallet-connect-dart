@@ -11,7 +11,6 @@ import 'package:wallet_connect_v2/apis/core/crypto/i_crypto_utils.dart';
 import 'package:wallet_connect_v2/apis/core/key_chain/i_key_chain.dart';
 import 'package:wallet_connect_v2/apis/core/relay_auth/i_relay_auth.dart';
 import 'package:wallet_connect_v2/apis/core/relay_auth/relay_auth.dart';
-import 'package:wallet_connect_v2/apis/core/store/i_store.dart';
 import 'package:wallet_connect_v2/apis/utils/errors.dart';
 
 class Crypto implements ICrypto {

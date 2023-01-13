@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:wallet_connect_v2/apis/core/i_core.dart';
 import 'package:wallet_connect_v2/apis/core/pairing/i_pairing_store.dart';
 import 'package:wallet_connect_v2/apis/core/pairing/pairing_models.dart';
-import 'package:wallet_connect_v2/apis/core/relay_client/i_topic_map.dart';
 import 'package:wallet_connect_v2/apis/utils/errors.dart';
 import 'package:wallet_connect_v2/apis/utils/wallet_connect_utils.dart';
 

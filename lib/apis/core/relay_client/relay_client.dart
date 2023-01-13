@@ -1,9 +1,7 @@
 import 'dart:async';
-import 'dart:convert';
 
+import 'package:event/event.dart';
 import 'package:stream_channel/stream_channel.dart';
-import 'package:event/src/eventargs.dart';
-import 'package:event/src/event.dart';
 import 'package:json_rpc_2/json_rpc_2.dart';
 import 'package:wallet_connect_v2/apis/core/i_core.dart';
 import 'package:wallet_connect_v2/apis/core/relay_client/i_message_tracker.dart';

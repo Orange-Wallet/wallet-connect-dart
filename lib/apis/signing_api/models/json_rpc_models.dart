@@ -1,5 +1,4 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:wallet_connect_v2/apis/core/pairing/pairing_models.dart';
 import 'package:wallet_connect_v2/apis/core/relay_client/relay_client_models.dart';
 import 'package:wallet_connect_v2/apis/signing_api/models/generic_models.dart';
 import 'package:wallet_connect_v2/apis/signing_api/models/proposal_models.dart';

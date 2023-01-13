@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:wallet_connect_v2/apis/core/i_core.dart';
 import 'package:wallet_connect_v2/apis/signing_api/i_sessions.dart';
-import 'package:wallet_connect_v2/apis/signing_api/models/proposal_models.dart';
 import 'package:wallet_connect_v2/apis/signing_api/models/session_models.dart';
 import 'package:wallet_connect_v2/apis/utils/errors.dart';
 import 'package:wallet_connect_v2/apis/utils/wallet_connect_utils.dart';
