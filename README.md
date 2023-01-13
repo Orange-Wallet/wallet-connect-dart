@@ -1,5 +1,6 @@
 # Overview
-Wallet Connect client in dart highly inspired from [wallet-connect-monorepo](https://github.com/trustwallet/wallet-connect-kotlin) by Wallet Connect.
+
+Wallet Connect V2 client forked from <https://github.com/Orange-Wallet/wallet-connect-dart> and heavily extended and tested.
 
 Completed APIs as per the spec:
 
@@ -140,7 +141,7 @@ A wallet exposes different methods for different chains using the `request` func
 
 # To Test
 
-- Pull this repo and set it up: https://github.com/WalletConnect/relay
+- Pull this repo and set it up: <https://github.com/WalletConnect/relay>
 
 Build using make dev, docker must be open.
 Install dependencies using npm install.
