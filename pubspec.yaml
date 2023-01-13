@@ -1,7 +1,7 @@
-name: wallet_connect_dart_v2
+name: wallet_connect_v2_dart
 description: Wallet Connect v2 client made dart.
 version: 1.0.0
-homepage: https://github.com/Eucalyptus-Labs/wallet-connect-dart-v2
+homepage: https://github.com/Eucalyptus-Labs/wallet-connect-v2-dart
 
 environment:
   sdk: ">=2.12.0 <3.0.0"
