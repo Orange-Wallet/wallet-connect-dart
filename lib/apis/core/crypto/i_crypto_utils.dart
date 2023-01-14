@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:wallet_connect_v2/apis/core/crypto/crypto_models.dart';
+import 'package:wallet_connect_v2_dart/apis/core/crypto/crypto_models.dart';
 
 abstract class ICryptoUtils {
   KeyPair generateKeyPair();

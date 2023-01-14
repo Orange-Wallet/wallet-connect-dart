@@ -1,16 +1,16 @@
-import 'package:wallet_connect_v2/apis/core/crypto/crypto.dart';
-import 'package:wallet_connect_v2/apis/core/crypto/i_crypto.dart';
-import 'package:wallet_connect_v2/apis/core/i_core.dart';
-import 'package:wallet_connect_v2/apis/core/pairing/expirer.dart';
-import 'package:wallet_connect_v2/apis/core/pairing/i_expirer.dart';
-import 'package:wallet_connect_v2/apis/core/pairing/i_json_rpc_history.dart';
-import 'package:wallet_connect_v2/apis/core/pairing/json_rpc_history.dart';
-import 'package:wallet_connect_v2/apis/core/pairing/pairing.dart';
-import 'package:wallet_connect_v2/apis/core/relay_client/relay_client.dart';
-import 'package:wallet_connect_v2/apis/core/store/get_storage_store.dart';
-import 'package:wallet_connect_v2/apis/core/store/i_store.dart';
-import 'package:wallet_connect_v2/apis/core/relay_client/i_relay_client.dart';
-import 'package:wallet_connect_v2/apis/core/pairing/i_pairing.dart';
+import 'package:wallet_connect_v2_dart/apis/core/crypto/crypto.dart';
+import 'package:wallet_connect_v2_dart/apis/core/crypto/i_crypto.dart';
+import 'package:wallet_connect_v2_dart/apis/core/i_core.dart';
+import 'package:wallet_connect_v2_dart/apis/core/pairing/expirer.dart';
+import 'package:wallet_connect_v2_dart/apis/core/pairing/i_expirer.dart';
+import 'package:wallet_connect_v2_dart/apis/core/pairing/i_json_rpc_history.dart';
+import 'package:wallet_connect_v2_dart/apis/core/pairing/json_rpc_history.dart';
+import 'package:wallet_connect_v2_dart/apis/core/pairing/pairing.dart';
+import 'package:wallet_connect_v2_dart/apis/core/relay_client/relay_client.dart';
+import 'package:wallet_connect_v2_dart/apis/core/store/get_storage_store.dart';
+import 'package:wallet_connect_v2_dart/apis/core/store/i_store.dart';
+import 'package:wallet_connect_v2_dart/apis/core/relay_client/i_relay_client.dart';
+import 'package:wallet_connect_v2_dart/apis/core/pairing/i_pairing.dart';
 
 class Core implements ICore {
   @override

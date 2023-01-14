@@ -1,11 +1,10 @@
 import 'dart:convert';
 
-import 'package:wallet_connect_v2/apis/core/i_core.dart';
-import 'package:wallet_connect_v2/apis/core/pairing/pairing_models.dart';
-import 'package:wallet_connect_v2/apis/signing_api/i_proposals.dart';
-import 'package:wallet_connect_v2/apis/signing_api/models/proposal_models.dart';
-import 'package:wallet_connect_v2/apis/utils/errors.dart';
-import 'package:wallet_connect_v2/apis/utils/wallet_connect_utils.dart';
+import 'package:wallet_connect_v2_dart/apis/core/i_core.dart';
+import 'package:wallet_connect_v2_dart/apis/signing_api/i_proposals.dart';
+import 'package:wallet_connect_v2_dart/apis/signing_api/models/proposal_models.dart';
+import 'package:wallet_connect_v2_dart/apis/utils/errors.dart';
+import 'package:wallet_connect_v2_dart/apis/utils/wallet_connect_utils.dart';
 
 class Proposals implements IProposals {
   static const CONTEXT = 'proposals';

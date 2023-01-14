@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:wallet_connect_v2/apis/models/json_rpc_error.dart';
+import 'package:wallet_connect_v2_dart/apis/models/json_rpc_error.dart';
 
 class PairingUtils {
   static int payloadId() {

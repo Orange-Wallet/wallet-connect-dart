@@ -1,18 +1,16 @@
 import 'dart:async';
-import 'dart:convert';
 
+import 'package:event/event.dart';
 import 'package:stream_channel/stream_channel.dart';
-import 'package:event/src/eventargs.dart';
-import 'package:event/src/event.dart';
 import 'package:json_rpc_2/json_rpc_2.dart';
-import 'package:wallet_connect_v2/apis/core/i_core.dart';
-import 'package:wallet_connect_v2/apis/core/relay_client/i_message_tracker.dart';
-import 'package:wallet_connect_v2/apis/core/relay_client/i_relay_client.dart';
-import 'package:wallet_connect_v2/apis/core/relay_client/message_tracker.dart';
-import 'package:wallet_connect_v2/apis/core/relay_client/relay_client_models.dart';
-import 'package:wallet_connect_v2/apis/core/relay_client/topic_map.dart';
-import 'package:wallet_connect_v2/apis/utils/errors.dart';
-import 'package:wallet_connect_v2/apis/utils/wallet_connect_utils.dart';
+import 'package:wallet_connect_v2_dart/apis/core/i_core.dart';
+import 'package:wallet_connect_v2_dart/apis/core/relay_client/i_message_tracker.dart';
+import 'package:wallet_connect_v2_dart/apis/core/relay_client/i_relay_client.dart';
+import 'package:wallet_connect_v2_dart/apis/core/relay_client/message_tracker.dart';
+import 'package:wallet_connect_v2_dart/apis/core/relay_client/relay_client_models.dart';
+import 'package:wallet_connect_v2_dart/apis/core/relay_client/topic_map.dart';
+import 'package:wallet_connect_v2_dart/apis/utils/errors.dart';
+import 'package:wallet_connect_v2_dart/apis/utils/wallet_connect_utils.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 import 'i_topic_map.dart';

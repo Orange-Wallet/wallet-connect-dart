@@ -1,7 +1,6 @@
-import 'package:wallet_connect_v2/apis/core/i_core.dart';
-import 'package:wallet_connect_v2/apis/core/relay_client/i_message_tracker.dart';
-import 'package:wallet_connect_v2/apis/core/store/i_store_user.dart';
-import 'package:wallet_connect_v2/apis/utils/wallet_connect_utils.dart';
+import 'package:wallet_connect_v2_dart/apis/core/i_core.dart';
+import 'package:wallet_connect_v2_dart/apis/core/relay_client/i_message_tracker.dart';
+import 'package:wallet_connect_v2_dart/apis/utils/wallet_connect_utils.dart';
 
 class MessageTracker implements IMessageTracker {
   static const MESSAGE_TRACKER_CONTEXT = 'MESSAGE_TRACKER';

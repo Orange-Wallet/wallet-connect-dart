@@ -1,27 +1,26 @@
 import 'dart:async';
 
-import 'package:wallet_connect_v2/apis/core/pairing/pairing_utils.dart';
-import 'package:wallet_connect_v2/apis/utils/rpc_constants.dart';
-import 'package:wallet_connect_v2/apis/core/pairing/pairing_models.dart';
-import 'package:wallet_connect_v2/apis/core/i_core.dart';
-import 'package:event/src/event.dart';
-import 'package:wallet_connect_v2/apis/core/relay_client/relay_client_models.dart';
-import 'package:wallet_connect_v2/apis/models/json_rpc_error.dart';
-import 'package:wallet_connect_v2/apis/models/json_rpc_request.dart';
-import 'package:wallet_connect_v2/apis/models/basic_errors.dart';
-import 'package:wallet_connect_v2/apis/signing_api/i_engine.dart';
-import 'package:wallet_connect_v2/apis/signing_api/models/generic_models.dart';
-import 'package:wallet_connect_v2/apis/signing_api/models/json_rpc_models.dart';
-import 'package:wallet_connect_v2/apis/signing_api/models/proposal_models.dart';
-import 'package:wallet_connect_v2/apis/signing_api/models/sign_client_models.dart';
-import 'package:wallet_connect_v2/apis/signing_api/models/session_models.dart';
-import 'package:wallet_connect_v2/apis/signing_api/i_sessions.dart';
-import 'package:wallet_connect_v2/apis/signing_api/i_proposals.dart';
-import 'package:wallet_connect_v2/apis/signing_api/models/signing_models.dart';
-import 'package:wallet_connect_v2/apis/signing_api/utils/validator_utils.dart';
-import 'package:wallet_connect_v2/apis/utils/constants.dart';
-import 'package:wallet_connect_v2/apis/utils/errors.dart';
-import 'package:wallet_connect_v2/apis/utils/wallet_connect_utils.dart';
+import 'package:event/event.dart';
+import 'package:wallet_connect_v2_dart/apis/core/pairing/pairing_utils.dart';
+import 'package:wallet_connect_v2_dart/apis/core/pairing/pairing_models.dart';
+import 'package:wallet_connect_v2_dart/apis/core/i_core.dart';
+import 'package:wallet_connect_v2_dart/apis/core/relay_client/relay_client_models.dart';
+import 'package:wallet_connect_v2_dart/apis/models/json_rpc_error.dart';
+import 'package:wallet_connect_v2_dart/apis/models/json_rpc_request.dart';
+import 'package:wallet_connect_v2_dart/apis/models/basic_errors.dart';
+import 'package:wallet_connect_v2_dart/apis/signing_api/i_engine.dart';
+import 'package:wallet_connect_v2_dart/apis/signing_api/models/generic_models.dart';
+import 'package:wallet_connect_v2_dart/apis/signing_api/models/json_rpc_models.dart';
+import 'package:wallet_connect_v2_dart/apis/signing_api/models/proposal_models.dart';
+import 'package:wallet_connect_v2_dart/apis/signing_api/models/sign_client_models.dart';
+import 'package:wallet_connect_v2_dart/apis/signing_api/models/session_models.dart';
+import 'package:wallet_connect_v2_dart/apis/signing_api/i_sessions.dart';
+import 'package:wallet_connect_v2_dart/apis/signing_api/i_proposals.dart';
+import 'package:wallet_connect_v2_dart/apis/signing_api/models/signing_models.dart';
+import 'package:wallet_connect_v2_dart/apis/signing_api/utils/validator_utils.dart';
+import 'package:wallet_connect_v2_dart/apis/utils/constants.dart';
+import 'package:wallet_connect_v2_dart/apis/utils/errors.dart';
+import 'package:wallet_connect_v2_dart/apis/utils/wallet_connect_utils.dart';
 
 class Engine implements IEngine {
   bool _initialized = false;

@@ -1,15 +1,15 @@
-import 'package:wallet_connect_v2/apis/core/pairing/i_pairing_store.dart';
-import 'package:wallet_connect_v2/apis/signing_api/engine.dart';
-import 'package:wallet_connect_v2/apis/signing_api/i_engine.dart';
-import 'package:wallet_connect_v2/apis/core/pairing/pairing_models.dart';
-import 'package:wallet_connect_v2/apis/core/i_core.dart';
-import 'package:event/src/event.dart';
-import 'package:wallet_connect_v2/apis/signing_api/i_sign_client.dart';
-import 'package:wallet_connect_v2/apis/signing_api/models/signing_models.dart';
-import 'package:wallet_connect_v2/apis/signing_api/models/sign_client_models.dart';
-import 'package:wallet_connect_v2/apis/signing_api/models/session_models.dart';
-import 'package:wallet_connect_v2/apis/signing_api/proposals.dart';
-import 'package:wallet_connect_v2/apis/signing_api/sessions.dart';
+import 'package:event/event.dart';
+import 'package:wallet_connect_v2_dart/apis/core/pairing/i_pairing_store.dart';
+import 'package:wallet_connect_v2_dart/apis/signing_api/engine.dart';
+import 'package:wallet_connect_v2_dart/apis/signing_api/i_engine.dart';
+import 'package:wallet_connect_v2_dart/apis/core/pairing/pairing_models.dart';
+import 'package:wallet_connect_v2_dart/apis/core/i_core.dart';
+import 'package:wallet_connect_v2_dart/apis/signing_api/i_sign_client.dart';
+import 'package:wallet_connect_v2_dart/apis/signing_api/models/signing_models.dart';
+import 'package:wallet_connect_v2_dart/apis/signing_api/models/sign_client_models.dart';
+import 'package:wallet_connect_v2_dart/apis/signing_api/models/session_models.dart';
+import 'package:wallet_connect_v2_dart/apis/signing_api/proposals.dart';
+import 'package:wallet_connect_v2_dart/apis/signing_api/sessions.dart';
 
 class SignClient implements ISignClient {
   bool _initialized = false;

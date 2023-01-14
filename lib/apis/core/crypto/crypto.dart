@@ -2,17 +2,16 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:convert/convert.dart';
-import 'package:wallet_connect_v2/apis/core/crypto/crypto_models.dart';
-import 'package:wallet_connect_v2/apis/core/crypto/crypto_utils.dart';
-import 'package:wallet_connect_v2/apis/core/i_core.dart';
-import 'package:wallet_connect_v2/apis/core/key_chain/key_chain.dart';
-import 'package:wallet_connect_v2/apis/core/crypto/i_crypto.dart';
-import 'package:wallet_connect_v2/apis/core/crypto/i_crypto_utils.dart';
-import 'package:wallet_connect_v2/apis/core/key_chain/i_key_chain.dart';
-import 'package:wallet_connect_v2/apis/core/relay_auth/i_relay_auth.dart';
-import 'package:wallet_connect_v2/apis/core/relay_auth/relay_auth.dart';
-import 'package:wallet_connect_v2/apis/core/store/i_store.dart';
-import 'package:wallet_connect_v2/apis/utils/errors.dart';
+import 'package:wallet_connect_v2_dart/apis/core/crypto/crypto_models.dart';
+import 'package:wallet_connect_v2_dart/apis/core/crypto/crypto_utils.dart';
+import 'package:wallet_connect_v2_dart/apis/core/i_core.dart';
+import 'package:wallet_connect_v2_dart/apis/core/key_chain/key_chain.dart';
+import 'package:wallet_connect_v2_dart/apis/core/crypto/i_crypto.dart';
+import 'package:wallet_connect_v2_dart/apis/core/crypto/i_crypto_utils.dart';
+import 'package:wallet_connect_v2_dart/apis/core/key_chain/i_key_chain.dart';
+import 'package:wallet_connect_v2_dart/apis/core/relay_auth/i_relay_auth.dart';
+import 'package:wallet_connect_v2_dart/apis/core/relay_auth/relay_auth.dart';
+import 'package:wallet_connect_v2_dart/apis/utils/errors.dart';
 
 class Crypto implements ICrypto {
   static const CRYPTO_CONTEXT = 'crypto';

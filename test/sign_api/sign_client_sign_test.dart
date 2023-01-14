@@ -1,8 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:wallet_connect_v2/apis/models/json_rpc_error.dart';
-import 'package:wallet_connect_v2/apis/signing_api/models/json_rpc_models.dart';
-import 'package:wallet_connect_v2/apis/signing_api/models/signing_models.dart';
-import 'package:wallet_connect_v2/wallet_connect_v2.dart';
+import 'package:wallet_connect_v2_dart/apis/models/json_rpc_error.dart';
+import 'package:wallet_connect_v2_dart/wallet_connect_v2.dart';
 
 import 'sign_client_helpers.dart';
 

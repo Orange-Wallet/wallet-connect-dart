@@ -1,8 +1,6 @@
 import 'package:event/event.dart';
-import 'package:json_annotation/json_annotation.dart';
-import 'package:wallet_connect_v2/apis/core/relay_client/relay_client_models.dart';
-import 'package:wallet_connect_v2/apis/signing_api/models/proposal_models.dart';
-import 'package:wallet_connect_v2/apis/signing_api/models/session_models.dart';
+import 'package:wallet_connect_v2_dart/apis/signing_api/models/proposal_models.dart';
+import 'package:wallet_connect_v2_dart/apis/signing_api/models/session_models.dart';
 
 class SessionProposal extends EventArgs {
   int id;

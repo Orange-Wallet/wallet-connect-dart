@@ -1,7 +1,7 @@
 import 'package:get_storage/get_storage.dart';
-import 'package:wallet_connect_v2/apis/core/store/i_store.dart';
-import 'package:wallet_connect_v2/apis/utils/constants.dart';
-import 'package:wallet_connect_v2/apis/utils/errors.dart';
+import 'package:wallet_connect_v2_dart/apis/core/store/i_store.dart';
+import 'package:wallet_connect_v2_dart/apis/utils/constants.dart';
+import 'package:wallet_connect_v2_dart/apis/utils/errors.dart';
 
 class GetStorageStore<T> implements IStore<T> {
   late GetStorage box;

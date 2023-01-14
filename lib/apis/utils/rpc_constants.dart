@@ -1,5 +1,5 @@
-import 'package:wallet_connect_v2/apis/models/basic_errors.dart';
-import 'package:wallet_connect_v2/apis/utils/constants.dart';
+import 'package:wallet_connect_v2_dart/apis/models/basic_errors.dart';
+import 'package:wallet_connect_v2_dart/apis/utils/constants.dart';
 
 class RPCConstants {
   static const WC_PAIRING_PING = 'wc_pairingPing';
