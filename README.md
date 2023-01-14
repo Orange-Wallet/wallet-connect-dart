@@ -1,23 +1,7 @@
 # Overview
 Wallet Connect client in dart highly inspired from [wallet-connect-monorepo](https://github.com/trustwallet/wallet-connect-kotlin) by Wallet Connect.
 
-Completed APIs as per the spec:
-
-- Core API
-  - Crypto API
-  - Pairing API
-  - Relay API
-  - Store API
-- Sign API
-
-Pieces that need to be completed:
-
-- Example project and dapp
-- General explanation on how to use the library
-- Publish to dart pub
-- Reduce number of crypto libraries used for encryption, shared key, etc.
-- Auth API
-- Push API
+This library contains the Signing API as per the Wallet Connect v2 Spec.
 
 # To Use
 
@@ -137,6 +121,13 @@ await wcClient.reject(
 ```
 
 A wallet exposes different methods for different chains using the `request` function. To register functions that will immediately respond to different requests you must call the 
+
+# To Build
+
+- Example project and dapp
+- Reduce number of crypto libraries used for encryption, shared key, etc.
+- Auth API
+- Push API
 
 # To Test
 
