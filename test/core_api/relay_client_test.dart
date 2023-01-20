@@ -1,4 +1,3 @@
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:wallet_connect_v2_dart/apis/core/core.dart';
@@ -8,6 +7,7 @@ import 'package:wallet_connect_v2_dart/apis/core/pairing/pairing_models.dart';
 import 'package:wallet_connect_v2_dart/apis/core/relay_client/relay_client.dart';
 import 'package:wallet_connect_v2_dart/apis/core/relay_client/relay_client_models.dart';
 
+import '../shared/shared_test_values.dart';
 import 'shared/shared_test_utils.mocks.dart';
 
 void main() {
@@ -19,11 +19,9 @@ void main() {
       'f24230adbb096e81f4a2a06450c206cafaf49dc6a60daf25d09e05c011e47ed2';
   const TEST_TOPIC = 'abc123';
   const TEST_MESSAGE = 'swagmasterss';
-  const TEST_RELAY_URL = 'ws://0.0.0.0:5555';
-  const TEST_PROJECT_ID = '7e984f90b95f0236d3c12d791537f233';
 
   group('Relay Client', () {
-    ICore core = Core('', '');
+    ICore core = Core(projectId: '');
     late Crypto crypto;
     late RelayClient relayClient;
     MockMessageTracker messageTracker = MockMessageTracker();
@@ -80,8 +78,16 @@ void main() {
       late ICore coreB;
 
       setUp(() async {
-        coreA = Core(TEST_RELAY_URL, TEST_PROJECT_ID, memoryStore: true);
-        coreB = Core(TEST_RELAY_URL, TEST_PROJECT_ID, memoryStore: true);
+        coreA = Core(
+          relayUrl: TEST_RELAY_URL,
+          projectId: TEST_PROJECT_ID,
+          memoryStore: true,
+        );
+        coreB = Core(
+          relayUrl: TEST_RELAY_URL,
+          projectId: TEST_PROJECT_ID,
+          memoryStore: true,
+        );
         await coreA.start();
         await coreB.start();
         coreA.relayClient = RelayClient(coreA);

@@ -1,5 +1,8 @@
 import 'package:wallet_connect_v2_dart/apis/core/crypto/crypto_models.dart';
 
+const TEST_RELAY_URL = 'wss://relay.walletconnect.com';
+const TEST_PROJECT_ID = '7e984f90b95f0236d3c12d791537f233';
+
 const TEST_PAIRING_TOPIC = '';
 const TEST_SESSION_TOPIC = '';
 const TEST_KEY_PAIRS = {
@@ -19,6 +22,3 @@ const TEST_HASHED_KEY =
     "a492906ccc809a411bb53a84572b57329375378c6ad7566f3e1c688200123e77";
 const TEST_SYM_KEY =
     "0653ca620c7b4990392e1c53c4a51c14a2840cd20f0f1524cf435b17b6fe988c";
-
-const TEST_RELAY_URL = 'ws://0.0.0.0:5555';
-const TEST_PROJECT_ID = '';

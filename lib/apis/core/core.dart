@@ -18,12 +18,11 @@ class Core implements ICore {
   @override
   String get version => '2';
 
-  String _relayUrl;
   @override
-  String get relayUrl => _relayUrl;
-  String _projectId;
+  final String relayUrl;
+
   @override
-  String get projectId => _projectId;
+  final projectId;
 
   @override
   late ICrypto crypto;
@@ -43,9 +42,9 @@ class Core implements ICore {
   @override
   late IStore<Map<String, dynamic>> storage;
 
-  Core(
-    this._relayUrl,
-    this._projectId, {
+  Core({
+    this.relayUrl = 'wws://relay.walletconnect.com',
+    required this.projectId,
     bool memoryStore = false,
   }) {
     storage = GetStorageStore(

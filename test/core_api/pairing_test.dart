@@ -1,10 +1,11 @@
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wallet_connect_v2_dart/apis/core/core.dart';
 import 'package:wallet_connect_v2_dart/apis/core/i_core.dart';
 import 'package:wallet_connect_v2_dart/apis/core/pairing/pairing_models.dart';
 import 'package:wallet_connect_v2_dart/apis/models/json_rpc_error.dart';
 import 'package:wallet_connect_v2_dart/apis/models/basic_errors.dart';
+
+import '../shared/shared_test_values.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -15,16 +16,22 @@ void main() {
       'f24230adbb096e81f4a2a06450c206cafaf49dc6a60daf25d09e05c011e47ed2';
   const TEST_TOPIC = 'abc123';
   const TEST_MESSAGE = 'swagmaster';
-  const TEST_RELAY_URL = 'ws://0.0.0.0:5555';
-  const TEST_PROJECT_ID = '7e984f90b95f0236d3c12d791537f233';
 
   group('Pairing API', () {
     late ICore coreA;
     late ICore coreB;
 
     setUp(() async {
-      coreA = Core(TEST_RELAY_URL, TEST_PROJECT_ID, memoryStore: true);
-      coreB = Core(TEST_RELAY_URL, TEST_PROJECT_ID, memoryStore: true);
+      coreA = Core(
+        relayUrl: TEST_RELAY_URL,
+        projectId: TEST_PROJECT_ID,
+        memoryStore: true,
+      );
+      coreB = Core(
+        relayUrl: TEST_RELAY_URL,
+        projectId: TEST_PROJECT_ID,
+        memoryStore: true,
+      );
       await coreA.start();
       await coreB.start();
     });
@@ -170,7 +177,11 @@ void main() {
 
     group('Validations', () {
       setUp(() async {
-        coreA = Core(TEST_RELAY_URL, TEST_PROJECT_ID, memoryStore: true);
+        coreA = Core(
+          relayUrl: TEST_RELAY_URL,
+          projectId: TEST_PROJECT_ID,
+          memoryStore: true,
+        );
         await coreA.start();
       });
 

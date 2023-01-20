@@ -2,13 +2,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:wallet_connect_v2_dart/apis/models/json_rpc_error.dart';
 import 'package:wallet_connect_v2_dart/wallet_connect_v2.dart';
 
+import '../shared/shared_test_values.dart';
 import 'sign_client_helpers.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-
-  const TEST_RELAY_URL = 'ws://0.0.0.0:5555';
-  const TEST_PROJECT_ID = '7e984f90b95f0236d3c12d791537f233';
 
   group('Signing API', () {
     late SignClient clientA;
@@ -17,8 +15,8 @@ void main() {
     setUp(() async {
       clientA = await SignClient.createInstance(
         Core(
-          TEST_RELAY_URL,
-          TEST_PROJECT_ID,
+          relayUrl: TEST_RELAY_URL,
+          projectId: TEST_PROJECT_ID,
           memoryStore: true,
         ),
         self: PairingMetadata(
@@ -30,8 +28,8 @@ void main() {
       );
       clientB = await SignClient.createInstance(
         Core(
-          TEST_RELAY_URL,
-          TEST_PROJECT_ID,
+          relayUrl: TEST_RELAY_URL,
+          projectId: TEST_PROJECT_ID,
           memoryStore: true,
         ),
         self: PairingMetadata(

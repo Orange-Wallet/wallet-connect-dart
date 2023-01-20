@@ -11,7 +11,7 @@ import 'package:wallet_connect_v2_dart/apis/core/i_core.dart';
 import 'package:wallet_connect_v2_dart/apis/models/basic_errors.dart';
 
 import 'shared/shared_test_utils.mocks.dart';
-import 'shared/shared_test_values.dart';
+import '../shared/shared_test_values.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -37,7 +37,7 @@ void main() {
       "Af96fVdnw2KwoXrZIpnr23gx3L2aVpWcATaMdARUOzNCcXdlY2ZhYXNkYWRzeloehD3r+YsB1qdXGLXuJxFer6PKupcDyhxWAaavJBkEUyD67CBzzItrjcQ55j4hYS/ziDyGfgvc1yyDPrf3uyA0qew1wvsD2Tcy";
 
   group('Crypto API', () {
-    ICore core = Core('', '');
+    ICore core = Core(projectId: '');
     late MockKeyChain keyChain;
     late MockCryptoUtils mockUtils;
     late Crypto cryptoAPI;
