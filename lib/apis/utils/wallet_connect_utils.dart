@@ -61,7 +61,8 @@ class WalletConnectUtils {
     // );
     String params = splitUrl.length > 1 ? splitUrl[1] : '';
     String queryString = 'auth=$auth&projectId=$projectId';
-    return '${splitUrl[0]}?$queryString';
+    print('${splitUrl[0]}/?$queryString');
+    return '${splitUrl[0]}/?$queryString';
   }
 
   /// ---- URI HANDLING --- ///
@@ -77,6 +78,7 @@ class WalletConnectUtils {
     ret['protocol'] = protocol;
     ret['topic'] = path.substring(0, at);
     ret['version'] = path.substring(at + 1);
+    ret['symKey'] = uri.queryParameters['symKey']!;
     ret['relay'] = Relay(
       uri.queryParameters['relay-protocol']!,
       data: uri.queryParameters.containsKey('relay-data')

@@ -69,7 +69,7 @@ class Pairing implements IPairing {
     final Map<String, dynamic> parsedUri = WalletConnectUtils.parseUri(uri);
     final String topic = parsedUri['topic']!;
     final Relay relay = parsedUri['relay']!;
-    final String symKey = uri.queryParameters['symKey']!;
+    final String symKey = parsedUri['symKey']!;
     final PairingInfo pairing = PairingInfo(
       topic,
       expiry,
