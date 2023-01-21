@@ -2,14 +2,14 @@ import 'dart:typed_data';
 
 import 'package:convert/convert.dart';
 
-class KeyPair {
+class CryptoKeyPair {
   final String privateKey;
   final String publicKey;
 
-  const KeyPair(this.privateKey, this.publicKey);
+  const CryptoKeyPair(this.privateKey, this.publicKey);
 
   Uint8List getPrivateKeyBytes() {
-    return Uint8List.fromList(hex.decode(privateKey + publicKey));
+    return Uint8List.fromList(hex.decode(privateKey));
   }
 
   Uint8List getPublicKeyBytes() {

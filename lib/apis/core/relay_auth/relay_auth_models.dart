@@ -1,6 +1,28 @@
+import 'dart:typed_data';
+
+import 'package:convert/convert.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'relay_auth_models.g.dart';
+
+class RelayAuthKeyPair {
+  final Uint8List privateKeyBytes;
+  final Uint8List publicKeyBytes;
+  final String privateKey;
+  final String publicKey;
+
+  RelayAuthKeyPair(
+    this.privateKeyBytes,
+    this.publicKeyBytes,
+  )   : privateKey = hex.encode(privateKeyBytes),
+        publicKey = hex.encode(publicKeyBytes);
+
+  RelayAuthKeyPair.fromStrings(
+    this.privateKey,
+    this.publicKey,
+  )   : privateKeyBytes = Uint8List.fromList(hex.decode(privateKey)),
+        publicKeyBytes = Uint8List.fromList(hex.decode(publicKey));
+}
 
 @JsonSerializable()
 class JWTHeader {

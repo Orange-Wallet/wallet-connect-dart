@@ -5,11 +5,12 @@ import 'package:wallet_connect_v2_dart/apis/core/relay_auth/relay_auth_models.da
 
 abstract class IRelayAuth {
   // API
-  Future<String> signJWT(
-    String subject,
-    String aud,
-    int ttl,
-    KeyPair keyPair, {
+  Future<RelayAuthKeyPair> generateKeyPair([Uint8List? seed]);
+  Future<String> signJWT({
+    required String sub,
+    required String aud,
+    required int ttl,
+    required RelayAuthKeyPair keyPair,
     int? iat,
   });
   Future<bool> verifyJWT(String jwt);

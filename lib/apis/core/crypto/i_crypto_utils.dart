@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:wallet_connect_v2_dart/apis/core/crypto/crypto_models.dart';
 
 abstract class ICryptoUtils {
-  KeyPair generateKeyPair();
+  CryptoKeyPair generateKeyPair();
   Uint8List randomBytes(int length);
   String generateRandomBytes32();
   Future<String> deriveSymKey(String privKeyA, String pubKeyB);

@@ -27,42 +27,47 @@ class WalletConnectUtils {
   }
 
   static String getId() {
-    return Platform.environment.values.join(':');
+    return 'unknown'; // TODO: implement
   }
 
   static String formatUA(
     String protocol,
-    String version,
+    int version,
     String sdkVersion,
   ) {
     String os = getOS();
     String id = getId();
     return <String>[
-      <String>[protocol, version].join('-'),
-      <String>['FLUTTER', sdkVersion].join('-'),
+      [protocol, version].join('-'),
+      <String>['Dart', sdkVersion].join('-'),
       os,
       id,
     ].join('/');
   }
 
-  static String formatRelayRpcUrl(
-    String protocol,
-    String version,
-    String relayUrl,
-    String sdkVersion,
-    String auth,
-    String projectId,
-  ) {
-    List<String> splitUrl = relayUrl.split('?');
-    // String ua = formatUA(
-    //   protocol,
-    //   version,
-    //   sdkVersion,
-    // );
-    String params = splitUrl.length > 1 ? splitUrl[1] : '';
-    String queryString = 'auth=$auth&projectId=$projectId';
-    print('${splitUrl[0]}/?$queryString');
-    return '${splitUrl[0]}/?$queryString';
+  static String formatRelayRpcUrl({
+    required String protocol,
+    required int version,
+    required String relayUrl,
+    required String sdkVersion,
+    required String auth,
+    String? projectId,
+  }) {
+    final Uri uri = Uri.parse(relayUrl);
+    final Map<String, String> queryParams = Uri.splitQueryString(uri.query);
+    String ua = formatUA(
+      protocol,
+      version,
+      sdkVersion,
+    );
+
+    final Map<String, String> relayParams = {
+      'auth': auth,
+      if (projectId != null && projectId.isNotEmpty) 'projectId': projectId,
+      'ua': ua,
+    };
+    queryParams.addAll(relayParams);
+    return uri.replace(queryParameters: queryParams).toString();
   }
 
   /// ---- URI HANDLING --- ///

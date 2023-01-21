@@ -7,8 +7,8 @@ part of 'json_rpc_error.dart';
 // **************************************************************************
 
 JsonRpcError _$JsonRpcErrorFromJson(Map<String, dynamic> json) => JsonRpcError(
-      json['code'] as int,
-      json['message'] as String,
+      code: json['code'] as int,
+      message: json['message'] as String,
     );
 
 Map<String, dynamic> _$JsonRpcErrorToJson(JsonRpcError instance) =>

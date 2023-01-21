@@ -8,11 +8,12 @@ class JsonRpcRequest {
   final String jsonrpc;
   final String method;
   final dynamic params;
+
   JsonRpcRequest({
     required this.id,
     this.jsonrpc = '2.0',
     required this.method,
-    required this.params,
+    this.params,
   });
 
   factory JsonRpcRequest.fromJson(Map<String, dynamic> json) =>
@@ -20,7 +21,6 @@ class JsonRpcRequest {
   Map<String, dynamic> toJson() => _$JsonRpcRequestToJson(this);
 
   @override
-  String toString() {
-    return 'JsonRpcRequest(id: $id, jsonrpc: $jsonrpc, method: $method, params: $params)';
-  }
+  String toString() =>
+      'JsonRpcRequest(id: $id, jsonrpc: $jsonrpc, method: $method, params: $params)';
 }

@@ -140,7 +140,7 @@ void main() {
       await coreB.pairing.pair(response.uri, activatePairing: true);
       await coreA.pairing.activate(response.topic);
       await coreA.pairing.ping(response.topic);
-      await Future.delayed(Duration(milliseconds: 100));
+      await Future.delayed(Duration(milliseconds: 500));
       expect(gotPing, true);
     });
 
@@ -168,7 +168,7 @@ void main() {
       });
 
       await coreB.pairing.disconnect(response.topic);
-      await Future.delayed(Duration(milliseconds: 100));
+      await Future.delayed(Duration(milliseconds: 500));
       expect(hasDeletedA, true);
       expect(hasDeletedB, true);
       expect(coreA.pairing.getStore().getAll().length, 0);

@@ -43,7 +43,7 @@ class Core implements ICore {
   late IStore<Map<String, dynamic>> storage;
 
   Core({
-    this.relayUrl = 'wws://relay.walletconnect.com',
+    this.relayUrl = 'wss://relay.walletconnect.com',
     required this.projectId,
     bool memoryStore = false,
   }) {

@@ -70,7 +70,7 @@ void main() {
           final publicKey = CryptoUtils().generateRandomBytes32();
           mockUtils = MockCryptoUtils();
           when(mockUtils.generateKeyPair()).thenReturn(
-            KeyPair(privateKey, publicKey),
+            CryptoKeyPair(privateKey, publicKey),
           );
           cryptoAPI = Crypto(core, keyChain: keyChain, utils: mockUtils);
           await cryptoAPI.init();
@@ -99,7 +99,7 @@ void main() {
           CryptoUtils utils = CryptoUtils();
           final overrideTopic = utils.generateRandomBytes32();
           final peerPublicKey = utils.generateRandomBytes32();
-          final KeyPair selfKP = utils.generateKeyPair();
+          final CryptoKeyPair selfKP = utils.generateKeyPair();
           final String expectedSymKey = await utils.deriveSymKey(
             selfKP.privateKey,
             peerPublicKey,
@@ -251,14 +251,14 @@ void main() {
   group('Crypto Utils', () {
     CryptoUtils utils = CryptoUtils();
     test('should generate keypairs properly', () {
-      KeyPair kp = utils.generateKeyPair();
+      CryptoKeyPair kp = utils.generateKeyPair();
       expect(kp.privateKey.length, 64);
       expect(kp.publicKey.length, 64);
     });
 
     test('can derive the sym key', () async {
-      KeyPair kp1 = utils.generateKeyPair();
-      KeyPair kp2 = utils.generateKeyPair();
+      CryptoKeyPair kp1 = utils.generateKeyPair();
+      CryptoKeyPair kp2 = utils.generateKeyPair();
       final String symKeyA = await utils.deriveSymKey(
         kp1.privateKey,
         kp2.publicKey,

@@ -123,7 +123,9 @@ class Engine implements IEngine {
 
     final WcSessionProposeRequest request = WcSessionProposeRequest(
       id: id,
-      relays: params.relays == null ? [Relay('irn')] : params.relays!,
+      relays: params.relays == null
+          ? [Relay(WalletConnectConstants.RELAYER_DEFAULT_PROTOCOL)]
+          : params.relays!,
       requiredNamespaces: params.requiredNamespaces,
       proposer: ConnectionMetadata(
         publicKey: publicKey,
@@ -259,7 +261,9 @@ class Engine implements IEngine {
         'wc_sessionPropose',
         WcSessionProposeResponse(
           relay: Relay(
-            params.relayProtocol != null ? params.relayProtocol! : 'irn',
+            params.relayProtocol != null
+                ? params.relayProtocol!
+                : WalletConnectConstants.RELAYER_DEFAULT_PROTOCOL,
           ),
           responderPublicKey: selfPubKey,
         ).toJson(),

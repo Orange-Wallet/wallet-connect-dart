@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:wallet_connect_v2_dart/apis/core/crypto/crypto_models.dart';
 import 'package:wallet_connect_v2_dart/apis/core/relay_auth/relay_auth.dart';
 import 'package:wallet_connect_v2_dart/apis/core/relay_auth/relay_auth_models.dart';
+import 'package:wallet_connect_v2_dart/apis/utils/constants.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -29,7 +30,7 @@ void main() {
 
     // Expected secret key for above seed
     const EXPECTED_SECRET_KEY =
-        "58e0254c211b858ef7896b00e3f36beeb13d568d47c6031c4218b87718061295";
+        "58e0254c211b858ef7896b00e3f36beeb13d568d47c6031c4218b87718061295884ab67f787b69e534bfdba8d5beb4e719700e90ac06317ed177d49e5a33be5a";
 
     const EXPECTED_PUBLIC_KEY =
         "884ab67f787b69e534bfdba8d5beb4e719700e90ac06317ed177d49e5a33be5a";
@@ -66,7 +67,7 @@ void main() {
       ),
     );
 
-    KeyPair keyPair = KeyPair(
+    RelayAuthKeyPair keyPair = RelayAuthKeyPair.fromStrings(
       EXPECTED_SECRET_KEY,
       EXPECTED_PUBLIC_KEY,
     );
@@ -80,10 +81,10 @@ void main() {
     });
 
     test('encode and decode issuer', () async {
-      String iss = relayAuth.encodeIss(keyPair.getPublicKeyBytes());
+      String iss = relayAuth.encodeIss(keyPair.publicKeyBytes);
       expect(iss, EXPECTED_ISS);
       Uint8List publicKey = relayAuth.decodeIss(iss);
-      expect(publicKey, keyPair.getPublicKeyBytes());
+      expect(publicKey, keyPair.publicKeyBytes);
     });
 
     test('encode and decode data', () async {
@@ -92,11 +93,27 @@ void main() {
     });
 
     test('Sign and verify JWT', () async {
+      RelayAuthKeyPair keyPair1 = RelayAuthKeyPair.fromStrings(
+        'db74f4788fbaf87bc8e3cd6a84ae82586fd4fd701216a1d18f7ed936cb3a8cfb579e2b8f7190abb558ee5461a852389bdff6079b3a4eabc3e759a7775334f7f7',
+        '579e2b8f7190abb558ee5461a852389bdff6079b3a4eabc3e759a7775334f7f7',
+      );
+      String jwt1 = await relayApi.signJWT(
+        sub: '6a26d1c13b8f7bfda6e7415f6db94084a3b97f2990da5216fa5aa7b80f08391d',
+        aud: TEST_AUDIENCE,
+        ttl: WalletConnectConstants.ONE_DAY,
+        keyPair: keyPair1,
+        iat: 1674244632,
+      );
+      expect(
+        jwt1,
+        'eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJkaWQ6a2V5Ono2TWtrTUhRRlYzYkNUOXVIV3Z6Z1N4UXNMbVZzMVc1c0NVdzhyQnBmamg5ZHNydiIsInN1YiI6IjZhMjZkMWMxM2I4ZjdiZmRhNmU3NDE1ZjZkYjk0MDg0YTNiOTdmMjk5MGRhNTIxNmZhNWFhN2I4MGYwODM5MWQiLCJhdWQiOiJ3c3M6Ly9yZWxheS53YWxsZXRjb25uZWN0LmNvbSIsImlhdCI6MTY3NDI0NDYzMiwiZXhwIjoxNjc0MzMxMDMyfQ.FUfsQtGuyMTOfEjQUdfr_KfBEaftEQPU9lpQ_mNwgpPlzqk2Hmn9RKnbTnvL9rPWzbm5wnWrc7LuzUQGqp99Cw',
+      );
+
       String jwt = await relayApi.signJWT(
-        TEST_SUBJECT,
-        TEST_AUDIENCE,
-        TEST_TTL,
-        keyPair,
+        sub: TEST_SUBJECT,
+        aud: TEST_AUDIENCE,
+        ttl: TEST_TTL,
+        keyPair: keyPair,
         iat: TEST_IAT,
       );
       expect(jwt, EXPECTED_JWT);

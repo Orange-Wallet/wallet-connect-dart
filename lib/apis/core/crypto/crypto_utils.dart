@@ -23,19 +23,10 @@ class CryptoUtils extends ICryptoUtils {
   static const TYPE_1 = 1;
 
   @override
-  KeyPair generateKeyPair() {
-    // x.PrivateKey pk = x.PrivateKey.generate();
-    // final PrivateKey pk = PrivateKey.generate();
-
-    // ed.KeyPair keyPair = ed.generateKey();
-    // return KeyPair(
-    //   hex.encode(keyPair.privateKey.bytes),
-    //   hex.encode(keyPair.publicKey.bytes),
-    // );
+  CryptoKeyPair generateKeyPair() {
     final kp = x.generateKeyPair();
 
-    // final x.PrivateKey pk = x.PrivateKey.generate();
-    return KeyPair(
+    return CryptoKeyPair(
       hex.encode(kp.privateKey),
       hex.encode(kp.publicKey),
     );

@@ -6,21 +6,22 @@ part 'json_rpc_error.g.dart';
 class JsonRpcError {
   final int code;
   final String message;
-  JsonRpcError(
-    this.code,
-    this.message,
-  );
+
+  JsonRpcError({
+    required this.code,
+    required this.message,
+  });
 
   factory JsonRpcError.serverError(String message) =>
-      JsonRpcError(-32000, message);
+      JsonRpcError(code: -32000, message: message);
   factory JsonRpcError.invalidParams(String message) =>
-      JsonRpcError(-32602, message);
+      JsonRpcError(code: -32602, message: message);
   factory JsonRpcError.invalidRequest(String message) =>
-      JsonRpcError(-32600, message);
+      JsonRpcError(code: -32600, message: message);
   factory JsonRpcError.parseError(String message) =>
-      JsonRpcError(-32700, message);
+      JsonRpcError(code: -32700, message: message);
   factory JsonRpcError.methodNotFound(String message) =>
-      JsonRpcError(-32601, message);
+      JsonRpcError(code: -32601, message: message);
 
   factory JsonRpcError.fromJson(Map<String, dynamic> json) =>
       _$JsonRpcErrorFromJson(json);

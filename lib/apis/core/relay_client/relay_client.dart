@@ -9,6 +9,7 @@ import 'package:wallet_connect_v2_dart/apis/core/relay_client/i_relay_client.dar
 import 'package:wallet_connect_v2_dart/apis/core/relay_client/message_tracker.dart';
 import 'package:wallet_connect_v2_dart/apis/core/relay_client/relay_client_models.dart';
 import 'package:wallet_connect_v2_dart/apis/core/relay_client/topic_map.dart';
+import 'package:wallet_connect_v2_dart/apis/utils/constants.dart';
 import 'package:wallet_connect_v2_dart/apis/utils/errors.dart';
 import 'package:wallet_connect_v2_dart/apis/utils/wallet_connect_utils.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -16,10 +17,6 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import 'i_topic_map.dart';
 
 class RelayClient implements IRelayClient {
-  static const RELAYER_DEFAULT_RELAY_URL = 'irn';
-  static const PROTOCOL = 'wc';
-  static const VERSION = '2.0';
-
   static const JSON_RPC_PUBLISH = 'publish';
   static const JSON_RPC_SUBSCRIPTION = 'subscription';
   static const JSON_RPC_SUBSCRIBE = 'subscribe';
@@ -75,7 +72,7 @@ class RelayClient implements IRelayClient {
     this.messageTracker,
     this.topicMap,
     this.test = false,
-    relayUrl = RELAYER_DEFAULT_RELAY_URL,
+    relayUrl = WalletConnectConstants.RELAYER_DEFAULT_PROTOCOL,
   });
 
   @override
@@ -213,12 +210,12 @@ class RelayClient implements IRelayClient {
     socket = WebSocketChannel.connect(
       Uri.parse(
         WalletConnectUtils.formatRelayRpcUrl(
-          PROTOCOL,
-          VERSION,
-          core.relayUrl,
-          '1.0.0',
-          auth,
-          core.projectId,
+          protocol: WalletConnectConstants.CORE_PROTOCOL,
+          version: WalletConnectConstants.CORE_VERSION,
+          relayUrl: core.relayUrl,
+          sdkVersion: WalletConnectConstants.SDK_VERSION,
+          auth: auth,
+          projectId: core.projectId,
         ),
       ),
     );
@@ -227,7 +224,7 @@ class RelayClient implements IRelayClient {
   }
 
   String _buildMethod(String method) {
-    return '${RELAYER_DEFAULT_RELAY_URL}_$method';
+    return '${WalletConnectConstants.RELAYER_DEFAULT_PROTOCOL}_$method';
   }
 
   /// JSON RPC MESSAGE HANDLERS

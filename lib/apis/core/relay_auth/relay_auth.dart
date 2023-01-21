@@ -20,22 +20,41 @@ class RelayAuth implements IRelayAuth {
   static const String DID_METHOD = "key";
 
   @override
-  Future<String> signJWT(
-    String subject,
-    String aud,
-    int ttl,
-    KeyPair keyPair, {
+  Future<RelayAuthKeyPair> generateKeyPair([Uint8List? seed]) async {
+    ed.PrivateKey privateKey;
+    ed.PublicKey publicKey;
+    if (seed == null) {
+      final keyPair = ed.generateKey();
+      privateKey = keyPair.privateKey;
+      publicKey = keyPair.publicKey;
+    } else {
+      privateKey = ed.newKeyFromSeed(seed);
+      publicKey = ed.public(privateKey);
+    }
+
+    return RelayAuthKeyPair(
+      Uint8List.fromList(privateKey.bytes),
+      Uint8List.fromList(publicKey.bytes),
+    );
+  }
+
+  @override
+  Future<String> signJWT({
+    required String sub,
+    required String aud,
+    required int ttl,
+    required RelayAuthKeyPair keyPair,
     int? iat,
   }) async {
+    iat ??= DateTime.now().millisecondsSinceEpoch ~/ 1000;
     final JWTHeader header = JWTHeader();
-    final String iss = encodeIss(keyPair.getPublicKeyBytes());
-    final iatActual = iat == null ? DateTime.now().millisecondsSinceEpoch : iat;
-    final int exp = iatActual + ttl;
+    final String iss = encodeIss(keyPair.publicKeyBytes);
+    final int exp = iat + ttl;
     final JWTPayload payload = JWTPayload(
       iss,
-      subject,
+      sub,
       aud,
-      iatActual,
+      iat,
       exp,
     );
     final data = encodeData(
@@ -45,7 +64,7 @@ class RelayAuth implements IRelayAuth {
       ),
     );
     Uint8List signature = ed.sign(
-      ed.PrivateKey(keyPair.getPrivateKeyBytes()),
+      ed.PrivateKey(keyPair.privateKeyBytes),
       data,
     );
     // List<int> signature = keyPair.sign(data);
@@ -84,22 +103,31 @@ class RelayAuth implements IRelayAuth {
   }
 
   String stripEquals(String s) {
-    while (s.endsWith('=')) {
-      s = s.substring(0, s.length - 1);
-    }
-    return s;
+    return s.replaceAll("=", '');
   }
 
   @override
   String encodeJson(Map<String, dynamic> value) {
-    String s = base64Url.encode(jsonEncode(value).codeUnits);
-    s = stripEquals(s);
-    return s;
+    return stripEquals(
+      base64Url.encode(
+        jsonEncode(
+          value,
+        ).codeUnits,
+      ),
+    );
   }
 
   @override
   Map<String, dynamic> decodeJson(String s) {
-    return jsonDecode(utf8.decode(base64Url.decode(base64Url.normalize(s))));
+    return jsonDecode(
+      utf8.decode(
+        base64Url.decode(
+          base64Url.normalize(
+            s,
+          ),
+        ),
+      ),
+    );
   }
 
   /// Encodes the public key into a multicodec issuer

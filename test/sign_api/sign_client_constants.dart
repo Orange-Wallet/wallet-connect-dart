@@ -3,11 +3,11 @@ import 'package:wallet_connect_v2_dart/apis/signing_api/models/json_rpc_models.d
 import 'package:wallet_connect_v2_dart/apis/signing_api/models/proposal_models.dart';
 import 'package:wallet_connect_v2_dart/apis/signing_api/models/session_models.dart';
 import 'package:wallet_connect_v2_dart/apis/signing_api/models/signing_models.dart';
+import 'package:wallet_connect_v2_dart/apis/utils/constants.dart';
 
 class SignClientConstants {
-  static const TEST_RELAY_PROTOCOL = "irn";
   static const TEST_RELAY_OPTIONS = {
-    "protocol": TEST_RELAY_PROTOCOL,
+    "protocol": WalletConnectConstants.RELAYER_DEFAULT_PROTOCOL,
   };
 
   static const TEST_ETHEREUM_CHAIN = "eip155:1";
@@ -99,7 +99,11 @@ class SignClientConstants {
 
   static final TEST_CONNECT_PARAMS = ConnectParams(
     requiredNamespaces: TEST_REQUIRED_NAMESPACES,
-    relays: [Relay('irn')],
+    relays: [
+      Relay(
+        WalletConnectConstants.RELAYER_DEFAULT_PROTOCOL,
+      ),
+    ],
   );
 
   static final TEST_APPROVE_PARAMS = ApproveParams(
