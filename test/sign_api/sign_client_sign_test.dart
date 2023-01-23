@@ -1,4 +1,4 @@
-import 'package:flutter_test/flutter_test.dart';
+import 'package:test/test.dart';
 import 'package:wallet_connect_v2_dart/apis/models/json_rpc_error.dart';
 import 'package:wallet_connect_v2_dart/wallet_connect_v2.dart';
 
@@ -6,7 +6,6 @@ import '../shared/shared_test_values.dart';
 import 'sign_client_helpers.dart';
 
 void main() {
-  TestWidgetsFlutterBinding.ensureInitialized();
 
   group('Signing API', () {
     late SignClient clientA;

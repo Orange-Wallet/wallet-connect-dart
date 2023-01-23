@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:convert/convert.dart';
-import 'package:flutter_test/flutter_test.dart';
+import 'package:test/test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:wallet_connect_v2_dart/apis/core/core.dart';
 import 'package:wallet_connect_v2_dart/apis/core/crypto/crypto.dart';
@@ -14,7 +14,6 @@ import 'shared/shared_test_utils.mocks.dart';
 import '../shared/shared_test_values.dart';
 
 void main() {
-  TestWidgetsFlutterBinding.ensureInitialized();
 
   final TEST_MESSAGE = jsonEncode({
     'id': 1,
