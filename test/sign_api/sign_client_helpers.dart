@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:test/test.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:wallet_connect_v2_dart/wallet_connect_v2.dart';
 
 import 'sign_client_constants.dart';

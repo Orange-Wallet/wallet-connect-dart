@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
-import 'package:test/test.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 import 'package:wallet_connect_v2_dart/apis/core/crypto/crypto_models.dart';
 import 'package:wallet_connect_v2_dart/apis/core/relay_auth/relay_auth.dart';
@@ -8,6 +8,7 @@ import 'package:wallet_connect_v2_dart/apis/core/relay_auth/relay_auth_models.da
 import 'package:wallet_connect_v2_dart/apis/utils/constants.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
 
   group('Relay Auth/API', () {
     // Client will sign a unique identifier as the subject

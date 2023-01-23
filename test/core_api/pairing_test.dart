@@ -1,4 +1,4 @@
-import 'package:test/test.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:wallet_connect_v2_dart/apis/core/core.dart';
 import 'package:wallet_connect_v2_dart/apis/core/i_core.dart';
 import 'package:wallet_connect_v2_dart/apis/core/pairing/pairing_models.dart';
@@ -8,6 +8,7 @@ import 'package:wallet_connect_v2_dart/apis/models/basic_errors.dart';
 import '../shared/shared_test_values.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
 
   const TEST_PUB_KEY =
       '9088c381b2022c6311d9b4738e221029ff4b8f3c13860a795c960eac043e7d28';
