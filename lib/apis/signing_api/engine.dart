@@ -122,7 +122,6 @@ class Engine implements IEngine {
     final int id = PairingUtils.payloadId();
 
     final WcSessionProposeRequest request = WcSessionProposeRequest(
-      id: id,
       relays: params.relays == null
           ? [Relay(WalletConnectConstants.RELAYER_DEFAULT_PROTOCOL)]
           : params.relays!,
@@ -546,7 +545,6 @@ class Engine implements IEngine {
   ) async {
     try {
       final proposeRequest = WcSessionProposeRequest.fromJson(payload.params);
-      proposeRequest.id = payload.id;
       await _isValidConnect(
         proposeRequest.requiredNamespaces,
         topic,
@@ -556,7 +554,7 @@ class Engine implements IEngine {
         WalletConnectConstants.FIVE_MINUTES,
       );
       final ProposalData proposal = ProposalData(
-        id: proposeRequest.id,
+        id: payload.id,
         expiry: expiry,
         relays: proposeRequest.relays,
         proposer: proposeRequest.proposer,
@@ -564,9 +562,9 @@ class Engine implements IEngine {
         pairingTopic: topic,
       );
 
-      await _setProposal(proposeRequest.id, proposal);
+      await _setProposal(payload.id, proposal);
       onSessionProposal.broadcast(SessionProposal(
-        proposeRequest.id,
+        payload.id,
         proposal,
       ));
     } on Error catch (err) {
