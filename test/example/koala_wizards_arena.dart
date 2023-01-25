@@ -1,9 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:wallet_connect_v2_dart/apis/core/core.dart';
-import 'package:wallet_connect_v2_dart/apis/core/pairing/pairing_models.dart';
-import 'package:wallet_connect_v2_dart/apis/signing_api/models/sign_client_models.dart';
-import 'package:wallet_connect_v2_dart/apis/signing_api/models/signing_models.dart';
-import 'package:wallet_connect_v2_dart/apis/signing_api/sign_client.dart';
+import 'package:wallet_connect_v2_dart/wallet_connect_v2.dart';
 
 main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -19,7 +15,7 @@ main() async {
     test('Test connecting to dapp', () async {
       // 1. Get URI from QR Scanner
       const wizardsArenaQrURI =
-          'wc:2d6ddffd0af65f7dc42046e7782f8d72d2d8426380f62b813b75033d2b7c112a@2?relay-protocol=irn&symKey=453620c27e47f6db8a2e1eb963c03e7dd6c54c6474c0c857f7f98b4dc4bd1c02';
+          'wc:ece55398da6475a5caacab3c1764de849cb0da8e8720f82567324f6c3436682a@2?relay-protocol=irn&symKey=1e4c487b6933ad1877fcb7d94ab60c08d1d7282ab67bcd1b3c1dc90402c77db3';
       Uri uri = Uri.parse(wizardsArenaQrURI);
       print('uri = $uri');
       print('uri.scheme = ${uri.scheme}');
@@ -46,6 +42,23 @@ main() async {
         // Keep track of the args.id for the approval response
         id = args!.id;
         print('args!.params.requiredNamespaces = ${args!.params.requiredNamespaces}');
+
+        // approve session
+        // // Present the UI to the user, and allow them to reject or approve the proposal
+        final walletNamespaces = {
+          'kadena': Namespace(
+            accounts: ['kadena:mainnet01:cf415c73edb4666a967933bddc2e6c4a6e13b8ec0566e612b9f3cbe4a4d8506e', 'kadena:testnet04:cf415c73edb4666a967933bddc2e6c4a6e13b8ec0566e612b9f3cbe4a4d8506e'],
+            methods: ['kadena_sign', 'kadena_quicksign'],
+            events: ['kadena_transaction_updated'],
+          ),
+        };
+        await
+        wcClient.approve(
+            ApproveParams(
+                id: id,
+                namespaces: walletNamespaces // This will have the accounts requested in params
+            )
+        );
       });
 
       PairingInfo pairingInfo = await wcClient.pair(PairParams(uri: uri));
