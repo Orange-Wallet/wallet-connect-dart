@@ -42,7 +42,7 @@ class BaseRequiredNamespace {
       );
 }
 
-@JsonSerializable()
+@JsonSerializable(includeIfNull: false)
 class RequiredNamespace extends BaseRequiredNamespace {
   final List<BaseRequiredNamespace>? extension;
 

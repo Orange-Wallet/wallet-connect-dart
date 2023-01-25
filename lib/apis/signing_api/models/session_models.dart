@@ -59,7 +59,7 @@ class BaseNamespace {
       );
 }
 
-@JsonSerializable()
+@JsonSerializable(includeIfNull: false)
 class Namespace extends BaseNamespace {
   final List<BaseNamespace>? extension;
 
