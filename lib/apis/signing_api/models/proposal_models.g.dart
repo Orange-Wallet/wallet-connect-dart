@@ -41,13 +41,22 @@ RequiredNamespace _$RequiredNamespaceFromJson(Map<String, dynamic> json) =>
           .toList(),
     );
 
-Map<String, dynamic> _$RequiredNamespaceToJson(RequiredNamespace instance) =>
-    <String, dynamic>{
-      'chains': instance.chains,
-      'methods': instance.methods,
-      'events': instance.events,
-      'extension': instance.extension,
-    };
+Map<String, dynamic> _$RequiredNamespaceToJson(RequiredNamespace instance) {
+  final val = <String, dynamic>{
+    'chains': instance.chains,
+    'methods': instance.methods,
+    'events': instance.events,
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('extension', instance.extension);
+  return val;
+}
 
 ProposalData _$ProposalDataFromJson(Map<String, dynamic> json) => ProposalData(
       id: json['id'] as int,

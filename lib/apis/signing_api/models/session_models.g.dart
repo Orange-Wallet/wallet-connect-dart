@@ -37,12 +37,22 @@ Namespace _$NamespaceFromJson(Map<String, dynamic> json) => Namespace(
           .toList(),
     );
 
-Map<String, dynamic> _$NamespaceToJson(Namespace instance) => <String, dynamic>{
-      'accounts': instance.accounts,
-      'methods': instance.methods,
-      'events': instance.events,
-      'extension': instance.extension,
-    };
+Map<String, dynamic> _$NamespaceToJson(Namespace instance) {
+  final val = <String, dynamic>{
+    'accounts': instance.accounts,
+    'methods': instance.methods,
+    'events': instance.events,
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('extension', instance.extension);
+  return val;
+}
 
 SessionData _$SessionDataFromJson(Map<String, dynamic> json) => SessionData(
       topic: json['topic'] as String,
