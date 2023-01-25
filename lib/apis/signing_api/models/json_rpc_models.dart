@@ -33,13 +33,11 @@ class WcPairingPingRequest {
 
 @JsonSerializable()
 class WcSessionProposeRequest {
-  int id;
   final List<Relay> relays;
   final Map<String, RequiredNamespace> requiredNamespaces;
   final ConnectionMetadata proposer;
 
   WcSessionProposeRequest({
-    required this.id,
     required this.relays,
     required this.requiredNamespaces,
     required this.proposer,

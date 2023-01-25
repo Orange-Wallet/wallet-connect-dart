@@ -35,7 +35,6 @@ Map<String, dynamic> _$WcPairingPingRequestToJson(
 WcSessionProposeRequest _$WcSessionProposeRequestFromJson(
         Map<String, dynamic> json) =>
     WcSessionProposeRequest(
-      id: json['id'] as int,
       relays: (json['relays'] as List<dynamic>)
           .map((e) => Relay.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -51,7 +50,6 @@ WcSessionProposeRequest _$WcSessionProposeRequestFromJson(
 Map<String, dynamic> _$WcSessionProposeRequestToJson(
         WcSessionProposeRequest instance) =>
     <String, dynamic>{
-      'id': instance.id,
       'relays': instance.relays,
       'requiredNamespaces': instance.requiredNamespaces,
       'proposer': instance.proposer,
