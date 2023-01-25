@@ -545,6 +545,7 @@ class Engine implements IEngine {
     JsonRpcRequest payload,
   ) async {
     try {
+      print(payload.params);
       final proposeRequest = WcSessionProposeRequest.fromJson(payload.params);
       proposeRequest.id = payload.id;
       await _isValidConnect(

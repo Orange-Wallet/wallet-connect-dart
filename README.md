@@ -137,4 +137,10 @@ A wallet exposes different methods for different chains using the `request` func
 Build using `make dev`, docker must be installed and open.  
 Install dependencies using `npm install`.  
 Run it using this command: `PORT=5555 npm run start`.  
-Finally, run tests using `flutter test`.  
+Finally, run tests using `flutter test`.
+
+# Useful Commands
+
+```
+flutter pub run build_runner build --delete-conflicting-outputs
+```
