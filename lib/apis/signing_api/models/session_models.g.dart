@@ -33,9 +33,8 @@ Namespace _$NamespaceFromJson(Map<String, dynamic> json) => Namespace(
               .toList() ??
           const [],
       extension: (json['extension'] as List<dynamic>?)
-              ?.map((e) => BaseNamespace.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          const [],
+          ?.map((e) => BaseNamespace.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
 
 Map<String, dynamic> _$NamespaceToJson(Namespace instance) => <String, dynamic>{

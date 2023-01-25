@@ -36,10 +36,9 @@ RequiredNamespace _$RequiredNamespaceFromJson(Map<String, dynamic> json) =>
               .toList() ??
           const [],
       extension: (json['extension'] as List<dynamic>?)
-              ?.map((e) =>
-                  BaseRequiredNamespace.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          const [],
+          ?.map(
+              (e) => BaseRequiredNamespace.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
 
 Map<String, dynamic> _$RequiredNamespaceToJson(RequiredNamespace instance) =>

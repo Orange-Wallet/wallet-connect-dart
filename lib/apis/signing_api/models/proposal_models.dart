@@ -44,13 +44,13 @@ class BaseRequiredNamespace {
 
 @JsonSerializable()
 class RequiredNamespace extends BaseRequiredNamespace {
-  final List<BaseRequiredNamespace> extension;
+  final List<BaseRequiredNamespace>? extension;
 
   RequiredNamespace({
     required List<String> chains,
     required List<String> methods,
     List<String> events = const [],
-    this.extension = const [],
+    this.extension,
   }) : super(
           chains: chains,
           methods: methods,
@@ -70,10 +70,12 @@ class RequiredNamespace extends BaseRequiredNamespace {
   @override
   int get hashCode =>
       super.hashCode +
-      extension.fold<int>(
-        0,
-        (previousValue, element) => previousValue + element.hashCode,
-      );
+      (extension == null
+          ? 0
+          : extension!.fold<int>(
+              0,
+              (previousValue, element) => previousValue + element.hashCode,
+            ));
 }
 
 @JsonSerializable()

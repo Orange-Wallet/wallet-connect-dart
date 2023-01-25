@@ -19,7 +19,7 @@ class ValidatorUtils {
       List<String> accounts = namespace.accounts;
       List<dynamic> methods = namespace.methods;
       List<dynamic> events = namespace.events;
-      List<BaseNamespace> extension = namespace.extension;
+      List<BaseNamespace>? extension = namespace.extension;
       List<String> chains = NamespaceUtils.getAccountsChains(accounts);
       RequiredNamespace requiredNamespace = requiredNamespaces[key]!;
 
@@ -29,17 +29,22 @@ class ValidatorUtils {
         compatible = false;
       }
 
-      if (compatible) {
+      if (compatible && extension != null) {
         extension.forEach((extensionNamespace) {
-          List<String> accounts = extensionNamespace.accounts;
-          List<dynamic> methods = extensionNamespace.methods;
-          List<dynamic> events = extensionNamespace.events;
-          List<String> chains = NamespaceUtils.getAccountsChains(accounts);
-          bool overlap = requiredNamespace.extension.any((ext) =>
-              hasOverlap(ext.chains, chains) &&
-              hasOverlap(ext.methods, methods) &&
-              hasOverlap(ext.events, events));
-          if (!overlap) {
+          if (requiredNamespace.extension != null) {
+            List<String> accounts = extensionNamespace.accounts;
+            List<dynamic> methods = extensionNamespace.methods;
+            List<dynamic> events = extensionNamespace.events;
+            List<String> chains = NamespaceUtils.getAccountsChains(accounts);
+
+            bool overlap = requiredNamespace.extension!.any((ext) =>
+                hasOverlap(ext.chains, chains) &&
+                hasOverlap(ext.methods, methods) &&
+                hasOverlap(ext.events, events));
+            if (!overlap) {
+              compatible = false;
+            }
+          } else {
             compatible = false;
           }
         });
@@ -101,8 +106,10 @@ class ValidatorUtils {
     namespaces.forEach((key, namespace) {
       isValidChains(key, namespace.chains, '$method requiredNamespace');
 
-      for (var ext in namespace.extension) {
-        isValidChains(key, ext.chains, '$method extension');
+      if (namespace.extension != null) {
+        for (var ext in namespace.extension!) {
+          isValidChains(key, ext.chains, '$method extension');
+        }
       }
     });
 
@@ -133,8 +140,10 @@ class ValidatorUtils {
     namespaces.forEach((key, namespace) {
       isValidAccounts(namespace.accounts, '$method namespace');
 
-      for (var ext in namespace.extension) {
-        isValidAccounts(ext.accounts, '$method namespace');
+      if (namespace.extension != null) {
+        for (var ext in namespace.extension!) {
+          isValidAccounts(ext.accounts, '$method namespace');
+        }
       }
     });
 
@@ -237,25 +246,29 @@ class ValidatorUtils {
         }
 
         // Check each required extension
-        for (var requiredExt in requiredNamespaces[key]!.extension) {
-          // Make sure that some extension in the namespaces satisfies it
-          for (var ext in namespaces[key]!.extension) {
-            List<dynamic> accChains = NamespaceUtils.getAccountsChains(
-              ext.accounts,
-            );
-            // If the required extension is satisfied, break out of the loop so we don't throw
-            if (hasOverlap(requiredExt.chains, accChains) &&
-                hasOverlap(requiredExt.events, ext.events) &&
-                hasOverlap(requiredExt.methods, ext.methods)) {
-              break;
+        if (requiredNamespaces[key]!.extension != null) {
+          for (var requiredExt in requiredNamespaces[key]!.extension!) {
+            // Make sure that some extension in the namespaces satisfies it
+            if (namespaces[key]!.extension != null) {
+              for (var ext in namespaces[key]!.extension!) {
+                List<dynamic> accChains = NamespaceUtils.getAccountsChains(
+                  ext.accounts,
+                );
+                // If the required extension is satisfied, break out of the loop so we don't throw
+                if (hasOverlap(requiredExt.chains, accChains) &&
+                    hasOverlap(requiredExt.events, ext.events) &&
+                    hasOverlap(requiredExt.methods, ext.methods)) {
+                  break;
+                }
+              }
             }
-          }
 
-          throw Errors.getInternalError(
-            Errors.NON_CONFORMING_NAMESPACES,
-            context:
-                "$context namespaces extension doesn't satisfy requiredNamespaces extension for $key",
-          );
+            throw Errors.getInternalError(
+              Errors.NON_CONFORMING_NAMESPACES,
+              context:
+                  "$context namespaces extension doesn't satisfy requiredNamespaces extension for $key",
+            );
+          }
         }
       });
     }

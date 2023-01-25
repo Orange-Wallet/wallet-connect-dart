@@ -61,13 +61,13 @@ class BaseNamespace {
 
 @JsonSerializable()
 class Namespace extends BaseNamespace {
-  final List<BaseNamespace> extension;
+  final List<BaseNamespace>? extension;
 
   Namespace({
     required List<String> accounts,
     required List<String> methods,
     List<String> events = const [],
-    this.extension = const [],
+    this.extension,
   }) : super(
           accounts: accounts,
           methods: methods,
@@ -87,10 +87,12 @@ class Namespace extends BaseNamespace {
   @override
   int get hashCode =>
       super.hashCode +
-      extension.fold<int>(
-        0,
-        (previousValue, element) => previousValue + element.hashCode,
-      );
+      (extension == null
+          ? 0
+          : extension!.fold<int>(
+              0,
+              (previousValue, element) => previousValue + element.hashCode,
+            ));
 }
 
 @JsonSerializable()
