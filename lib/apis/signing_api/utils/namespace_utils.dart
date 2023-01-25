@@ -19,9 +19,11 @@ class NamespaceUtils {
     namespaces.values.forEach((namespace) {
       chains.addAll(getAccountsChains(namespace.accounts));
 
-      namespace.extension.forEach((extension) {
-        chains.addAll(getAccountsChains(extension.accounts));
-      });
+      if (namespace.extension != null) {
+        namespace.extension!.forEach((extension) {
+          chains.addAll(getAccountsChains(extension.accounts));
+        });
+      }
     });
 
     return chains;
@@ -36,11 +38,13 @@ class NamespaceUtils {
       List<String> chains = getAccountsChains(namespace.accounts);
       if (chains.contains(chainId)) methods.addAll(namespace.methods);
 
-      namespace.extension.forEach((extension) {
-        List<String> extensionChains = getAccountsChains(extension.accounts);
-        if (extensionChains.contains(chainId))
-          methods.addAll(extension.methods);
-      });
+      if (namespace.extension != null) {
+        namespace.extension!.forEach((extension) {
+          List<String> extensionChains = getAccountsChains(extension.accounts);
+          if (extensionChains.contains(chainId))
+            methods.addAll(extension.methods);
+        });
+      }
     });
 
     return methods;
@@ -55,10 +59,13 @@ class NamespaceUtils {
       List<String> chains = getAccountsChains(namespace.accounts);
       if (chains.contains(chainId)) events.addAll(namespace.events);
 
-      namespace.extension.forEach((extension) {
-        List<String> extensionChains = getAccountsChains(extension.accounts);
-        if (extensionChains.contains(chainId)) events.addAll(extension.events);
-      });
+      if (namespace.extension != null) {
+        namespace.extension!.forEach((extension) {
+          List<String> extensionChains = getAccountsChains(extension.accounts);
+          if (extensionChains.contains(chainId))
+            events.addAll(extension.events);
+        });
+      }
     });
 
     return events;
