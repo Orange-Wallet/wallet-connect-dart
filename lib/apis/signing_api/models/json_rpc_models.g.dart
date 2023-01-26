@@ -154,14 +154,25 @@ WcSessionRequestRequest _$WcSessionRequestRequestFromJson(
         Map<String, dynamic> json) =>
     WcSessionRequestRequest(
       chainId: json['chainId'] as String,
-      method: json['method'] as String,
-      params: json['params'],
+      request: SessionRequestParams.fromJson(
+          json['request'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$WcSessionRequestRequestToJson(
         WcSessionRequestRequest instance) =>
     <String, dynamic>{
       'chainId': instance.chainId,
+      'request': instance.request,
+    };
+
+SessionRequestParams _$RequestParamsFromJson(Map<String, dynamic> json) =>
+    SessionRequestParams(
+      method: json['method'] as String,
+      params: json['params'],
+    );
+
+Map<String, dynamic> _$RequestParamsToJson(SessionRequestParams instance) =>
+    <String, dynamic>{
       'method': instance.method,
       'params': instance.params,
     };

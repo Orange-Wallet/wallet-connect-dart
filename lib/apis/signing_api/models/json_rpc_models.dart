@@ -141,19 +141,33 @@ class WcSessionPingRequest {
 @JsonSerializable()
 class WcSessionRequestRequest {
   final String chainId;
-  final String method;
-  final dynamic params;
+  final SessionRequestParams request;
 
   WcSessionRequestRequest({
     required this.chainId,
-    required this.method,
-    required this.params,
+    required this.request,
   });
 
   factory WcSessionRequestRequest.fromJson(Map<String, dynamic> json) =>
       _$WcSessionRequestRequestFromJson(json);
 
   Map<String, dynamic> toJson() => _$WcSessionRequestRequestToJson(this);
+}
+
+@JsonSerializable()
+class SessionRequestParams {
+  final String method;
+  final dynamic params;
+
+  SessionRequestParams({
+    required this.method,
+    required this.params,
+  });
+
+  factory SessionRequestParams.fromJson(Map<String, dynamic> json) =>
+      _$RequestParamsFromJson(json);
+
+  Map<String, dynamic> toJson() => _$RequestParamsToJson(this);
 }
 
 @JsonSerializable()

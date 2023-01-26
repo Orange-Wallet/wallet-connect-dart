@@ -124,9 +124,11 @@ class SignClientConstants {
   static final TEST_REQUEST_PARAMS = RequestParams(
     topic: '123',
     request: WcSessionRequestRequest(
-      method: TEST_CHAINS[0],
       chainId: TEST_METHODS[0],
-      params: {},
+      request: SessionRequestParams(
+        method: TEST_METHODS[0],
+        params: {},
+      ),
     ),
   );
 
