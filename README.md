@@ -44,8 +44,8 @@ ConnectResponse resp = await wcClient.connect(
         methods: ['eth_signTransaction'], // Requestable Methods
       ),
       'kadena': RequiredNamespace(
-        chains: ['kadena:1'], // Kadena chain
-        methods: ['quicksign'], // Requestable Methods
+        chains: ['kadena:mainnet01'], // Kadena chain
+        methods: ['kadena_quicksign_v1'], // Requestable Methods
       ),
     }
   )
@@ -60,9 +60,11 @@ final sig = await wcClient.request(
   RequestParams(
     topic: session.topic,
     request: WcSessionRequestRequest(
-      chainId: 'eip155',
-      method: 'eth_signTransaction',
-      params: 'transaction',
+      chainId: 'eip155:1',
+      request: SessionRequestParams(
+        method: 'eth_signTransaction',
+        params: 'json serializable parameters',
+      ),
     ),
   ),
 );
@@ -95,13 +97,13 @@ await wcClient.pair(PairParams(uri: uri));
 
 // Present the UI to the user, and allow them to reject or approve the proposal
 final walletNamespaces = {
-  'eip155:1': Namespace(
-    accounts: ['abc'],
+  'eip155': Namespace(
+    accounts: ['eip155:1:abc'],
     methods: ['eth_signTransaction'],
   ),
   'kadena': Namespace(
-    accounts: ['k:abc'],
-    methods: ['sign', 'quicksign'],
+    accounts: ['kadena:mainnet01:abc'],
+    methods: ['kadena_sign_v1', 'kadena_quicksign_v1'],
   ),
 }
 await wcClient.approve(

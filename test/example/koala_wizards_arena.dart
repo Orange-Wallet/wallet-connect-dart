@@ -4,18 +4,11 @@ import 'package:wallet_connect_v2_dart/wallet_connect_v2.dart';
 main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
   group('Pairing Test', () {
-    // ICore core = Core(projectId: '');
-    // late Crypto crypto;
-    // late RelayClient relayClient;
-    // MockMessageTracker messageTracker = MockMessageTracker();
-    // MockTopicMap topicMap = MockTopicMap();
-    setUp(() async {
-      // crypto = MockCrypto();
-    });
+    setUp(() async {});
     test('Test connecting to dapp', () async {
       // 1. Get URI from QR Scanner
       const wizardsArenaQrURI =
-          'wc:c83634b314e6967a0bcc6cde8464a9de58541eccf19744d62568af4612e7d0fe@2?relay-protocol=irn&symKey=c9246a513fe3481d66aac2881de5b0595cad0123da4d49a39df3b61c2f4c6a2a';
+          'wc:4f8cc6dd1ef31470739750c51f75e75f5a776e9ac07664219f1bc4223a3f0321@2?relay-protocol=irn&symKey=85f10246dc31add72933e7e31c55d1707dd0fd52518f9c7adb040eddd66ff72f';
       Uri uri = Uri.parse(wizardsArenaQrURI);
       print('uri = $uri');
       print('uri.scheme = ${uri.scheme}');
@@ -48,20 +41,18 @@ main() async {
         final walletNamespaces = {
           'kadena': Namespace(
             accounts: [
-              'kadena:mainnet01:k:cf415c73edb4666a967933bddc2e6c4a6e13b8ec0566e612b9f3cbe4a4d8506e',
-              'kadena:testnet04:k:cf415c73edb4666a967933bddc2e6c4a6e13b8ec0566e612b9f3cbe4a4d8506e'
+              'kadena:mainnet01:k**cf415c73edb4666a967933bddc2e6c4a6e13b8ec0566e612b9f3cbe4a4d8506e',
+              'kadena:testnet04:k**cf415c73edb4666a967933bddc2e6c4a6e13b8ec0566e612b9f3cbe4a4d8506e'
             ],
             methods: ['kadena_sign', 'kadena_quicksign'],
             events: ['kadena_transaction_updated'],
           ),
         };
         await wcClient.approve(
-            ApproveParams(id: id, namespaces: walletNamespaces // This will have the accounts requested in params
-                ));
+            ApproveParams(id: id, namespaces: walletNamespaces)); // This will have the accounts requested in params
       });
 
-
-      // Also setup the methods and chains that your wallet supports
+      // Also setup the namespaces and methods that your wallet supports
       final kadenaSignHandler = (dynamic params) async {
         // TODO implement signing
         return 'signed!';
@@ -72,9 +63,8 @@ main() async {
         kadenaSignHandler,
       );
 
-      // Also setup the methods and chains that your wallet supports
       final kadenaQuickSignHandler = (dynamic params) async {
-        // TODO implement signing
+        // TODO implement quick signing
         return 'signed!';
       };
       wcClient.registerRequestHandler(
@@ -82,7 +72,6 @@ main() async {
         'kadena_quicksign',
         kadenaQuickSignHandler,
       );
-
 
       PairingInfo pairingInfo = await wcClient.pair(PairParams(uri: uri));
       print('pairingInfo.topic = ${pairingInfo.topic}');

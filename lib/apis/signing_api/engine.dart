@@ -794,14 +794,14 @@ class Engine implements IEngine {
 
       final String methodKey = getRequestMethodKey(
         request.chainId,
-        request.method,
+        request.request.method,
       );
       // print('method key: $methodKey');
       if (requestHandlers.containsKey(methodKey)) {
         final handler = requestHandlers[methodKey]!;
         try {
           final result = await handler(
-            request.params,
+            request.request.params,
           );
           await core.pairing.sendResult(
             payload.id,
@@ -1075,7 +1075,7 @@ class Engine implements IEngine {
     ValidatorUtils.isValidNamespacesRequest(
       session.namespaces,
       request.chainId,
-      request.method,
+      request.request.method,
     );
 
     return true;

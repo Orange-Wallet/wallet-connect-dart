@@ -153,15 +153,28 @@ Map<String, dynamic> _$WcSessionPingRequestToJson(
 WcSessionRequestRequest _$WcSessionRequestRequestFromJson(
         Map<String, dynamic> json) =>
     WcSessionRequestRequest(
-      chainId: json['chainId'] as String, // i.e. kadena:mainnet01
-      method: json['method'] as String,
-      params: json['params'],
+      chainId: json['chainId'] as String,
+      request: SessionRequestParams.fromJson(
+          json['request'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$WcSessionRequestRequestToJson(
         WcSessionRequestRequest instance) =>
     <String, dynamic>{
       'chainId': instance.chainId,
+      'request': instance.request,
+    };
+
+SessionRequestParams _$SessionRequestParamsFromJson(
+        Map<String, dynamic> json) =>
+    SessionRequestParams(
+      method: json['method'] as String,
+      params: json['params'],
+    );
+
+Map<String, dynamic> _$SessionRequestParamsToJson(
+        SessionRequestParams instance) =>
+    <String, dynamic>{
       'method': instance.method,
       'params': instance.params,
     };

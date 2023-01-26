@@ -64,8 +64,10 @@ void main() {
             topic: connectionInfo.session.topic,
             request: WcSessionRequestRequest(
               chainId: 'eth',
-              method: 'test_sign',
-              params: 'Hello',
+              request: SessionRequestParams(
+                method: 'test_sign',
+                params: 'Hello',
+              ),
             ),
           ),
         );
@@ -90,8 +92,10 @@ void main() {
             topic: connectionInfo.session.topic,
             request: WcSessionRequestRequest(
               chainId: 'eth',
-              method: 'test_sign',
-              params: 'Hello',
+              request: SessionRequestParams(
+                method: 'test_sign',
+                params: 'Hello',
+              ),
             ),
           ),
         );
