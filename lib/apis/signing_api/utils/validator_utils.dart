@@ -70,6 +70,7 @@ class ValidatorUtils {
         return split.length >= 2 && isValidChainId(chainId);
       }
     }
+    //TODO Is there somewhere in the specs that says accounts with ":"s in the account like kadena (k:213421342...) are forbidden?
     return false;
   }
 

@@ -83,13 +83,13 @@ final handler = (dynamic params) async {
   return 'signed!';
 };
 wcClient.registerRequestHandler(
-  'eip155:1',
-  'eth_signTransaction',
+  'kadena',
+  'kadena_sign',
   handler,
 );
 
 // Then, scan the QR code and parse the URI, and pair with the dApp
-// On the first pairing, you will immediately recieve a onSessionProposal request.
+// On the first pairing, you will immediately receive a onSessionProposal request.
 Uri uri = Uri.parse(scannedUriString);
 await wcClient.pair(PairParams(uri: uri));
 

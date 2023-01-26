@@ -15,7 +15,7 @@ main() async {
     test('Test connecting to dapp', () async {
       // 1. Get URI from QR Scanner
       const wizardsArenaQrURI =
-          'wc:ece55398da6475a5caacab3c1764de849cb0da8e8720f82567324f6c3436682a@2?relay-protocol=irn&symKey=1e4c487b6933ad1877fcb7d94ab60c08d1d7282ab67bcd1b3c1dc90402c77db3';
+          'wc:c83634b314e6967a0bcc6cde8464a9de58541eccf19744d62568af4612e7d0fe@2?relay-protocol=irn&symKey=c9246a513fe3481d66aac2881de5b0595cad0123da4d49a39df3b61c2f4c6a2a';
       Uri uri = Uri.parse(wizardsArenaQrURI);
       print('uri = $uri');
       print('uri.scheme = ${uri.scheme}');
@@ -47,28 +47,47 @@ main() async {
         // // Present the UI to the user, and allow them to reject or approve the proposal
         final walletNamespaces = {
           'kadena': Namespace(
-            accounts: ['kadena:mainnet01:cf415c73edb4666a967933bddc2e6c4a6e13b8ec0566e612b9f3cbe4a4d8506e', 'kadena:testnet04:cf415c73edb4666a967933bddc2e6c4a6e13b8ec0566e612b9f3cbe4a4d8506e'],
+            accounts: [
+              'kadena:mainnet01:k:cf415c73edb4666a967933bddc2e6c4a6e13b8ec0566e612b9f3cbe4a4d8506e',
+              'kadena:testnet04:k:cf415c73edb4666a967933bddc2e6c4a6e13b8ec0566e612b9f3cbe4a4d8506e'
+            ],
             methods: ['kadena_sign', 'kadena_quicksign'],
             events: ['kadena_transaction_updated'],
           ),
         };
-        await
-        wcClient.approve(
-            ApproveParams(
-                id: id,
-                namespaces: walletNamespaces // This will have the accounts requested in params
-            )
-        );
+        await wcClient.approve(
+            ApproveParams(id: id, namespaces: walletNamespaces // This will have the accounts requested in params
+                ));
       });
+
+
+      // Also setup the methods and chains that your wallet supports
+      final kadenaSignHandler = (dynamic params) async {
+        // TODO implement signing
+        return 'signed!';
+      };
+      wcClient.registerRequestHandler(
+        'kadena',
+        'kadena_sign',
+        kadenaSignHandler,
+      );
+
+      // Also setup the methods and chains that your wallet supports
+      final kadenaQuickSignHandler = (dynamic params) async {
+        // TODO implement signing
+        return 'signed!';
+      };
+      wcClient.registerRequestHandler(
+        'kadena',
+        'kadena_quicksign',
+        kadenaQuickSignHandler,
+      );
+
 
       PairingInfo pairingInfo = await wcClient.pair(PairParams(uri: uri));
       print('pairingInfo.topic = ${pairingInfo.topic}');
       print('pairingInfo.relay.protocol = ${pairingInfo.relay.protocol}');
       print('pairingInfo.peerMetadata = ${pairingInfo.peerMetadata}');
-
-      // 3.
-
-      // 3. Create Session
 
       await Future.delayed(Duration(seconds: 10000));
     });

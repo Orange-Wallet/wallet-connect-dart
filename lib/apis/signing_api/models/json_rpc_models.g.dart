@@ -153,7 +153,7 @@ Map<String, dynamic> _$WcSessionPingRequestToJson(
 WcSessionRequestRequest _$WcSessionRequestRequestFromJson(
         Map<String, dynamic> json) =>
     WcSessionRequestRequest(
-      chainId: json['chainId'] as String,
+      chainId: json['chainId'] as String, // i.e. kadena:mainnet01
       method: json['method'] as String,
       params: json['params'],
     );
