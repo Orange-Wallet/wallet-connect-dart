@@ -76,13 +76,16 @@ class WalletConnectUtils {
     Map<String, dynamic> ret = {};
     String protocol = uri.scheme;
     String path = uri.path;
-    int at = path.indexOf('@');
-    if (at == -1) {
-      throw Error(-1, 'Invalid URI: Missing @');
+    final List<String> splitParams = path.split('@');
+    if (splitParams.length == 1) {
+      throw Error(
+        code: 0,
+        message: 'Invalid URI: Missing @',
+      );
     }
     ret['protocol'] = protocol;
-    ret['topic'] = path.substring(0, at);
-    ret['version'] = path.substring(at + 1);
+    ret['topic'] = splitParams[0];
+    ret['version'] = splitParams[1];
     ret['symKey'] = uri.queryParameters['symKey']!;
     ret['relay'] = Relay(
       uri.queryParameters['relay-protocol']!,

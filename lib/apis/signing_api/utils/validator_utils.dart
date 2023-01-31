@@ -5,9 +5,10 @@ import 'package:wallet_connect_v2_dart/apis/signing_api/utils/namespace_utils.da
 import 'package:wallet_connect_v2_dart/apis/utils/errors.dart';
 
 class ValidatorUtils {
-  static bool isSessionCompatible(SessionData session, FindParams params) {
-    Map<String, RequiredNamespace> requiredNamespaces =
-        params.requiredNamespaces;
+  static bool isSessionCompatible(
+    SessionData session,
+    Map<String, RequiredNamespace> requiredNamespaces,
+  ) {
     List<String> sessionKeys = session.namespaces.keys.toList();
     List<String> paramsKeys = requiredNamespaces.keys.toList();
     bool compatible = true;

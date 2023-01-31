@@ -83,9 +83,10 @@ void main() {
           final pairingATopic = connectionInfo.pairing.topic;
           final reason = Errors.getSdkError("USER_DISCONNECTED");
           await clientA.disconnect(
-            DisconnectParams(
-              topic: pairingATopic,
-              reason: ErrorResponse(0, reason),
+            topic: pairingATopic,
+            reason: ErrorResponse(
+              code: reason.code,
+              message: reason.message,
             ),
           );
           expect(
@@ -95,9 +96,7 @@ void main() {
           await clientA.core.relayClient.disconnect();
           await clientA.core.relayClient.disconnect();
           final promise = clientA.ping(
-            PingParams(
-              topic: pairingATopic,
-            ),
+            topic: pairingATopic,
           );
           expect(
             promise,
@@ -121,9 +120,10 @@ void main() {
           final sessionATopic = connectionInfo.pairing.topic;
           final reason = Errors.getSdkError("USER_DISCONNECTED");
           await clientA.disconnect(
-            DisconnectParams(
-              topic: sessionATopic,
-              reason: ErrorResponse(0, reason),
+            topic: sessionATopic,
+            reason: ErrorResponse(
+              code: reason.code,
+              message: reason.message,
             ),
           );
           await clientA.core.relayClient.disconnect();
@@ -138,9 +138,7 @@ void main() {
           () async {
         final fakeTopic = "nonsense";
         final promise = clientA.ping(
-          PingParams(
-            topic: fakeTopic,
-          ),
+          topic: fakeTopic,
         );
         expect(
           promise,
@@ -161,7 +159,7 @@ void main() {
             clientB,
           );
           final pairingATopic = connectionInfo.pairing.topic;
-          await clientA.ping(PingParams(topic: pairingATopic));
+          await clientA.ping(topic: pairingATopic);
         });
         test("B pings A", () async {
           final connectionInfo = await SignClientHelpers.testConnectMethod(
@@ -169,7 +167,7 @@ void main() {
             clientB,
           );
           final pairingATopic = connectionInfo.pairing.topic;
-          await clientB.ping(PingParams(topic: pairingATopic));
+          await clientB.ping(topic: pairingATopic);
         });
       });
     });
@@ -182,7 +180,7 @@ void main() {
             clientB,
           );
           final pairingATopic = connectionInfo.pairing.topic;
-          await clientA.ping(PingParams(topic: pairingATopic));
+          await clientA.ping(topic: pairingATopic);
         });
         test("B pings A", () async {
           final connectionInfo = await SignClientHelpers.testConnectMethod(
@@ -190,7 +188,7 @@ void main() {
             clientB,
           );
           final pairingATopic = connectionInfo.pairing.topic;
-          await clientB.ping(PingParams(topic: pairingATopic));
+          await clientB.ping(topic: pairingATopic);
         });
       });
     });
@@ -215,12 +213,8 @@ void main() {
         };
 
         await clientA.update(
-          UpdateParams(
-            topic: sessionATopic,
-            namespaces: WcSessionUpdateRequest(
-              namespaces: namespacesAfter,
-            ),
-          ),
+          topic: sessionATopic,
+          namespaces: namespacesAfter,
         );
         final resultA = clientA.engine.sessions.get(sessionATopic)!.namespaces;
         final resultB = clientB.engine.sessions.get(sessionATopic)!.namespaces;

@@ -172,18 +172,32 @@ class SessionRequestParams {
 
 @JsonSerializable()
 class WcSessionEventRequest {
-  final String name;
-  final dynamic data;
   final String chainId;
+  final SessionEventParams event;
 
   WcSessionEventRequest({
-    required this.name,
-    required this.data,
     required this.chainId,
+    required this.event,
   });
 
   factory WcSessionEventRequest.fromJson(Map<String, dynamic> json) =>
       _$WcSessionEventRequestFromJson(json);
 
   Map<String, dynamic> toJson() => _$WcSessionEventRequestToJson(this);
+}
+
+@JsonSerializable()
+class SessionEventParams {
+  final String name;
+  final dynamic data;
+
+  SessionEventParams({
+    required this.name,
+    required this.data,
+  });
+
+  factory SessionEventParams.fromJson(Map<String, dynamic> json) =>
+      _$SessionEventParamsFromJson(json);
+
+  Map<String, dynamic> toJson() => _$SessionEventParamsToJson(this);
 }

@@ -118,7 +118,7 @@ class SignClientConstants {
 
   static final TEST_UPDATE_PARAMS = UpdateParams(
     topic: '123',
-    namespaces: WcSessionUpdateRequest(namespaces: TEST_NAMESPACES),
+    namespaces: TEST_NAMESPACES,
   );
 
   static final TEST_REQUEST_PARAMS = RequestParams(

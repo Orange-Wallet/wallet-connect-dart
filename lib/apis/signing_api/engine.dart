@@ -94,15 +94,19 @@ class Engine implements IEngine {
   }
 
   @override
-  Future<ConnectResponse> connect(ConnectParams params) async {
+  Future<ConnectResponse> connect({
+    required Map<String, RequiredNamespace> requiredNamespaces,
+    String? pairingTopic,
+    List<Relay>? relays,
+  }) async {
     _checkInitialized();
 
     await _isValidConnect(
-      params.requiredNamespaces,
-      params.pairingTopic,
-      params.relays,
+      requiredNamespaces,
+      pairingTopic,
+      relays,
     );
-    String? topic = params.pairingTopic;
+    String? topic = pairingTopic;
     Uri? uri;
     bool active = false;
 
@@ -122,10 +126,10 @@ class Engine implements IEngine {
     final int id = PairingUtils.payloadId();
 
     final WcSessionProposeRequest request = WcSessionProposeRequest(
-      relays: params.relays == null
+      relays: relays == null
           ? [Relay(WalletConnectConstants.RELAYER_DEFAULT_PROTOCOL)]
-          : params.relays!,
-      requiredNamespaces: params.requiredNamespaces,
+          : relays,
+      requiredNamespaces: requiredNamespaces,
       proposer: ConnectionMetadata(
         publicKey: publicKey,
         metadata: selfMetadata,
@@ -202,25 +206,31 @@ class Engine implements IEngine {
   }
 
   @override
-  Future<PairingInfo> pair(PairParams params) async {
+  Future<PairingInfo> pair({
+    required Uri uri,
+  }) async {
     _checkInitialized();
 
-    return await core.pairing.pair(params.uri);
+    return await core.pairing.pair(uri);
   }
 
   /// Approves a proposal with the id provided in the parameters.
   /// Assumes the proposal is already created.
   @override
-  Future<ApproveResponse> approve(ApproveParams params) async {
+  Future<ApproveResponse> approve({
+    required int id,
+    required Map<String, Namespace> namespaces,
+    String? relayProtocol,
+  }) async {
     _checkInitialized();
 
     await _isValidApprove(
-      params.id,
-      params.namespaces,
-      params.relayProtocol,
+      id,
+      namespaces,
+      relayProtocol,
     );
     final ProposalData proposal = proposals.get(
-      params.id.toString(),
+      id.toString(),
     )!;
 
     final String selfPubKey = await core.crypto.generateKeyPair();
@@ -231,15 +241,15 @@ class Engine implements IEngine {
     );
     // print('approve session topic: $sessionTopic');
     final relay = Relay(
-      params.relayProtocol != null ? params.relayProtocol! : 'irn',
+      relayProtocol != null ? relayProtocol! : 'irn',
     );
     final int expiry = WalletConnectUtils.calculateExpiry(
       WalletConnectConstants.SEVEN_DAYS,
     );
     final request = WcSessionSettleRequest(
-      id: params.id,
+      id: id,
       relay: relay,
-      namespaces: params.namespaces,
+      namespaces: namespaces,
       requiredNamespaces: proposal.requiredNamespaces,
       expiry: expiry,
       controller: ConnectionMetadata(
@@ -250,24 +260,24 @@ class Engine implements IEngine {
 
     // If we received this request from somewhere, respond with the sessionTopic
     // so they can update their listener.
-    // print('approve requestId: ${params.id}');
+    // print('approve requestId: ${id}');
 
-    if (proposal.pairingTopic != null && params.id > 0) {
+    if (proposal.pairingTopic != null && id > 0) {
       // print('approve proposal topic: ${proposal.pairingTopic!}');
       await core.pairing.sendResult(
-        params.id,
+        id,
         proposal.pairingTopic!,
         'wc_sessionPropose',
         WcSessionProposeResponse(
           relay: Relay(
-            params.relayProtocol != null
-                ? params.relayProtocol!
+            relayProtocol != null
+                ? relayProtocol
                 : WalletConnectConstants.RELAYER_DEFAULT_PROTOCOL,
           ),
           responderPublicKey: selfPubKey,
         ).toJson(),
       );
-      await _deleteProposal(params.id);
+      await _deleteProposal(id);
       await core.pairing.activate(proposal.pairingTopic!);
 
       await core.pairing.updateMetadata(
@@ -289,7 +299,7 @@ class Engine implements IEngine {
       expiry: expiry,
       acknowledged: acknowledged,
       controller: selfPubKey,
-      namespaces: params.namespaces,
+      namespaces: namespaces,
       self: ConnectionMetadata(
         publicKey: selfPubKey,
         metadata: selfMetadata,
@@ -309,56 +319,64 @@ class Engine implements IEngine {
   }
 
   @override
-  Future<void> reject(RejectParams params) async {
+  Future<void> reject({
+    required int id,
+    required ErrorResponse reason,
+  }) async {
     _checkInitialized();
 
-    await _isValidReject(params);
+    await _isValidReject(id, reason);
 
-    ProposalData? proposal = proposals.get(params.id.toString());
+    ProposalData? proposal = proposals.get(id.toString());
     if (proposal != null && proposal.pairingTopic != null) {
       await core.pairing.sendError(
-        params.id,
+        id,
         proposal.pairingTopic!,
         'wc_sessionPropose',
         JsonRpcError.serverError('User rejected request'),
       );
-      await _deleteProposal(params.id);
+      await _deleteProposal(id);
     }
   }
 
   @override
-  Future<void> update(UpdateParams params) async {
+  Future<void> update({
+    required String topic,
+    required Map<String, Namespace> namespaces,
+  }) async {
     _checkInitialized();
     await _isValidUpdate(
-      params.topic,
-      params.namespaces.namespaces,
+      topic,
+      namespaces,
     );
 
     await sessions.update(
-      params.topic,
-      namespaces: params.namespaces.namespaces,
+      topic,
+      namespaces: namespaces,
     );
 
     await core.pairing.sendRequest(
-      params.topic,
+      topic,
       'wc_sessionUpdate',
-      params.namespaces.toJson(),
+      WcSessionUpdateRequest(namespaces: namespaces).toJson(),
     );
   }
 
   @override
-  Future<void> extend(ExtendParams params) async {
+  Future<void> extend({
+    required String topic,
+  }) async {
     _checkInitialized();
-    await _isValidSessionTopic(params.topic);
+    await _isValidSessionTopic(topic);
 
     await core.pairing.sendRequest(
-      params.topic,
+      topic,
       'wc_sessionUpdate',
       {},
     );
 
     await _setExpiry(
-      params.topic,
+      topic,
       WalletConnectUtils.calculateExpiry(
         WalletConnectConstants.SEVEN_DAYS,
       ),
@@ -368,91 +386,112 @@ class Engine implements IEngine {
   /// Maps a request using chainId:method to its handler
   Map<String, dynamic Function(dynamic)> requestHandlers = {};
 
-  String getRequestMethodKey(String chainId, String method) {
-    return '$chainId:$method';
+  String getRequestMethodKey(String namespace, String method) {
+    return '$namespace:$method';
   }
 
-  void registerRequestHandler(
-    String chainId,
-    String method,
-    dynamic Function(dynamic) handler,
-  ) {
+  void registerRequestHandler({
+    required String chainId,
+    required String method,
+    required dynamic Function(dynamic) handler,
+  }) {
     _checkInitialized();
     requestHandlers[getRequestMethodKey(chainId, method)] = handler;
   }
 
   @override
-  Future request(RequestParams params) async {
+  Future request({
+    required String topic,
+    required String chainId,
+    required SessionRequestParams request,
+  }) async {
     _checkInitialized();
     await _isValidRequest(
-      params.topic,
-      params.request,
+      topic,
+      chainId,
+      request,
     );
-    Map<String, dynamic> payload = params.request.toJson();
-    payload['chainId'] = params.request.chainId;
+    Map<String, dynamic> payload = WcSessionRequestRequest(
+      chainId: chainId,
+      request: request,
+    ).toJson();
+    request.toJson();
     return await core.pairing.sendRequest(
-      params.topic,
+      topic,
       'wc_sessionRequest',
       payload,
     );
   }
 
   @override
-  Future<void> ping(PingParams params) async {
+  Future<void> ping({
+    required String topic,
+  }) async {
     _checkInitialized();
-    await _isValidPing(params.topic);
+    await _isValidPing(topic);
 
-    if (sessions.has(params.topic)) {
+    if (sessions.has(topic)) {
       bool pong = await core.pairing.sendRequest(
-        params.topic,
+        topic,
         'wc_sessionPing',
         {},
       );
-    } else if (core.pairing.getStore().has(params.topic)) {
-      await core.pairing.ping(params.topic);
+    } else if (core.pairing.getStore().has(topic)) {
+      await core.pairing.ping(topic);
     }
   }
 
   @override
-  Future<void> emit(EmitParams params) async {
+  Future<void> emit({
+    required String topic,
+    required String chainId,
+    required SessionEventParams event,
+  }) async {
     _checkInitialized();
     await _isValidEmit(
-      params.topic,
-      params.event,
-      params.chainId,
+      topic,
+      event,
+      chainId,
     );
-    Map<String, dynamic> payload = params.event.toJson();
-    payload['chainId'] = params.chainId;
+    Map<String, dynamic> payload = WcSessionEventRequest(
+      chainId: chainId,
+      event: event,
+    ).toJson();
     await core.pairing.sendRequest(
-      params.topic,
+      topic,
       'wc_sessionEvent',
       payload,
     );
   }
 
   @override
-  Future<void> disconnect(DisconnectParams params) async {
+  Future<void> disconnect({
+    required String topic,
+    required ErrorResponse reason,
+  }) async {
     _checkInitialized();
-    _isValidDisconnect(params.topic);
+    _isValidDisconnect(topic);
 
-    if (sessions.has(params.topic)) {
+    if (sessions.has(topic)) {
       await core.pairing.sendRequest(
-        params.topic,
+        topic,
         "wc_sessionDelete",
         Errors.getSdkError(Errors.USER_DISCONNECTED).toJson(),
       );
-      await _deleteSession(params.topic);
+      await _deleteSession(topic);
     } else {
-      await core.pairing.disconnect(params.topic);
+      await core.pairing.disconnect(topic);
     }
   }
 
   @override
-  SessionData find(FindParams params) {
+  SessionData find({
+    required Map<String, RequiredNamespace> requiredNamespaces,
+  }) {
     _checkInitialized();
     return sessions.getAll().firstWhere(
       (element) {
-        return ValidatorUtils.isSessionCompatible(element, params);
+        return ValidatorUtils.isSessionCompatible(element, requiredNamespaces);
       },
     );
   }
@@ -789,7 +828,8 @@ class Engine implements IEngine {
       final request = WcSessionRequestRequest.fromJson(payload.params);
       await _isValidRequest(
         topic,
-        request,
+        request.chainId,
+        request.request,
       );
 
       final String methodKey = getRequestMethodKey(
@@ -825,7 +865,7 @@ class Engine implements IEngine {
           topic,
           payload.method,
           JsonRpcError.methodNotFound(
-            'No handler found for method: ${methodKey}',
+            'No handler found for chainId:method -> ${methodKey}',
           ),
         );
       }
@@ -857,9 +897,10 @@ class Engine implements IEngine {
   ) async {
     try {
       final request = WcSessionEventRequest.fromJson(payload.params);
+      final SessionEventParams event = request.event;
       await _isValidEmit(
         topic,
-        request,
+        event,
         request.chainId,
       );
       // await core.pairing.sendResult(
@@ -872,9 +913,9 @@ class Engine implements IEngine {
         SessionEvent(
           payload.id,
           topic,
-          request.name,
+          event.name,
           request.chainId,
-          request.data,
+          event.data,
         ),
       );
     } on Error catch (err) {
@@ -1026,7 +1067,7 @@ class Engine implements IEngine {
     return true;
   }
 
-  Future<bool> _isValidReject(params) async {
+  Future<bool> _isValidReject(int id, ErrorResponse reason) async {
     return true;
   }
 
@@ -1064,18 +1105,19 @@ class Engine implements IEngine {
 
   Future<bool> _isValidRequest(
     String topic,
-    WcSessionRequestRequest request,
+    String chainId,
+    SessionRequestParams request,
   ) async {
     await _isValidSessionTopic(topic);
     final SessionData session = sessions.get(topic)!;
     ValidatorUtils.isValidNamespacesChainId(
       session.namespaces,
-      request.chainId,
+      chainId,
     );
     ValidatorUtils.isValidNamespacesRequest(
       session.namespaces,
-      request.chainId,
-      request.request.method,
+      chainId,
+      request.method,
     );
 
     return true;
@@ -1099,7 +1141,7 @@ class Engine implements IEngine {
 
   Future<bool> _isValidEmit(
     String topic,
-    WcSessionEventRequest event,
+    SessionEventParams event,
     String chainId,
   ) async {
     await _isValidSessionTopic(topic);

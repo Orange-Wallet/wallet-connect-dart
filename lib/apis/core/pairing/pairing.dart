@@ -132,7 +132,10 @@ class Pairing implements IPairing {
   @override
   void register(String method, Function f) {
     if (routerMapRequest.containsKey(method)) {
-      throw Error(-1, 'Method already exists');
+      throw Error(
+        code: -1,
+        message: 'Method already exists',
+      );
     }
 
     routerMapRequest[method] = f;

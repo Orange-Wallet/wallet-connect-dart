@@ -1,10 +1,14 @@
 import 'package:event/event.dart';
 import 'package:wallet_connect_v2_dart/apis/core/pairing/i_pairing_store.dart';
+import 'package:wallet_connect_v2_dart/apis/core/relay_client/relay_client_models.dart';
+import 'package:wallet_connect_v2_dart/apis/models/basic_errors.dart';
 import 'package:wallet_connect_v2_dart/apis/signing_api/engine.dart';
 import 'package:wallet_connect_v2_dart/apis/signing_api/i_engine.dart';
 import 'package:wallet_connect_v2_dart/apis/core/pairing/pairing_models.dart';
 import 'package:wallet_connect_v2_dart/apis/core/i_core.dart';
 import 'package:wallet_connect_v2_dart/apis/signing_api/i_sign_client.dart';
+import 'package:wallet_connect_v2_dart/apis/signing_api/models/json_rpc_models.dart';
+import 'package:wallet_connect_v2_dart/apis/signing_api/models/proposal_models.dart';
 import 'package:wallet_connect_v2_dart/apis/signing_api/models/signing_models.dart';
 import 'package:wallet_connect_v2_dart/apis/signing_api/models/sign_client_models.dart';
 import 'package:wallet_connect_v2_dart/apis/signing_api/models/session_models.dart';
@@ -89,71 +93,45 @@ class SignClient implements ISignClient {
   }
 
   @override
-  Future<ConnectResponse> connect(ConnectParams params) async {
-    return await engine.connect(params);
-    // try {
-    // } catch (e) {
-    //   print(e);
-    //   throw e;
-    // }
+  Future<ConnectResponse> connect({
+    required Map<String, RequiredNamespace> requiredNamespaces,
+    String? pairingTopic,
+    List<Relay>? relays,
+  }) async {
+    try {
+      return await engine.connect(
+        requiredNamespaces: requiredNamespaces,
+        pairingTopic: pairingTopic,
+        relays: relays,
+      );
+    } catch (e) {
+      print(e);
+      throw e;
+    }
   }
 
   @override
-  Future<PairingInfo> pair(PairParams params) async {
+  Future<PairingInfo> pair({
+    required Uri uri,
+  }) async {
     try {
-      return await engine.pair(params);
+      return await engine.pair(uri: uri);
     } catch (e) {
       throw e;
     }
   }
 
   @override
-  Future<ApproveResponse> approve(ApproveParams params) async {
-    return await engine.approve(params);
-    // try {
-    // } catch (e) {
-    //   throw e;
-    // }
-  }
-
-  @override
-  Future<void> reject(RejectParams params) async {
+  Future<ApproveResponse> approve({
+    required int id,
+    required Map<String, Namespace> namespaces,
+    String? relayProtocol,
+  }) async {
     try {
-      return await engine.reject(params);
-    } catch (e) {
-      throw e;
-    }
-  }
-
-  @override
-  Future<void> update(UpdateParams params) async {
-    try {
-      return await engine.update(params);
-    } catch (e) {
-      throw e;
-    }
-  }
-
-  @override
-  Future<void> extend(ExtendParams params) async {
-    try {
-      return await engine.extend(params);
-    } catch (e) {
-      throw e;
-    }
-  }
-
-  @override
-  void registerRequestHandler(
-    String chainId,
-    String method,
-    void Function(dynamic) handler,
-  ) {
-    try {
-      return engine.registerRequestHandler(
-        chainId,
-        method,
-        handler,
+      return await engine.approve(
+        id: id,
+        namespaces: namespaces,
+        relayProtocol: relayProtocol,
       );
     } catch (e) {
       throw e;
@@ -161,45 +139,129 @@ class SignClient implements ISignClient {
   }
 
   @override
-  Future request(RequestParams params) async {
-    return await engine.request(params);
-    // try {
-    // } catch (e) {
-    //   throw e;
-    // }
-  }
-
-  @override
-  Future<void> emit(EmitParams params) async {
+  Future<void> reject({
+    required int id,
+    required ErrorResponse reason,
+  }) async {
     try {
-      return await engine.emit(params);
+      return await engine.reject(
+        id: id,
+        reason: reason,
+      );
     } catch (e) {
       throw e;
     }
   }
 
   @override
-  Future<void> ping(PingParams params) async {
+  Future<void> update({
+    required String topic,
+    required Map<String, Namespace> namespaces,
+  }) async {
     try {
-      return await engine.ping(params);
+      return await engine.update(
+        topic: topic,
+        namespaces: namespaces,
+      );
     } catch (e) {
       throw e;
     }
   }
 
   @override
-  Future<void> disconnect(DisconnectParams params) async {
+  Future<void> extend({
+    required String topic,
+  }) async {
     try {
-      return await engine.disconnect(params);
+      return await engine.extend(topic: topic);
     } catch (e) {
       throw e;
     }
   }
 
   @override
-  SessionData find(FindParams params) {
+  void registerRequestHandler({
+    required String chainId,
+    required String method,
+    required void Function(dynamic) handler,
+  }) {
     try {
-      return engine.find(params);
+      return engine.registerRequestHandler(
+        chainId: chainId,
+        method: method,
+        handler: handler,
+      );
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  @override
+  Future request({
+    required String topic,
+    required String chainId,
+    required SessionRequestParams request,
+  }) async {
+    try {
+      return await engine.request(
+        topic: topic,
+        chainId: chainId,
+        request: request,
+      );
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  @override
+  Future<void> emit({
+    required String topic,
+    required String chainId,
+    required SessionEventParams event,
+  }) async {
+    try {
+      return await engine.emit(
+        topic: topic,
+        chainId: chainId,
+        event: event,
+      );
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  @override
+  Future<void> ping({
+    required String topic,
+  }) async {
+    try {
+      return await engine.ping(topic: topic);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  @override
+  Future<void> disconnect({
+    required String topic,
+    required ErrorResponse reason,
+  }) async {
+    try {
+      return await engine.disconnect(
+        topic: topic,
+        reason: reason,
+      );
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  @override
+  SessionData find({
+    required Map<String, RequiredNamespace> requiredNamespaces,
+  }) {
+    try {
+      return engine.find(requiredNamespaces: requiredNamespaces);
     } catch (e) {
       throw e;
     }

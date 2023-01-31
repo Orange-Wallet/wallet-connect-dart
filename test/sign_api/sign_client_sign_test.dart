@@ -56,19 +56,19 @@ void main() {
         expect(request, 'Hello');
         return 'Swag $request';
       };
-      clientB.registerRequestHandler('eth', 'test_sign', requestHandler);
+      clientB.registerRequestHandler(
+        chainId: 'eip155:1',
+        method: 'eth_signTransaction',
+        handler: requestHandler,
+      );
 
       try {
         final result = await clientA.request(
-          RequestParams(
-            topic: connectionInfo.session.topic,
-            request: WcSessionRequestRequest(
-              chainId: 'eth',
-              request: SessionRequestParams(
-                method: 'test_sign',
-                params: 'Hello',
-              ),
-            ),
+          topic: connectionInfo.session.topic,
+          chainId: 'eip155:1',
+          request: SessionRequestParams(
+            method: 'eth_signTransaction',
+            params: 'Hello',
           ),
         );
 
@@ -88,21 +88,20 @@ void main() {
 
       try {
         final result = await clientA.request(
-          RequestParams(
-            topic: connectionInfo.session.topic,
-            request: WcSessionRequestRequest(
-              chainId: 'eth',
-              request: SessionRequestParams(
-                method: 'test_sign',
-                params: 'Hello',
-              ),
-            ),
+          topic: connectionInfo.session.topic,
+          chainId: 'eip155:255',
+          request: SessionRequestParams(
+            method: 'test_sign',
+            params: 'Hello',
           ),
         );
         // print(result);
       } on JsonRpcError catch (e) {
         print(e.message);
-        expect(e.message, 'No handler found for method: eth:test_sign');
+        expect(
+          e.message,
+          'No handler found for chainId:method -> eip155:255:test_sign',
+        );
       }
     });
   });

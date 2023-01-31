@@ -182,15 +182,25 @@ Map<String, dynamic> _$SessionRequestParamsToJson(
 WcSessionEventRequest _$WcSessionEventRequestFromJson(
         Map<String, dynamic> json) =>
     WcSessionEventRequest(
-      name: json['name'] as String,
-      data: json['data'],
       chainId: json['chainId'] as String,
+      event: SessionEventParams.fromJson(json['event'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$WcSessionEventRequestToJson(
         WcSessionEventRequest instance) =>
     <String, dynamic>{
+      'chainId': instance.chainId,
+      'event': instance.event,
+    };
+
+SessionEventParams _$SessionEventParamsFromJson(Map<String, dynamic> json) =>
+    SessionEventParams(
+      name: json['name'] as String,
+      data: json['data'],
+    );
+
+Map<String, dynamic> _$SessionEventParamsToJson(SessionEventParams instance) =>
+    <String, dynamic>{
       'name': instance.name,
       'data': instance.data,
-      'chainId': instance.chainId,
     };

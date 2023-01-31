@@ -57,15 +57,11 @@ final SessionData session = await resp.session.future;
 
 // Now that you have a session, you can request signatures
 final sig = await wcClient.request(
-  RequestParams(
-    topic: session.topic,
-    request: WcSessionRequestRequest(
-      chainId: 'eip155:1',
-      request: SessionRequestParams(
-        method: 'eth_signTransaction',
-        params: 'json serializable parameters',
-      ),
-    ),
+  topic: session.topic,
+  chainId: 'eip155:1',
+  request: SessionRequestParams(
+    method: 'eth_signTransaction',
+    params: 'json serializable parameters',
   ),
 );
 ```
@@ -85,15 +81,15 @@ final handler = (dynamic params) async {
   return 'signed!';
 };
 wcClient.registerRequestHandler(
-  'kadena',
-  'kadena_sign',
-  handler,
+  namespace: 'kadena',
+  method: 'kadena_sign',
+  handler: handler,
 );
 
 // Then, scan the QR code and parse the URI, and pair with the dApp
 // On the first pairing, you will immediately receive a onSessionProposal request.
 Uri uri = Uri.parse(scannedUriString);
-await wcClient.pair(PairParams(uri: uri));
+await wcClient.pair(uri: uri);
 
 // Present the UI to the user, and allow them to reject or approve the proposal
 final walletNamespaces = {
@@ -107,17 +103,17 @@ final walletNamespaces = {
   ),
 }
 await wcClient.approve(
-  ApproveParams(
-    id: id,
-    namespaces: walletNamespaces // This will have the accounts requested in params
-  )
+  id: id,
+  namespaces: walletNamespaces // This will have the accounts requested in params
 );
 // Or to reject...
+// Error codes and reasons can be found here: https://docs.walletconnect.com/2.0/specs/clients/sign/error-codes
 await wcClient.reject(
-  RejectParams(
-    id: id,
-    reason: "Thou shall not pass!"
-  )
+  id: id,
+  reason: ErrorResponse(
+    code: 4001,
+    message: "User rejected request",
+  ),
 );
 
 // Your wallet is setup and ready to go!

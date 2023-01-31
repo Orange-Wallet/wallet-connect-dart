@@ -9,21 +9,30 @@ class Error {
   int code;
   String message;
 
-  Error(this.code, this.message);
+  Error({
+    required this.code,
+    required this.message,
+  });
 
   factory Error.fromJson(Map<String, dynamic> json) => _$ErrorFromJson(json);
 
   Map<String, dynamic> toJson() => _$ErrorToJson(this);
 }
 
-class ErrorResponse {
-  int id;
-  Error error;
+@JsonSerializable()
+class ErrorResponse extends Error {
+  String? data;
 
-  ErrorResponse(
-    this.id,
-    this.error,
-  );
+  ErrorResponse({
+    required super.code,
+    required super.message,
+    this.data,
+  });
+
+  factory ErrorResponse.fromJson(Map<String, dynamic> json) =>
+      _$ErrorResponseFromJson(json);
+
+  Map<String, dynamic> toJson() => _$ErrorResponseToJson(this);
 }
 
 class RpcOptions {

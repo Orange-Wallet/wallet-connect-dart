@@ -7,11 +7,25 @@ part of 'basic_errors.dart';
 // **************************************************************************
 
 Error _$ErrorFromJson(Map<String, dynamic> json) => Error(
-      json['code'] as int,
-      json['message'] as String,
+      code: json['code'] as int,
+      message: json['message'] as String,
     );
 
 Map<String, dynamic> _$ErrorToJson(Error instance) => <String, dynamic>{
       'code': instance.code,
       'message': instance.message,
+    };
+
+ErrorResponse _$ErrorResponseFromJson(Map<String, dynamic> json) =>
+    ErrorResponse(
+      code: json['code'] as int,
+      message: json['message'] as String,
+      data: json['data'] as String?,
+    );
+
+Map<String, dynamic> _$ErrorResponseToJson(ErrorResponse instance) =>
+    <String, dynamic>{
+      'code': instance.code,
+      'message': instance.message,
+      'data': instance.data,
     };

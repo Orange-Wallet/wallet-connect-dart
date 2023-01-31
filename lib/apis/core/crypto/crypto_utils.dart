@@ -128,8 +128,8 @@ class CryptoUtils extends ICryptoUtils {
     // Check for type 1 envelope, throw an error if data is invalid
     if (decodedType == TYPE_1 && senderPublicKey == null) {
       throw Error(
-        -1,
-        'Missing sender public key for type 1 envelope',
+        code: -1,
+        message: 'Missing sender public key for type 1 envelope',
       );
     }
 
@@ -183,7 +183,10 @@ class CryptoUtils extends ICryptoUtils {
 
     if (type == TYPE_1) {
       if (senderPublicKey == null) {
-        throw Error(-1, 'Missing sender public key for type 1 envelope');
+        throw Error(
+          code: -1,
+          message: 'Missing sender public key for type 1 envelope',
+        );
       }
 
       l.addAll(senderPublicKey);
@@ -248,10 +251,10 @@ class CryptoUtils extends ICryptoUtils {
     final int t = type != null ? type : TYPE_0;
     if (t == TYPE_1) {
       if (senderPublicKey == null) {
-        throw new Error(-1, "Missing sender public key");
+        throw new Error(code: -1, message: "Missing sender public key");
       }
       if (receiverPublicKey == null) {
-        throw new Error(-1, "Missing receiver public key");
+        throw new Error(code: -1, message: "Missing receiver public key");
       }
     }
     return EncodingValidation(

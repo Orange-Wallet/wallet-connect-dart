@@ -87,7 +87,7 @@ class RejectParams {
 
 class UpdateParams {
   final String topic;
-  final WcSessionUpdateRequest namespaces;
+  final Map<String, Namespace> namespaces;
 
   UpdateParams({
     required this.topic,

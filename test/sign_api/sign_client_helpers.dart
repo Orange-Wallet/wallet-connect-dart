@@ -30,13 +30,17 @@ class SignClientHelpers {
     int? qrCodeScanLatencyMs,
   }) async {
     final start = DateTime.now().millisecondsSinceEpoch;
-    final connectParams = ConnectParams(
-      requiredNamespaces: requiredNamespaces != null
-          ? requiredNamespaces
-          : SignClientConstants.TEST_REQUIRED_NAMESPACES,
-      pairingTopic: pairingTopic,
-      relays: relays != null ? relays : [],
-    );
+    final Map<String, RequiredNamespace> reqNamespaces =
+        requiredNamespaces != null
+            ? requiredNamespaces
+            : SignClientConstants.TEST_REQUIRED_NAMESPACES;
+    // final connectParams = ConnectParams(
+    //   requiredNamespaces: requiredNamespaces != null
+    //       ? requiredNamespaces
+    //       : SignClientConstants.TEST_REQUIRED_NAMESPACES,
+    //   pairingTopic: pairingTopic,
+    //   relays: relays != null ? relays : [],
+    // );
 
     Map<String, Namespace> workingNamespaces =
         namespaces != null ? namespaces : SignClientConstants.TEST_NAMESPACES;
@@ -49,14 +53,12 @@ class SignClientHelpers {
       // print('B Session Proposal');
       expect(
         args!.params.requiredNamespaces,
-        connectParams.requiredNamespaces,
+        reqNamespaces,
       );
 
       ApproveResponse response = await b.approve(
-        ApproveParams(
-          id: args.id,
-          namespaces: workingNamespaces,
-        ),
+        id: args.id,
+        namespaces: workingNamespaces,
       );
       sessionB = response.session;
       // print('B Session assigned: $sessionB');
@@ -65,7 +67,9 @@ class SignClientHelpers {
 
     // Connect to client b from a, this will trigger the above event
     ConnectResponse connectResponse = await a.connect(
-      connectParams,
+      requiredNamespaces: reqNamespaces,
+      pairingTopic: pairingTopic,
+      relays: relays,
     );
     Uri? uri = connectResponse.uri;
 
@@ -103,13 +107,13 @@ class SignClientHelpers {
       final timeout = Timer(Duration(milliseconds: pairTimeoutMs), () {
         throw Exception("Pair timed out after $pairTimeoutMs ms");
       });
-      pairingB = await b.pair(PairParams(uri: uri));
+      pairingB = await b.pair(uri: uri);
       timeout.cancel();
       expect(pairingA.topic, pairingB.topic);
       expect(pairingA.relay.protocol, pairingB.relay.protocol);
     } else {
-      pairingA = a.pairings.get(connectParams.pairingTopic!);
-      pairingB = b.pairings.get(connectParams.pairingTopic!);
+      pairingA = a.pairings.get(pairingTopic);
+      pairingB = b.pairings.get(pairingTopic);
     }
 
     if (pairingA == null) {

@@ -172,13 +172,13 @@ class Errors {
   }) {
     if (INTERNAL_ERRORS.containsKey(key)) {
       return new Error(
-        INTERNAL_ERRORS[key]!['code']! as int,
-        context != ''
+        code: INTERNAL_ERRORS[key]!['code']! as int,
+        message: context != ''
             ? "${INTERNAL_ERRORS[key]!['message']! as String} $context"
             : INTERNAL_ERRORS[key]!['message']! as String,
       );
     }
-    return new Error(-1, "UNKNOWN INTERNAL ERROR");
+    return new Error(code: -1, message: "UNKNOWN INTERNAL ERROR");
   }
 
   static Error getSdkError(
@@ -187,12 +187,12 @@ class Errors {
   }) {
     if (SDK_ERRORS.containsKey(key)) {
       return new Error(
-        SDK_ERRORS[key]!['code']! as int,
-        context != ''
+        code: SDK_ERRORS[key]!['code']! as int,
+        message: context != ''
             ? "${SDK_ERRORS[key]!['message']! as String} $context"
             : SDK_ERRORS[key]!['message']! as String,
       );
     }
-    return new Error(-1, "UNKNOWN SDK ERROR");
+    return new Error(code: -1, message: "UNKNOWN SDK ERROR");
   }
 }
