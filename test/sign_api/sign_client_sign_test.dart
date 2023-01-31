@@ -54,7 +54,7 @@ void main() {
 
       final requestHandler = (request) async {
         expect(request, 'Hello');
-        return 'Swag $request';
+        return {'response': 'Swag $request'};
       };
       clientB.registerRequestHandler(
         chainId: 'eip155:1',
@@ -72,7 +72,7 @@ void main() {
           ),
         );
 
-        expect(result, 'Swag Hello');
+        expect(result, {'response': 'Swag Hello'});
       } on JsonRpcError catch (e) {
         print(e);
         expect(false, true);
