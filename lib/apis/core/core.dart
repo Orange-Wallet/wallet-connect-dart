@@ -11,6 +11,7 @@ import 'package:wallet_connect_v2_dart/apis/core/store/get_storage_store.dart';
 import 'package:wallet_connect_v2_dart/apis/core/store/i_store.dart';
 import 'package:wallet_connect_v2_dart/apis/core/relay_client/i_relay_client.dart';
 import 'package:wallet_connect_v2_dart/apis/core/pairing/i_pairing.dart';
+import 'package:wallet_connect_v2_dart/apis/core/store/shared_prefs_store.dart';
 
 class Core implements ICore {
   @override
@@ -47,7 +48,7 @@ class Core implements ICore {
     required this.projectId,
     bool memoryStore = false,
   }) {
-    storage = GetStorageStore(
+    storage = SharedPrefsStores(
       <String, dynamic>{},
       memoryStore: memoryStore,
     );

@@ -1,8 +1,8 @@
 # Overview
 
-Wallet Connect V2 client forked from <https://github.com/Orange-Wallet/wallet-connect-dart> and heavily extended and tested.
+Wallet Connect v2 Library, heavily inspired by the WC2 Javacript Monorepo.
 
-This library currently only contains the Signing API as per the Wallet Connect v2 Spec.
+This library currently only contains the Signing API as defined in the Wallet Connect v2 Spec.
 
 # To Use
 
