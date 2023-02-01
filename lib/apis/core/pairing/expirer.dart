@@ -123,9 +123,11 @@ class Expirer implements IExpirer {
 
   @override
   Future<void> restore() async {
-    expirations = WalletConnectUtils.convertMapTo<int>(
-      core.storage.get(storageKey),
-    );
+    if (core.storage.has(storageKey)) {
+      expirations = WalletConnectUtils.convertMapTo<int>(
+        core.storage.get(storageKey),
+      );
+    }
   }
 
   void _checkInitialized() {

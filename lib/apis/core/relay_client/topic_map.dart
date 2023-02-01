@@ -66,9 +66,11 @@ class TopicMap implements ITopicMap {
 
   @override
   Future<void> restore() async {
-    topicMap = WalletConnectUtils.convertMapTo<String>(
-      core.storage.get(storageKey),
-    );
+    if (core.storage.has(storageKey)) {
+      topicMap = WalletConnectUtils.convertMapTo<String>(
+        core.storage.get(storageKey),
+      );
+    }
   }
 
   void _checkInitialized() {

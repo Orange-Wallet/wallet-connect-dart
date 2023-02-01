@@ -104,13 +104,15 @@ class Sessions implements ISessions {
 
   @override
   Future<void> restore() async {
-    dataStrings = WalletConnectUtils.convertMapTo<String>(
-      core.storage.get(storageKey),
-    );
-    for (var entry in dataStrings.entries) {
-      data[entry.key] = SessionData.fromJson(
-        jsonDecode(entry.value),
+    if (core.storage.has(storageKey)) {
+      dataStrings = WalletConnectUtils.convertMapTo<String>(
+        core.storage.get(storageKey),
       );
+      for (var entry in dataStrings.entries) {
+        data[entry.key] = SessionData.fromJson(
+          jsonDecode(entry.value),
+        );
+      }
     }
   }
 

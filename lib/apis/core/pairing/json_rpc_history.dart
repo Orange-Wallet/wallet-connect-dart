@@ -125,9 +125,11 @@ class JsonRpcHistory implements IJsonRpcHistory {
 
   @override
   Future<void> restore() async {
-    history = WalletConnectUtils.convertMapTo<Map<String, dynamic>>(
-      core.storage.get(storageKey),
-    );
+    if (core.storage.has(storageKey)) {
+      history = WalletConnectUtils.convertMapTo<Map<String, dynamic>>(
+        core.storage.get(storageKey),
+      );
+    }
   }
 
   void _checkInitialized() {

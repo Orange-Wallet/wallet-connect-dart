@@ -84,9 +84,11 @@ class KeyChain implements IKeyChain {
 
   @override
   Future<void> restore() async {
-    keyChain = WalletConnectUtils.convertMapTo<String>(
-      core.storage.get(storageKey),
-    ); // as Map<String, String>;
+    if (core.storage.has(storageKey)) {
+      keyChain = WalletConnectUtils.convertMapTo<String>(
+        core.storage.get(storageKey),
+      );
+    }
   }
 
   void _checkInitialized() {

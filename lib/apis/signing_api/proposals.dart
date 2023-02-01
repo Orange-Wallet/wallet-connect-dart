@@ -81,13 +81,15 @@ class Proposals implements IProposals {
 
   @override
   Future<void> restore() async {
-    dataStrings = WalletConnectUtils.convertMapTo<String>(
-      core.storage.get(storageKey),
-    );
-    for (var entry in dataStrings.entries) {
-      data[entry.key] = ProposalData.fromJson(
-        jsonDecode(entry.value),
+    if (core.storage.has(storageKey)) {
+      dataStrings = WalletConnectUtils.convertMapTo<String>(
+        core.storage.get(storageKey),
       );
+      for (var entry in dataStrings.entries) {
+        data[entry.key] = ProposalData.fromJson(
+          jsonDecode(entry.value),
+        );
+      }
     }
   }
 

@@ -108,13 +108,15 @@ class PairingStore implements IPairingStore {
 
   @override
   Future<void> restore() async {
-    pairingStrings = WalletConnectUtils.convertMapTo<String>(
-      core.storage.get(storageKey),
-    );
-    for (var entry in pairingStrings.entries) {
-      pairings[entry.key] = PairingInfo.fromJson(
-        jsonDecode(entry.value),
+    if (core.storage.has(storageKey)) {
+      pairingStrings = WalletConnectUtils.convertMapTo<String>(
+        core.storage.get(storageKey),
       );
+      for (var entry in pairingStrings.entries) {
+        pairings[entry.key] = PairingInfo.fromJson(
+          jsonDecode(entry.value),
+        );
+      }
     }
   }
 
