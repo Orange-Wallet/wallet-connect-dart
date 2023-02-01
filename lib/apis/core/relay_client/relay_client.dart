@@ -6,15 +6,15 @@ import 'package:json_rpc_2/json_rpc_2.dart';
 import 'package:wallet_connect_v2_dart/apis/core/i_core.dart';
 import 'package:wallet_connect_v2_dart/apis/core/relay_client/i_message_tracker.dart';
 import 'package:wallet_connect_v2_dart/apis/core/relay_client/i_relay_client.dart';
+import 'package:wallet_connect_v2_dart/apis/core/relay_client/i_topic_map.dart';
 import 'package:wallet_connect_v2_dart/apis/core/relay_client/message_tracker.dart';
 import 'package:wallet_connect_v2_dart/apis/core/relay_client/relay_client_models.dart';
 import 'package:wallet_connect_v2_dart/apis/core/relay_client/topic_map.dart';
+import 'package:wallet_connect_v2_dart/apis/models/basic_errors.dart';
 import 'package:wallet_connect_v2_dart/apis/utils/constants.dart';
 import 'package:wallet_connect_v2_dart/apis/utils/errors.dart';
 import 'package:wallet_connect_v2_dart/apis/utils/wallet_connect_utils.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
-
-import 'i_topic_map.dart';
 
 class RelayClient implements IRelayClient {
   static const JSON_RPC_PUBLISH = 'publish';
@@ -65,13 +65,11 @@ class RelayClient implements IRelayClient {
 
   ICore core;
 
-  final bool test;
-
   RelayClient(
     this.core, {
     this.messageTracker,
     this.topicMap,
-    this.test = false,
+    // this.test = false,
     relayUrl = WalletConnectConstants.RELAYER_DEFAULT_PROTOCOL,
   });
 
@@ -102,10 +100,10 @@ class RelayClient implements IRelayClient {
     jsonRPC.listen();
 
     // Initialize all of our stores
-    if (test) {
-      _initialized = true;
-      return;
-    }
+    // if (test) {
+    //   _initialized = true;
+    //   return;
+    // }
     messageTracker ??= MessageTracker(core);
     topicMap ??= TopicMap(core);
     Future.wait([
@@ -201,26 +199,37 @@ class RelayClient implements IRelayClient {
   /// PRIVATE FUNCTIONS ///
 
   Future<Peer> _createJsonRPCProvider() async {
-    if (test) {
-      StreamController<String> data = StreamController.broadcast();
-      return Peer(StreamChannel(data.stream, data.sink));
-    }
+    // if (test) {
+    //   StreamController<String> data = StreamController.broadcast();
+    //   return Peer(StreamChannel(data.stream, data.sink));
+    // }
 
     var auth = await core.crypto.signJWT(core.relayUrl);
-    socket = WebSocketChannel.connect(
-      Uri.parse(
-        WalletConnectUtils.formatRelayRpcUrl(
-          protocol: WalletConnectConstants.CORE_PROTOCOL,
-          version: WalletConnectConstants.CORE_VERSION,
-          relayUrl: core.relayUrl,
-          sdkVersion: WalletConnectConstants.SDK_VERSION,
-          auth: auth,
-          projectId: core.projectId,
+    try {
+      socket = WebSocketChannel.connect(
+        Uri.parse(
+          WalletConnectUtils.formatRelayRpcUrl(
+            protocol: WalletConnectConstants.CORE_PROTOCOL,
+            version: WalletConnectConstants.CORE_VERSION,
+            relayUrl: core.relayUrl,
+            sdkVersion: WalletConnectConstants.SDK_VERSION,
+            auth: auth,
+            projectId: core.projectId,
+          ),
         ),
-      ),
-    );
+      );
 
-    return Peer(socket.cast<String>());
+      await socket.ready;
+
+      return Peer(socket.cast<String>());
+    } catch (e) {
+      onRelayClientError.broadcast(ErrorEvent(e));
+      throw Error(
+        code: 401,
+        message:
+            "Project ID doesn't exist, is invalid, or has too many requests",
+      );
+    }
   }
 
   String _buildMethod(String method) {

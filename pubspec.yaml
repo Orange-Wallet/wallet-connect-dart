@@ -24,9 +24,9 @@ dependencies:
   ed25519_edwards: ^0.3.1
   json_rpc_2: ^3.0.2
   event: ^2.1.2
-  get_storage: ^2.0.3
   stream_channel: ^2.1.0
   shared_preferences: ^2.0.17
+  universal_io: ^2.0.4
 
 dev_dependencies:
   flutter_test:

@@ -1,5 +1,4 @@
-import 'dart:io';
-
+import 'package:universal_io/io.dart';
 import 'package:wallet_connect_v2_dart/apis/core/relay_client/relay_client_models.dart';
 import 'package:wallet_connect_v2_dart/apis/models/basic_errors.dart';
 
