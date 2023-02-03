@@ -46,40 +46,42 @@ void main() {
       await clientA.core.relayClient.disconnect();
     });
 
-    test('Can register a request handler and call it', () async {
+    test('Can register an event handler and recieve events with it', () async {
       final connectionInfo = await SignClientHelpers.testConnectMethod(
         clientA,
         clientB,
       );
       final sessionTopic = connectionInfo.session.topic;
 
-      clientB.onSessionRequest.subscribe((SessionRequest? session) {
+      clientB.onSessionEvent.subscribe((SessionEvent? session) {
         expect(session != null, true);
         expect(session!.topic, sessionTopic);
-        expect(session.params, "Hello");
+        expect(session.data, "Hello");
       });
 
       final requestHandler = (topic, request) async {
+        expect(topic, sessionTopic);
         expect(request, 'Hello');
-        return {'response': '$topic: Swag $request'};
+
+        // Events return no responses
       };
-      clientB.registerRequestHandler(
+      clientB.registerEventHandler(
         chainId: 'eip155:1',
-        method: 'eth_signTransaction',
+        event: 'kadena_transaction_updated',
         handler: requestHandler,
       );
 
       try {
-        final result = await clientA.request(
+        await clientA.emit(
           topic: connectionInfo.session.topic,
           chainId: 'eip155:1',
-          request: SessionRequestParams(
-            method: 'eth_signTransaction',
-            params: 'Hello',
+          event: SessionEventParams(
+            name: 'kadena_transaction_updated',
+            data: 'Hello',
           ),
         );
 
-        expect(result, {'response': '$sessionTopic: Swag Hello'});
+        // Events receive no responses
       } on JsonRpcError catch (e) {
         print(e);
         expect(false, true);
@@ -88,33 +90,7 @@ void main() {
       // Wait a second for the event to fire
       await Future.delayed(const Duration(milliseconds: 100));
 
-      clientB.onSessionRequest.unsubscribeAll();
-    });
-
-    test('Throws an error if you try to call a method that does not exist',
-        () async {
-      final connectionInfo = await SignClientHelpers.testConnectMethod(
-        clientA,
-        clientB,
-      );
-
-      try {
-        final result = await clientA.request(
-          topic: connectionInfo.session.topic,
-          chainId: 'eip155:255',
-          request: SessionRequestParams(
-            method: 'test_sign',
-            params: 'Hello',
-          ),
-        );
-        // print(result);
-      } on JsonRpcError catch (e) {
-        print(e.message);
-        expect(
-          e.message,
-          'No handler found for chainId:method -> eip155:255:test_sign',
-        );
-      }
+      clientB.onSessionEvent.unsubscribeAll();
     });
   });
 }

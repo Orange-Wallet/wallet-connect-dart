@@ -6,6 +6,8 @@ import 'package:wallet_connect_v2_dart/apis/signing_api/engine.dart';
 import 'package:wallet_connect_v2_dart/apis/signing_api/i_engine.dart';
 import 'package:wallet_connect_v2_dart/apis/core/pairing/pairing_models.dart';
 import 'package:wallet_connect_v2_dart/apis/core/i_core.dart';
+import 'package:wallet_connect_v2_dart/apis/signing_api/i_sessions.dart';
+import 'package:wallet_connect_v2_dart/apis/signing_api/i_proposals.dart';
 import 'package:wallet_connect_v2_dart/apis/signing_api/i_sign_client.dart';
 import 'package:wallet_connect_v2_dart/apis/signing_api/models/json_rpc_models.dart';
 import 'package:wallet_connect_v2_dart/apis/signing_api/models/proposal_models.dart';
@@ -51,7 +53,13 @@ class SignClient implements ISignClient {
   Event<SessionUpdate> get onSessionUpdate => engine.onSessionUpdate;
 
   @override
-  ICore core;
+  IProposals get proposals => engine.proposals;
+
+  @override
+  ISessions get sessions => engine.sessions;
+
+  @override
+  final ICore core;
 
   @override
   late IEngine engine;
@@ -183,7 +191,7 @@ class SignClient implements ISignClient {
   void registerRequestHandler({
     required String chainId,
     required String method,
-    required void Function(dynamic) handler,
+    required void Function(String, dynamic) handler,
   }) {
     try {
       return engine.registerRequestHandler(
@@ -207,6 +215,23 @@ class SignClient implements ISignClient {
         topic: topic,
         chainId: chainId,
         request: request,
+      );
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  @override
+  void registerEventHandler({
+    required String chainId,
+    required String event,
+    required void Function(String, dynamic) handler,
+  }) {
+    try {
+      return engine.registerEventHandler(
+        chainId: chainId,
+        event: event,
+        handler: handler,
       );
     } catch (e) {
       throw e;

@@ -7,7 +7,6 @@ import 'package:wallet_connect_v2_dart/apis/core/pairing/i_json_rpc_history.dart
 import 'package:wallet_connect_v2_dart/apis/core/pairing/json_rpc_history.dart';
 import 'package:wallet_connect_v2_dart/apis/core/pairing/pairing.dart';
 import 'package:wallet_connect_v2_dart/apis/core/relay_client/relay_client.dart';
-import 'package:wallet_connect_v2_dart/apis/core/store/get_storage_store.dart';
 import 'package:wallet_connect_v2_dart/apis/core/store/i_store.dart';
 import 'package:wallet_connect_v2_dart/apis/core/relay_client/i_relay_client.dart';
 import 'package:wallet_connect_v2_dart/apis/core/pairing/i_pairing.dart';

@@ -384,19 +384,15 @@ class Engine implements IEngine {
   }
 
   /// Maps a request using chainId:method to its handler
-  Map<String, dynamic Function(dynamic)> requestHandlers = {};
-
-  String getRequestMethodKey(String namespace, String method) {
-    return '$namespace:$method';
-  }
+  Map<String, dynamic Function(String, dynamic)> _methodHandlers = {};
 
   void registerRequestHandler({
     required String chainId,
     required String method,
-    required dynamic Function(dynamic) handler,
+    required dynamic Function(String, dynamic) handler,
   }) {
     _checkInitialized();
-    requestHandlers[getRequestMethodKey(chainId, method)] = handler;
+    _methodHandlers[getRegisterKey(chainId, method)] = handler;
   }
 
   @override
@@ -439,6 +435,18 @@ class Engine implements IEngine {
     } else if (core.pairing.getStore().has(topic)) {
       await core.pairing.ping(topic);
     }
+  }
+
+  /// Maps a request using chainId:event to its handler
+  Map<String, dynamic Function(String, dynamic)> _eventHandlers = {};
+
+  void registerEventHandler({
+    required String chainId,
+    required String event,
+    required dynamic Function(String, dynamic) handler,
+  }) {
+    _checkInitialized();
+    _eventHandlers[getRegisterKey(chainId, event)] = handler;
   }
 
   @override
@@ -501,6 +509,10 @@ class Engine implements IEngine {
     if (!_initialized) {
       throw Errors.getInternalError(Errors.NOT_INITIALIZED);
     }
+  }
+
+  String getRegisterKey(String namespace, String method) {
+    return '$namespace:$method';
   }
 
   Future<void> _deleteSession(
@@ -832,15 +844,16 @@ class Engine implements IEngine {
         request.request,
       );
 
-      final String methodKey = getRequestMethodKey(
+      final String methodKey = getRegisterKey(
         request.chainId,
         request.request.method,
       );
       // print('method key: $methodKey');
-      if (requestHandlers.containsKey(methodKey)) {
-        final handler = requestHandlers[methodKey]!;
+      if (_methodHandlers.containsKey(methodKey)) {
+        final handler = _methodHandlers[methodKey]!;
         try {
           final result = await handler(
+            topic,
             request.request.params,
           );
           await core.pairing.sendResult(
@@ -870,15 +883,15 @@ class Engine implements IEngine {
         );
       }
 
-      // onSessionRequest.broadcast(
-      //   SessionRequest(
-      //     payload.id,
-      //     topic,
-      //     request.method,
-      //     request.chainId,
-      //     request.params,
-      //   ),
-      // );
+      onSessionRequest.broadcast(
+        SessionRequest(
+          payload.id,
+          topic,
+          payload.method,
+          request.chainId,
+          request.request.params,
+        ),
+      );
     } on Error catch (err) {
       await core.pairing.sendError(
         payload.id,
@@ -896,6 +909,7 @@ class Engine implements IEngine {
     JsonRpcRequest payload,
   ) async {
     try {
+      print('swag 1');
       final request = WcSessionEventRequest.fromJson(payload.params);
       final SessionEventParams event = request.event;
       await _isValidEmit(
@@ -903,12 +917,46 @@ class Engine implements IEngine {
         event,
         request.chainId,
       );
-      // await core.pairing.sendResult(
-      //   payload.id,
-      //   'wc_sessionDelete',
-      //   topic,
-      //   true,
-      // );
+
+      final String eventKey = getRegisterKey(
+        request.chainId,
+        request.event.name,
+      );
+      print('event key: $eventKey');
+      if (_eventHandlers.containsKey(eventKey)) {
+        final handler = _eventHandlers[eventKey]!;
+        try {
+          await handler(
+            topic,
+            event.data,
+          );
+          await core.pairing.sendResult(
+            payload.id,
+            topic,
+            'wc_sessionRequest',
+            true,
+          );
+        } catch (err) {
+          await core.pairing.sendError(
+            payload.id,
+            topic,
+            payload.method,
+            JsonRpcError.invalidParams(
+              err.toString(),
+            ),
+          );
+        }
+      } else {
+        await core.pairing.sendError(
+          payload.id,
+          topic,
+          payload.method,
+          JsonRpcError.methodNotFound(
+            'No handler found for chainId:event -> ${eventKey}',
+          ),
+        );
+      }
+
       onSessionEvent.broadcast(
         SessionEvent(
           payload.id,

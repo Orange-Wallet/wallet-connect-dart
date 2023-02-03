@@ -22,9 +22,9 @@ abstract class IEngine {
   abstract final Event<SessionRequest> onSessionRequest;
   abstract final Event<SessionEvent> onSessionEvent;
 
-  abstract ICore core;
-  abstract IProposals proposals;
-  abstract ISessions sessions;
+  abstract final ICore core;
+  abstract final IProposals proposals;
+  abstract final ISessions sessions;
 
   Future<void> init();
   Future<ConnectResponse> connect({
@@ -54,14 +54,18 @@ abstract class IEngine {
   void registerRequestHandler({
     required String chainId,
     required String method,
-    required dynamic Function(dynamic) handler,
+    required dynamic Function(String, dynamic) handler,
   });
   Future<dynamic> request({
     required String topic,
     required String chainId,
     required SessionRequestParams request,
   });
-  // Future<void> respond(RespondParams params);
+  void registerEventHandler({
+    required String chainId,
+    required String event,
+    required dynamic Function(String, dynamic) handler,
+  });
   Future<void> emit({
     required String topic,
     required String chainId,
