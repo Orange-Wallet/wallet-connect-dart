@@ -1,9 +1,17 @@
 import 'package:event/event.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:wallet_connect_v2_dart/apis/core/pairing/i_pairing.dart';
 import 'package:wallet_connect_v2_dart/apis/core/relay_client/relay_client_models.dart';
 import 'package:wallet_connect_v2_dart/apis/models/json_rpc_error.dart';
+import 'package:wallet_connect_v2_dart/apis/models/json_rpc_request.dart';
 
 part 'pairing_models.g.dart';
+
+enum ProtocolType {
+  Pair,
+  Sign,
+  Auth,
+}
 
 @JsonSerializable()
 class PairingInfo {
@@ -120,6 +128,14 @@ class HistoryEvent extends EventArgs {
   HistoryEvent(this.record);
 }
 
+class PairingInvalidEvent extends EventArgs {
+  String message;
+
+  PairingInvalidEvent({
+    required this.message,
+  });
+}
+
 class PairingEvent extends EventArgs {
   int? id;
   String? topic;
@@ -153,4 +169,16 @@ class JsonRpcRecord {
       _$JsonRpcRecordFromJson(json);
 
   Map<String, dynamic> toJson() => _$JsonRpcRecordToJson(this);
+}
+
+class RegisteredFunction {
+  String method;
+  Function(String, JsonRpcRequest) function;
+  ProtocolType type;
+
+  RegisteredFunction({
+    required this.method,
+    required this.function,
+    required this.type,
+  });
 }

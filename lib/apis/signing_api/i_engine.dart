@@ -1,6 +1,6 @@
 import 'package:event/event.dart';
 import 'package:wallet_connect_v2_dart/apis/core/i_core.dart';
-import 'package:wallet_connect_v2_dart/apis/core/pairing/pairing_models.dart';
+import 'package:wallet_connect_v2_dart/apis/core/pairing/utils/pairing_models.dart';
 import 'package:wallet_connect_v2_dart/apis/core/relay_client/relay_client_models.dart';
 import 'package:wallet_connect_v2_dart/apis/models/basic_errors.dart';
 import 'package:wallet_connect_v2_dart/apis/signing_api/i_proposals.dart';

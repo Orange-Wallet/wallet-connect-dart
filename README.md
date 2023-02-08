@@ -77,7 +77,7 @@ wcClient.onSessionProposal.subscribe((SessionProposal? args) async {
 })
 
 // Also setup the methods and chains that your wallet supports
-final handler = (dynamic params) async {
+final handler = (String topic, dynamic params) async {
   return 'signed!';
 };
 wcClient.registerRequestHandler(
@@ -100,6 +100,7 @@ final walletNamespaces = {
   'kadena': Namespace(
     accounts: ['kadena:mainnet01:abc'],
     methods: ['kadena_sign_v1', 'kadena_quicksign_v1'],
+    events: ['kadena_transaction_updated'],
   ),
 }
 await wcClient.approve(
@@ -121,24 +122,35 @@ await wcClient.reject(
 
 A wallet exposes different methods for different chains using the `request` function. To register functions that will immediately respond to different requests you must call the 
 
+### Handling Events
+
+```dart
+final handler = (String topic, dynamic params) async {
+  // Respond to event somehow
+};
+wcClient.registerEventHandler(
+  namespace: 'kadena',
+  method: 'kadena_transaction_updated',
+  handler: handler,
+);
+```
+
 # To Build
 
 - Example project and dapp
 - Reduce number of crypto libraries used for encryption, shared key, etc.
 - Auth API
+- Web3Wallet API
 - Push API
 
 # To Test
 
-- Pull this repo and set it up: <https://github.com/WalletConnect/relay>
-
-Build using `make dev`, docker must be installed and open.  
-Install dependencies using `npm install`.  
-Run it using this command: `PORT=5555 npm run start`.  
-Finally, run tests using `flutter test`.
+Run tests using `flutter test`.
+Expected flutter version is: `3.3.10`
 
 # Useful Commands
 
+```bash
+flutter pub run build_runner build --delete-conflicting-outputs # Regenerates JSON Generators
 ```
-flutter pub run build_runner build --delete-conflicting-outputs
-```
+

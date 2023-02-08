@@ -2,7 +2,7 @@ library wallet_connect_v2_dart;
 
 export 'apis/core/core.dart';
 export 'apis/core/relay_client/relay_client_models.dart';
-export 'apis/core/pairing/pairing_models.dart';
+export 'apis/core/pairing/utils/pairing_models.dart';
 export 'apis/signing_api/sign_client.dart';
 export 'apis/signing_api/models/proposal_models.dart';
 export 'apis/signing_api/models/session_models.dart';

@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wallet_connect_v2_dart/apis/core/core.dart';
 import 'package:wallet_connect_v2_dart/apis/core/i_core.dart';
-import 'package:wallet_connect_v2_dart/apis/core/pairing/pairing_models.dart';
+import 'package:wallet_connect_v2_dart/apis/core/pairing/utils/pairing_models.dart';
 import 'package:wallet_connect_v2_dart/apis/models/json_rpc_error.dart';
 import 'package:wallet_connect_v2_dart/apis/models/basic_errors.dart';
 
@@ -10,12 +10,8 @@ import '../shared/shared_test_values.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  const TEST_PUB_KEY =
-      '9088c381b2022c6311d9b4738e221029ff4b8f3c13860a795c960eac043e7d28';
-  const TEST_PRIV_KEY =
-      'f24230adbb096e81f4a2a06450c206cafaf49dc6a60daf25d09e05c011e47ed2';
-  const TEST_TOPIC = 'abc123';
-  const TEST_MESSAGE = 'swagmaster';
+  const uri =
+      "wc:7f6e504bfad60b485450578e05678ed3e8e8c4751d3c6160be17160d63ec90f9@2?symKey=587d5484ce2a2a6ee3ba1962fdd7e8588e06200c46823bd18fbd67def96ad303&relay-protocol=irn";
 
   group('Pairing API', () {
     late ICore coreA;
@@ -63,7 +59,7 @@ void main() {
       test("can pair via provided URI", () async {
         final CreateResponse response = await coreA.pairing.create();
 
-        await coreB.pairing.pair(response.uri);
+        await coreB.pairing.pair(uri: response.uri);
 
         expect(coreA.pairing.getPairings().length, 1);
         expect(coreB.pairing.getPairings().length, 1);
@@ -78,7 +74,7 @@ void main() {
       test("can pair via provided URI", () async {
         final CreateResponse response = await coreA.pairing.create();
 
-        await coreB.pairing.pair(response.uri, activatePairing: true);
+        await coreB.pairing.pair(uri: response.uri, activatePairing: true);
         expect(coreA.pairing.getPairings()[0].active, false);
         expect(coreB.pairing.getPairings()[0].active, true);
       });
@@ -87,13 +83,13 @@ void main() {
     test("can activate pairing", () async {
       final CreateResponse response = await coreA.pairing.create();
 
-      await coreB.pairing.pair(response.uri);
+      await coreB.pairing.pair(uri: response.uri);
       PairingInfo? pairing = coreB.pairing.getStore().get(response.topic);
 
       expect(pairing != null, true);
       expect(pairing!.active, false);
       final int expiry = pairing.expiry;
-      await coreB.pairing.activate(response.topic);
+      await coreB.pairing.activate(topic: response.topic);
       PairingInfo? pairing2 = coreB.pairing.getStore().get(response.topic);
       expect(pairing2 != null, true);
       expect(pairing2!.active, true);
@@ -104,7 +100,7 @@ void main() {
       final CreateResponse response = await coreA.pairing.create();
       final int mockExpiry = 1111111;
 
-      coreA.pairing.updateExpiry(response.topic, mockExpiry);
+      coreA.pairing.updateExpiry(topic: response.topic, expiry: mockExpiry);
       expect(coreA.pairing.getStore().get(response.topic)!.expiry, mockExpiry);
     });
 
@@ -121,7 +117,7 @@ void main() {
         coreA.pairing.getStore().get(response.topic)!.peerMetadata == null,
         true,
       );
-      coreA.pairing.updateMetadata(response.topic, mock);
+      coreA.pairing.updateMetadata(topic: response.topic, metadata: mock);
       expect(
         coreA.pairing.getStore().get(response.topic)!.peerMetadata!.name,
         mock.name,
@@ -130,16 +126,19 @@ void main() {
 
     test("clients can ping each other", () async {
       final CreateResponse response = await coreA.pairing.create();
-      await coreB.pairing.pair(response.uri);
+      // await coreB.pairing.pair(uri: response.uri);
       bool gotPing = false;
 
       coreB.pairing.onPairingPing.subscribe((args) {
         gotPing = true;
       });
 
-      await coreB.pairing.pair(response.uri, activatePairing: true);
-      await coreA.pairing.activate(response.topic);
-      await coreA.pairing.ping(response.topic);
+      print('swag 1');
+      await coreB.pairing.pair(uri: response.uri, activatePairing: true);
+      print('swag 2');
+      await coreA.pairing.activate(topic: response.topic);
+      print('swag 3');
+      await coreA.pairing.ping(topic: response.topic);
       await Future.delayed(Duration(milliseconds: 500));
       expect(gotPing, true);
     });
@@ -148,7 +147,7 @@ void main() {
       final CreateResponse response = await coreA.pairing.create();
       expect(coreA.pairing.getStore().getAll().length, 1);
       expect(coreB.pairing.getStore().getAll().length, 0);
-      await coreB.pairing.pair(response.uri, activatePairing: true);
+      await coreB.pairing.pair(uri: response.uri, activatePairing: true);
       expect(coreA.pairing.getStore().getAll().length, 1);
       expect(coreB.pairing.getStore().getAll().length, 1);
       bool hasDeletedA = false;
@@ -167,7 +166,7 @@ void main() {
         hasDeletedB = true;
       });
 
-      await coreB.pairing.disconnect(response.topic);
+      await coreB.pairing.disconnect(topic: response.topic);
       await Future.delayed(Duration(milliseconds: 500));
       expect(hasDeletedA, true);
       expect(hasDeletedB, true);
@@ -192,7 +191,7 @@ void main() {
       group('Pairing', () {
         test("throws when no empty/invalid uri is provided", () async {
           expect(
-            () async => await coreA.pairing.pair(Uri.parse('')),
+            () async => await coreA.pairing.pair(uri: Uri.parse('')),
             throwsA(
               predicate(
                 (e) => e is Error && e.message == 'Invalid URI: Missing @',
@@ -200,10 +199,114 @@ void main() {
             ),
           );
           expect(
-            () async => await coreA.pairing.pair(Uri.parse('wc:abc')),
+            () async => await coreA.pairing.pair(uri: Uri.parse('wc:abc')),
             throwsA(
               predicate(
                 (e) => e is Error && e.message == 'Invalid URI: Missing @',
+              ),
+            ),
+          );
+        });
+
+        test("throws when required methods aren't contained in registered",
+            () async {
+          final String uriWithMethods =
+              '$uri&methods=[wc_sessionPropose],[wc_authRequest,wc_authBatchRequest]';
+          expect(
+            () async =>
+                await coreA.pairing.pair(uri: Uri.parse(uriWithMethods)),
+            throwsA(
+              predicate(
+                (e) =>
+                    e is Error &&
+                    e.message ==
+                        'Unsupported wc_ method. The following methods are not registered: wc_sessionPropose, wc_authRequest, wc_authBatchRequest.',
+              ),
+            ),
+          );
+          coreA.pairing.register(
+            method: 'wc_sessionPropose',
+            function: (s, r) => {},
+            type: ProtocolType.Sign,
+          );
+          expect(
+            () async =>
+                await coreA.pairing.pair(uri: Uri.parse(uriWithMethods)),
+            throwsA(
+              predicate(
+                (e) =>
+                    e is Error &&
+                    e.message ==
+                        'Unsupported wc_ method. The following methods are not registered: wc_authRequest, wc_authBatchRequest.',
+              ),
+            ),
+          );
+          coreA.pairing.register(
+            method: 'wc_authRequest',
+            function: (s, r) => {},
+            type: ProtocolType.Auth,
+          );
+          expect(
+            () async =>
+                await coreA.pairing.pair(uri: Uri.parse(uriWithMethods)),
+            throwsA(
+              predicate(
+                (e) =>
+                    e is Error &&
+                    e.message ==
+                        'Unsupported wc_ method. The following methods are not registered: wc_authBatchRequest.',
+              ),
+            ),
+          );
+        });
+
+        test("succeeds when required methods are contained in registered",
+            () async {
+          final String uriWithMethods =
+              '$uri&methods=[wc_sessionPropose],[wc_authRequest,wc_authBatchRequest]';
+          expect(
+            () async =>
+                await coreA.pairing.pair(uri: Uri.parse(uriWithMethods)),
+            throwsA(
+              predicate(
+                (e) =>
+                    e is Error &&
+                    e.message ==
+                        'Unsupported wc_ method. The following methods are not registered: wc_sessionPropose, wc_authRequest, wc_authBatchRequest.',
+              ),
+            ),
+          );
+          coreA.pairing.register(
+            method: 'wc_sessionPropose',
+            function: (s, r) => {},
+            type: ProtocolType.Sign,
+          );
+          expect(
+            () async =>
+                await coreA.pairing.pair(uri: Uri.parse(uriWithMethods)),
+            throwsA(
+              predicate(
+                (e) =>
+                    e is Error &&
+                    e.message ==
+                        'Unsupported wc_ method. The following methods are not registered: wc_authRequest, wc_authBatchRequest.',
+              ),
+            ),
+          );
+          coreA.pairing.register(
+            method: 'wc_authRequest',
+            function: (s, r) => {},
+            type: ProtocolType.Auth,
+          );
+          expect(
+            () async =>
+                await coreA.pairing.pair(uri: Uri.parse(uriWithMethods)),
+            throwsA(
+              predicate(
+                (e) =>
+                    e is Error &&
+                    e.message ==
+                        'Unsupported wc_ method. The following methods are not registered: wc_authBatchRequest.',
               ),
             ),
           );
@@ -213,7 +316,7 @@ void main() {
       group('Ping', () {
         test("throws when unused topic is provided", () async {
           expect(
-            () async => await coreA.pairing.ping('abc'),
+            () async => await coreA.pairing.ping(topic: 'abc'),
             throwsA(
               predicate((e) =>
                   e is JsonRpcError &&
@@ -227,7 +330,7 @@ void main() {
       group('Disconnect', () {
         test("throws when unused topic is provided", () async {
           expect(
-            () async => await coreA.pairing.disconnect('abc'),
+            () async => await coreA.pairing.disconnect(topic: 'abc'),
             throwsA(
               predicate((e) =>
                   e is JsonRpcError &&

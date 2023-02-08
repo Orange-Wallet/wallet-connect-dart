@@ -4,7 +4,7 @@ import 'package:wallet_connect_v2_dart/apis/signing_api/models/signing_models.da
 import 'package:wallet_connect_v2_dart/apis/signing_api/utils/namespace_utils.dart';
 import 'package:wallet_connect_v2_dart/apis/utils/errors.dart';
 
-class ValidatorUtils {
+class SignApiValidatorUtils {
   static bool isSessionCompatible(
     SessionData session,
     Map<String, RequiredNamespace> requiredNamespaces,

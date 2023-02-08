@@ -1,8 +1,9 @@
 import 'dart:async';
 
 import 'package:event/event.dart';
-import 'package:wallet_connect_v2_dart/apis/core/pairing/pairing_utils.dart';
-import 'package:wallet_connect_v2_dart/apis/core/pairing/pairing_models.dart';
+import 'package:wallet_connect_v2_dart/apis/core/pairing/i_pairing.dart';
+import 'package:wallet_connect_v2_dart/apis/core/pairing/utils/pairing_utils.dart';
+import 'package:wallet_connect_v2_dart/apis/core/pairing/utils/pairing_models.dart';
 import 'package:wallet_connect_v2_dart/apis/core/i_core.dart';
 import 'package:wallet_connect_v2_dart/apis/core/relay_client/relay_client_models.dart';
 import 'package:wallet_connect_v2_dart/apis/models/json_rpc_error.dart';
@@ -17,7 +18,7 @@ import 'package:wallet_connect_v2_dart/apis/signing_api/models/session_models.da
 import 'package:wallet_connect_v2_dart/apis/signing_api/i_sessions.dart';
 import 'package:wallet_connect_v2_dart/apis/signing_api/i_proposals.dart';
 import 'package:wallet_connect_v2_dart/apis/signing_api/models/signing_models.dart';
-import 'package:wallet_connect_v2_dart/apis/signing_api/utils/validator_utils.dart';
+import 'package:wallet_connect_v2_dart/apis/signing_api/utils/sign_api_validator_utils.dart';
 import 'package:wallet_connect_v2_dart/apis/utils/constants.dart';
 import 'package:wallet_connect_v2_dart/apis/utils/errors.dart';
 import 'package:wallet_connect_v2_dart/apis/utils/wallet_connect_utils.dart';
@@ -202,7 +203,7 @@ class Engine implements IEngine {
     await _deleteProposal(requestId);
 
     await core.relayClient.subscribe(sessionTopic);
-    await core.pairing.activate(topic);
+    await core.pairing.activate(topic: topic);
   }
 
   @override
@@ -211,7 +212,7 @@ class Engine implements IEngine {
   }) async {
     _checkInitialized();
 
-    return await core.pairing.pair(uri);
+    return await core.pairing.pair(uri: uri);
   }
 
   /// Approves a proposal with the id provided in the parameters.
@@ -278,11 +279,11 @@ class Engine implements IEngine {
         ).toJson(),
       );
       await _deleteProposal(id);
-      await core.pairing.activate(proposal.pairingTopic!);
+      await core.pairing.activate(topic: proposal.pairingTopic!);
 
       await core.pairing.updateMetadata(
-        proposal.pairingTopic!,
-        proposal.proposer.metadata,
+        topic: proposal.pairingTopic!,
+        metadata: proposal.proposer.metadata,
       );
     }
 
@@ -433,7 +434,7 @@ class Engine implements IEngine {
         {},
       );
     } else if (core.pairing.getStore().has(topic)) {
-      await core.pairing.ping(topic);
+      await core.pairing.ping(topic: topic);
     }
   }
 
@@ -488,7 +489,7 @@ class Engine implements IEngine {
       );
       await _deleteSession(topic);
     } else {
-      await core.pairing.disconnect(topic);
+      await core.pairing.disconnect(topic: topic);
     }
   }
 
@@ -499,7 +500,8 @@ class Engine implements IEngine {
     _checkInitialized();
     return sessions.getAll().firstWhere(
       (element) {
-        return ValidatorUtils.isSessionCompatible(element, requiredNamespaces);
+        return SignApiValidatorUtils.isSessionCompatible(
+            element, requiredNamespaces);
       },
     );
   }
@@ -580,14 +582,46 @@ class Engine implements IEngine {
   /// ---- Relay Events ---- ///
 
   void _registerRelayClientFunctions() {
-    core.pairing.register('wc_sessionPropose', _onSessionProposeRequest);
-    core.pairing.register('wc_sessionSettle', _onSessionSettleRequest);
-    core.pairing.register('wc_sessionUpdate', _onSessionUpdateRequest);
-    core.pairing.register('wc_sessionExtend', _onSessionExtendRequest);
-    core.pairing.register('wc_sessionPing', _onSessionPingRequest);
-    core.pairing.register('wc_sessionDelete', _onSessionDeleteRequest);
-    core.pairing.register('wc_sessionRequest', _onSessionRequest);
-    core.pairing.register('wc_sessionEvent', _onSessionEventRequest);
+    core.pairing.register(
+      method: 'wc_sessionPropose',
+      function: _onSessionProposeRequest,
+      type: ProtocolType.Sign,
+    );
+    core.pairing.register(
+      method: 'wc_sessionSettle',
+      function: _onSessionSettleRequest,
+      type: ProtocolType.Sign,
+    );
+    core.pairing.register(
+      method: 'wc_sessionUpdate',
+      function: _onSessionUpdateRequest,
+      type: ProtocolType.Sign,
+    );
+    core.pairing.register(
+      method: 'wc_sessionExtend',
+      function: _onSessionExtendRequest,
+      type: ProtocolType.Sign,
+    );
+    core.pairing.register(
+      method: 'wc_sessionPing',
+      function: _onSessionPingRequest,
+      type: ProtocolType.Sign,
+    );
+    core.pairing.register(
+      method: 'wc_sessionDelete',
+      function: _onSessionDeleteRequest,
+      type: ProtocolType.Sign,
+    );
+    core.pairing.register(
+      method: 'wc_sessionRequest',
+      function: _onSessionRequest,
+      type: ProtocolType.Sign,
+    );
+    core.pairing.register(
+      method: 'wc_sessionEvent',
+      function: _onSessionEventRequest,
+      type: ProtocolType.Sign,
+    );
   }
 
   Future<void> _onSessionProposeRequest(
@@ -662,10 +696,10 @@ class Engine implements IEngine {
       sessions.set(topic, session);
       _setExpiry(topic, session.expiry);
       await core.pairing.updateMetadata(
-        sProposalCompleter.pairingTopic,
-        request.controller.metadata,
+        topic: sProposalCompleter.pairingTopic,
+        metadata: request.controller.metadata,
       );
-      await core.pairing.activate(topic);
+      await core.pairing.activate(topic: topic);
 
       // Send the session back to the completer
       sProposalCompleter.completer.complete(session);
@@ -1092,7 +1126,7 @@ class Engine implements IEngine {
       _isValidPairingTopic(pairingTopic);
     }
 
-    return ValidatorUtils.isValidRequiredNamespaces(
+    return SignApiValidatorUtils.isValidRequiredNamespaces(
         requiredNamespaces, "connect()");
   }
 
@@ -1108,8 +1142,8 @@ class Engine implements IEngine {
         context: 'No proposal matching id: $id',
       );
     }
-    ValidatorUtils.isValidNamespaces(namespaces, "approve()");
-    ValidatorUtils.isConformingNamespaces(
+    SignApiValidatorUtils.isValidNamespaces(namespaces, "approve()");
+    SignApiValidatorUtils.isConformingNamespaces(
         proposal.requiredNamespaces, namespaces, "update()");
 
     return true;
@@ -1123,7 +1157,8 @@ class Engine implements IEngine {
     Map<String, Namespace> namespaces,
     int expiry,
   ) async {
-    ValidatorUtils.isValidNamespaces(namespaces, "onSessionSettleRequest()");
+    SignApiValidatorUtils.isValidNamespaces(
+        namespaces, "onSessionSettleRequest()");
     if (WalletConnectUtils.isExpired(expiry)) {
       throw Errors.getInternalError(
         Errors.EXPIRED,
@@ -1139,10 +1174,11 @@ class Engine implements IEngine {
     Map<String, Namespace> namespaces,
   ) async {
     await _isValidSessionTopic(topic);
-    ValidatorUtils.isValidNamespaces(namespaces, "onSessionSettleRequest()");
+    SignApiValidatorUtils.isValidNamespaces(
+        namespaces, "onSessionSettleRequest()");
     final SessionData session = sessions.get(topic)!;
 
-    ValidatorUtils.isConformingNamespaces(
+    SignApiValidatorUtils.isConformingNamespaces(
       session.requiredNamespaces == null ? {} : session.requiredNamespaces!,
       namespaces,
       'update()',
@@ -1158,11 +1194,11 @@ class Engine implements IEngine {
   ) async {
     await _isValidSessionTopic(topic);
     final SessionData session = sessions.get(topic)!;
-    ValidatorUtils.isValidNamespacesChainId(
+    SignApiValidatorUtils.isValidNamespacesChainId(
       session.namespaces,
       chainId,
     );
-    ValidatorUtils.isValidNamespacesRequest(
+    SignApiValidatorUtils.isValidNamespacesRequest(
       session.namespaces,
       chainId,
       request.method,
@@ -1194,11 +1230,11 @@ class Engine implements IEngine {
   ) async {
     await _isValidSessionTopic(topic);
     final SessionData session = sessions.get(topic)!;
-    ValidatorUtils.isValidNamespacesChainId(
+    SignApiValidatorUtils.isValidNamespacesChainId(
       session.namespaces,
       chainId,
     );
-    ValidatorUtils.isValidNamespacesEvent(
+    SignApiValidatorUtils.isValidNamespacesEvent(
       session.namespaces,
       chainId,
       event.name,

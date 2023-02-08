@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:universal_io/io.dart';
 import 'package:wallet_connect_v2_dart/apis/core/relay_client/relay_client_models.dart';
 import 'package:wallet_connect_v2_dart/apis/models/basic_errors.dart';
+import 'package:wallet_connect_v2_dart/apis/models/uri_parse_result.dart';
 
 class WalletConnectUtils {
   static bool isExpired(int expiry) {
@@ -71,8 +74,7 @@ class WalletConnectUtils {
 
   /// ---- URI HANDLING --- ///
 
-  static Map<String, dynamic> parseUri(Uri uri) {
-    Map<String, dynamic> ret = {};
+  static URIParseResult parseUri(Uri uri) {
     String protocol = uri.scheme;
     String path = uri.path;
     final List<String> splitParams = path.split('@');
@@ -82,15 +84,30 @@ class WalletConnectUtils {
         message: 'Invalid URI: Missing @',
       );
     }
-    ret['protocol'] = protocol;
-    ret['topic'] = splitParams[0];
-    ret['version'] = splitParams[1];
-    ret['symKey'] = uri.queryParameters['symKey']!;
-    ret['relay'] = Relay(
-      uri.queryParameters['relay-protocol']!,
-      data: uri.queryParameters.containsKey('relay-data')
-          ? uri.queryParameters['relay-data']
-          : null,
+    List<String> methods = uri.queryParameters['methods']!
+        // Replace all the square brackets with empty string, split by comma
+        .replaceAll(
+          RegExp(r'[\[\]]+'),
+          '',
+        )
+        .split(
+          ',',
+        );
+    if (methods.length == 1 && methods[0].isEmpty) {
+      methods = [];
+    }
+    URIParseResult ret = URIParseResult(
+      protocol: protocol,
+      version: splitParams[1],
+      topic: splitParams[0],
+      symKey: uri.queryParameters['symKey']!,
+      relay: Relay(
+        uri.queryParameters['relay-protocol']!,
+        data: uri.queryParameters.containsKey('relay-data')
+            ? uri.queryParameters['relay-data']
+            : null,
+      ),
+      methods: methods,
     );
     // print(ret);
     return ret;
@@ -108,18 +125,23 @@ class WalletConnectUtils {
     return params;
   }
 
-  static Uri formatUri(
-    String protocol,
-    String version,
-    String topic,
-    String symKey,
-    Relay relay,
-  ) {
+  static Uri formatUri({
+    required String protocol,
+    required String version,
+    required String topic,
+    required String symKey,
+    required Relay relay,
+    required List<List<String>> methods,
+  }) {
     Map<String, String> params = formatRelayParams(relay);
     params['symKey'] = symKey;
+    params['methods'] = methods.map((e) => jsonEncode(e)).join(',');
 
     return Uri(
-        scheme: protocol, path: '$topic@$version', queryParameters: params);
+      scheme: protocol,
+      path: '$topic@$version',
+      queryParameters: params,
+    );
   }
 
   static Map<String, T> convertMapTo<T>(Map<String, dynamic> inMap) {

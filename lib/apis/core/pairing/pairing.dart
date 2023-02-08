@@ -2,13 +2,15 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:event/event.dart';
+import 'package:http/http.dart';
 import 'package:wallet_connect_v2_dart/apis/core/i_core.dart';
 import 'package:wallet_connect_v2_dart/apis/core/pairing/i_pairing.dart';
 import 'package:wallet_connect_v2_dart/apis/core/pairing/i_pairing_store.dart';
+import 'package:wallet_connect_v2_dart/apis/models/uri_parse_result.dart';
 import 'package:wallet_connect_v2_dart/apis/utils/rpc_constants.dart';
-import 'package:wallet_connect_v2_dart/apis/core/pairing/pairing_models.dart';
+import 'package:wallet_connect_v2_dart/apis/core/pairing/utils/pairing_models.dart';
 import 'package:wallet_connect_v2_dart/apis/core/pairing/pairing_store.dart';
-import 'package:wallet_connect_v2_dart/apis/core/pairing/pairing_utils.dart';
+import 'package:wallet_connect_v2_dart/apis/core/pairing/utils/pairing_utils.dart';
 import 'package:wallet_connect_v2_dart/apis/core/relay_client/relay_client_models.dart';
 import 'package:wallet_connect_v2_dart/apis/models/json_rpc_error.dart';
 import 'package:wallet_connect_v2_dart/apis/models/json_rpc_request.dart';
@@ -23,6 +25,9 @@ class Pairing implements IPairing {
 
   @override
   final Event<PairingEvent> onPairingPing = Event<PairingEvent>();
+  @override
+  final Event<PairingInvalidEvent> onPairingInvalid =
+      Event<PairingInvalidEvent>();
   @override
   final Event<PairingEvent> onPairingDelete = Event<PairingEvent>();
   @override
@@ -56,8 +61,8 @@ class Pairing implements IPairing {
   }
 
   @override
-  Future<PairingInfo> pair(
-    Uri uri, {
+  Future<PairingInfo> pair({
+    required Uri uri,
     bool activatePairing = false,
   }) async {
     _checkInitialized();
@@ -66,30 +71,55 @@ class Pairing implements IPairing {
     final int expiry = WalletConnectUtils.calculateExpiry(
       WalletConnectConstants.FIVE_MINUTES,
     );
-    final Map<String, dynamic> parsedUri = WalletConnectUtils.parseUri(uri);
-    final String topic = parsedUri['topic']!;
-    final Relay relay = parsedUri['relay']!;
-    final String symKey = parsedUri['symKey']!;
+    final URIParseResult parsedUri = WalletConnectUtils.parseUri(uri);
+    final String topic = parsedUri.topic;
+    final Relay relay = parsedUri.relay;
+    final String symKey = parsedUri.symKey;
     final PairingInfo pairing = PairingInfo(
       topic,
       expiry,
       relay,
       false,
     );
+
+    try {
+      PairingUtils.validateMethods(
+        parsedUri.methods,
+        routerMapRequest.values.toList(),
+      );
+    } on Error catch (e) {
+      // Tell people that the pairing is invalid
+      onPairingInvalid.broadcast(
+        PairingInvalidEvent(
+          message: e.message,
+        ),
+      );
+
+      // Delete the pairing: "publish internally with reason"
+      // await _deletePairing(
+      //   topic,
+      //   false,
+      // );
+
+      rethrow;
+    }
+
     await pairings!.set(topic, pairing);
     await core.crypto.setSymKey(symKey, overrideTopic: topic);
     await core.relayClient.subscribe(topic);
     await core.expirer.set(topic, expiry);
 
     if (activatePairing) {
-      await activate(topic);
+      await activate(topic: topic);
     }
 
     return pairing;
   }
 
   @override
-  Future<CreateResponse> create() async {
+  Future<CreateResponse> create({
+    List<List<String>> methods = const [],
+  }) async {
     _checkInitialized();
     final String symKey = core.crypto.getUtils().generateRandomBytes32();
     final String topic = await core.crypto.setSymKey(symKey);
@@ -99,11 +129,12 @@ class Pairing implements IPairing {
     final Relay relay = Relay(WalletConnectConstants.RELAYER_DEFAULT_PROTOCOL);
     final PairingInfo pairing = PairingInfo(topic, expiry, relay, false);
     final Uri uri = WalletConnectUtils.formatUri(
-      core.protocol,
-      core.version,
-      topic,
-      symKey,
-      relay,
+      protocol: core.protocol,
+      version: core.version,
+      topic: topic,
+      symKey: symKey,
+      relay: relay,
+      methods: methods,
     );
     await pairings!.set(topic, pairing);
     await core.relayClient.subscribe(topic);
@@ -116,7 +147,7 @@ class Pairing implements IPairing {
   }
 
   @override
-  Future<void> activate(String topic) async {
+  Future<void> activate({required String topic}) async {
     _checkInitialized();
     final int expiry = WalletConnectUtils.calculateExpiry(
       WalletConnectConstants.THIRTY_DAYS,
@@ -130,7 +161,11 @@ class Pairing implements IPairing {
   }
 
   @override
-  void register(String method, Function f) {
+  void register({
+    required String method,
+    required Function(String, JsonRpcRequest) function,
+    required ProtocolType type,
+  }) {
     if (routerMapRequest.containsKey(method)) {
       throw Error(
         code: -1,
@@ -138,11 +173,18 @@ class Pairing implements IPairing {
       );
     }
 
-    routerMapRequest[method] = f;
+    routerMapRequest[method] = RegisteredFunction(
+      method: method,
+      function: function,
+      type: type,
+    );
   }
 
   @override
-  Future<void> updateExpiry(String topic, int expiry) async {
+  Future<void> updateExpiry({
+    required String topic,
+    required int expiry,
+  }) async {
     _checkInitialized();
     await pairings!.update(
       topic,
@@ -151,7 +193,10 @@ class Pairing implements IPairing {
   }
 
   @override
-  Future<void> updateMetadata(String topic, PairingMetadata metadata) async {
+  Future<void> updateMetadata({
+    required String topic,
+    required PairingMetadata metadata,
+  }) async {
     _checkInitialized();
     await pairings!.update(
       topic,
@@ -165,11 +210,12 @@ class Pairing implements IPairing {
   }
 
   @override
-  Future<void> ping(String topic) async {
+  Future<void> ping({required String topic}) async {
     _checkInitialized();
 
     _isValidPing(topic);
 
+    print('swag 4');
     if (pairings!.has(topic)) {
       try {
         final bool response = await sendRequest(
@@ -194,7 +240,7 @@ class Pairing implements IPairing {
   }
 
   @override
-  Future<void> disconnect(String topic) async {
+  Future<void> disconnect({required String topic}) async {
     _checkInitialized();
 
     _isValidDisconnect(topic);
@@ -330,21 +376,26 @@ class Pairing implements IPairing {
 
   /// ---- Relay Event Router ---- ///
 
-  Map<String, Function> routerMapRequest = {};
+  Map<String, RegisteredFunction> routerMapRequest = {};
   // Map<String, Function> routerMapResponse = {};
 
   void _registerRelayEvents() {
     core.relayClient.onRelayClientMessage.subscribe(_onMessageEvent);
 
-    register('wc_pairingPing', _onPairingPingRequest);
-    register('wc_pairingDelete', _onPairingDeleteRequest);
-    // routerMapRequest['wc_pairingPing'] = _onPairingPingRequest;
-    // routerMapRequest['wc_pairingDelete'] = _onPairingDeleteRequest;
-    // routerMapResponse['wc_pairingPing'] = _onPairingPingResponse;
+    register(
+      method: 'wc_pairingPing',
+      function: _onPairingPingRequest,
+      type: ProtocolType.Pair,
+    );
+    register(
+      method: 'wc_pairingDelete',
+      function: _onPairingDeleteRequest,
+      type: ProtocolType.Pair,
+    );
   }
 
   void _onMessageEvent(MessageEvent? event) async {
-    // print('message');
+    print('message');
     if (event == null) {
       return;
     }
@@ -357,9 +408,9 @@ class Pairing implements IPairing {
     // print(data);
     if (data.containsKey('method')) {
       final request = JsonRpcRequest.fromJson(data);
-      // print(request);
+      print(request);
       if (routerMapRequest.containsKey(request.method)) {
-        routerMapRequest[request.method]!(event.topic, request);
+        routerMapRequest[request.method]!.function(event.topic, request);
       } else {
         _onUnkownRpcMethodRequest(event.topic, request);
       }
@@ -394,7 +445,7 @@ class Pairing implements IPairing {
   ) async {
     final int id = request.id;
     try {
-      // print('ping req');
+      print('ping req');
       _isValidPing(topic);
       await sendResult(
         id,
