@@ -44,6 +44,15 @@ void main() {
         NamespaceUtils.getChainsFromAccounts(TEST_ACCOUNTS),
         TEST_CHAINS,
       );
+      expect(
+        NamespaceUtils.getChainsFromAccounts(
+          [
+            ...TEST_ACCOUNTS,
+            ...TEST_ACCOUNTS,
+          ],
+        ),
+        TEST_CHAINS,
+      );
     });
 
     test('getChainsFromNamespace', () {
