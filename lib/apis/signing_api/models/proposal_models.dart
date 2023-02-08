@@ -5,57 +5,16 @@ import 'package:wallet_connect_v2_dart/apis/signing_api/models/generic_models.da
 part 'proposal_models.g.dart';
 
 @JsonSerializable()
-class BaseRequiredNamespace {
-  final List<String> chains;
+class RequiredNamespace {
+  final List<String>? chains;
   final List<String> methods;
   final List<String> events;
 
-  BaseRequiredNamespace({
-    required this.chains,
+  RequiredNamespace({
+    this.chains,
     required this.methods,
     required this.events,
   });
-
-  factory BaseRequiredNamespace.fromJson(Map<String, dynamic> json) =>
-      _$BaseRequiredNamespaceFromJson(json);
-
-  Map<String, dynamic> toJson() => _$BaseRequiredNamespaceToJson(this);
-
-  @override
-  bool operator ==(Object other) {
-    return other is BaseRequiredNamespace && hashCode == other.hashCode;
-  }
-
-  @override
-  int get hashCode =>
-      chains.fold<int>(
-        0,
-        (prevValue, element) => prevValue + element.hashCode,
-      ) +
-      methods.fold<int>(
-        0,
-        (prevValue, element) => prevValue + element.hashCode,
-      ) +
-      events.fold<int>(
-        0,
-        (prevValue, element) => prevValue + element.hashCode,
-      );
-}
-
-@JsonSerializable(includeIfNull: false)
-class RequiredNamespace extends BaseRequiredNamespace {
-  final List<BaseRequiredNamespace>? extension;
-
-  RequiredNamespace({
-    required List<String> chains,
-    required List<String> methods,
-    List<String> events = const [],
-    this.extension,
-  }) : super(
-          chains: chains,
-          methods: methods,
-          events: events,
-        );
 
   factory RequiredNamespace.fromJson(Map<String, dynamic> json) =>
       _$RequiredNamespaceFromJson(json);
@@ -69,13 +28,20 @@ class RequiredNamespace extends BaseRequiredNamespace {
 
   @override
   int get hashCode =>
-      super.hashCode +
-      (extension == null
+      (chains == null
           ? 0
-          : extension!.fold<int>(
+          : chains!.fold<int>(
               0,
               (previousValue, element) => previousValue + element.hashCode,
-            ));
+            )) +
+      methods.fold<int>(
+        0,
+        (prevValue, element) => prevValue + element.hashCode,
+      ) +
+      events.fold<int>(
+        0,
+        (prevValue, element) => prevValue + element.hashCode,
+      );
 }
 
 @JsonSerializable()
@@ -85,6 +51,8 @@ class ProposalData {
   final List<Relay> relays;
   final ConnectionMetadata proposer;
   final Map<String, RequiredNamespace> requiredNamespaces;
+  final Map<String, RequiredNamespace> optionalNamespaces;
+  final Map<String, String> sessionProperties;
   final String? pairingTopic;
 
   ProposalData({
@@ -93,6 +61,8 @@ class ProposalData {
     required this.relays,
     required this.proposer,
     required this.requiredNamespaces,
+    required this.optionalNamespaces,
+    required this.sessionProperties,
     required this.pairingTopic,
   });
 

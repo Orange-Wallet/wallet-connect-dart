@@ -125,7 +125,7 @@ void main() {
         coreA.relayClient.onRelayClientMessage.subscribe((args) {
           expect(args == null, false);
           expect(args!.topic, response.topic);
-          expect(args.message, TEST_MESSAGE);
+          expect(args.message, 'Swag');
           counterA++;
         });
         coreB.relayClient.onRelayClientMessage.subscribe((args) {

@@ -635,7 +635,7 @@ class Engine implements IEngine {
     JsonRpcRequest payload,
   ) async {
     try {
-      print(payload.params);
+      // print(payload.params);
       final proposeRequest = WcSessionProposeRequest.fromJson(payload.params);
       await _isValidConnect(
         proposeRequest.requiredNamespaces,
@@ -949,7 +949,6 @@ class Engine implements IEngine {
     JsonRpcRequest payload,
   ) async {
     try {
-      print('swag 1');
       final request = WcSessionEventRequest.fromJson(payload.params);
       final SessionEventParams event = request.event;
       await _isValidEmit(
@@ -962,7 +961,6 @@ class Engine implements IEngine {
         request.chainId,
         request.event.name,
       );
-      print('event key: $eventKey');
       if (_eventHandlers.containsKey(eventKey)) {
         final handler = _eventHandlers[eventKey]!;
         try {

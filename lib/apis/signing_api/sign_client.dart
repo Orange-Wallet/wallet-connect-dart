@@ -113,8 +113,8 @@ class SignClient implements ISignClient {
         relays: relays,
       );
     } catch (e) {
-      print(e);
-      throw e;
+      // print(e);
+      rethrow;
     }
   }
 

@@ -81,7 +81,7 @@ void main() {
 
         expect(result, {'response': '$sessionTopic: Swag Hello'});
       } on JsonRpcError catch (e) {
-        print(e);
+        // print(e);
         expect(false, true);
       }
 
@@ -109,7 +109,7 @@ void main() {
         );
         // print(result);
       } on JsonRpcError catch (e) {
-        print(e.message);
+        // print(e.message);
         expect(
           e.message,
           'No handler found for chainId:method -> eip155:255:test_sign',

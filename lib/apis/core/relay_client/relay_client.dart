@@ -127,10 +127,10 @@ class RelayClient implements IRelayClient {
       'message': message,
       'ttl': ttl,
       'topic': topic,
+      'tag': tag,
     };
 
     try {
-      print('publishing');
       var value = await jsonRPC.sendRequest(
         _buildMethod(JSON_RPC_PUBLISH),
         data,
@@ -236,7 +236,6 @@ class RelayClient implements IRelayClient {
 
   Future<bool> handlePublish(String topic, String message) async {
     // If we want to ignore the message, stop
-    print('handle publish');
     if (await _shouldIgnoreMessageEvent(topic, message)) return false;
 
     // Record a message event
@@ -260,7 +259,7 @@ class RelayClient implements IRelayClient {
   }
 
   Future<bool> _handleSubscription(Parameters params) async {
-    print('handle subscription.');
+    // print('handle subscription.');
     String topic = params['data']['topic'].value;
     String message = params['data']['message'].value;
     // print(topic);

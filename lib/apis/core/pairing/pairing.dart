@@ -141,8 +141,7 @@ class Pairing implements IPairing {
       methods: methods,
     );
     await pairings!.set(topic, pairing);
-    final s = await core.relayClient.subscribe(topic: topic);
-    print('subscribe: $s');
+    await core.relayClient.subscribe(topic: topic);
     await core.expirer.set(topic, expiry);
 
     return CreateResponse(
@@ -222,13 +221,11 @@ class Pairing implements IPairing {
 
     if (pairings!.has(topic)) {
       try {
-        print('swag 4');
         final bool response = await sendRequest(
           topic,
           MethodConstants.WC_PAIRING_PING,
           {},
         );
-        print('swag 5');
         onPairingPing.broadcast(
           PairingEvent(
             topic: topic,
@@ -415,7 +412,6 @@ class Pairing implements IPairing {
   }
 
   void _onMessageEvent(MessageEvent? event) async {
-    print('message');
     if (event == null) {
       return;
     }
@@ -428,7 +424,6 @@ class Pairing implements IPairing {
     // print(data);
     if (data.containsKey('method')) {
       final request = JsonRpcRequest.fromJson(data);
-      print(request);
       if (routerMapRequest.containsKey(request.method)) {
         routerMapRequest[request.method]!.function(event.topic, request);
       } else {
@@ -465,7 +460,7 @@ class Pairing implements IPairing {
   ) async {
     final int id = request.id;
     try {
-      print('ping req');
+      // print('ping req');
       _isValidPing(topic);
       await sendResult(
         id,
