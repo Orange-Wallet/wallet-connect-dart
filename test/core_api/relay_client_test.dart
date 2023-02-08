@@ -123,9 +123,15 @@ void main() {
         int counterA = 0;
         int counterB = 0;
         coreA.relayClient.onRelayClientMessage.subscribe((args) {
+          expect(args == null, false);
+          expect(args!.topic, response.topic);
+          expect(args.message, TEST_MESSAGE);
           counterA++;
         });
         coreB.relayClient.onRelayClientMessage.subscribe((args) {
+          expect(args == null, false);
+          expect(args!.topic, response.topic);
+          expect(args.message, TEST_MESSAGE);
           counterB++;
         });
 
@@ -133,14 +139,16 @@ void main() {
         // await coreB.relayClient.unsubscribe(response.topic);
 
         await coreA.relayClient.publish(
-          response.topic,
-          TEST_MESSAGE,
-          6000,
+          topic: response.topic,
+          message: TEST_MESSAGE,
+          ttl: 6000,
+          tag: 0,
         );
         await coreB.relayClient.publish(
-          response.topic,
-          'Swag',
-          6000,
+          topic: response.topic,
+          message: 'Swag',
+          ttl: 6000,
+          tag: 0,
         );
 
         await Future.delayed(Duration(milliseconds: 100));

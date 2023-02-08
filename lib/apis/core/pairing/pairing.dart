@@ -106,7 +106,7 @@ class Pairing implements IPairing {
 
     await pairings!.set(topic, pairing);
     await core.crypto.setSymKey(symKey, overrideTopic: topic);
-    await core.relayClient.subscribe(topic);
+    await core.relayClient.subscribe(topic: topic);
     await core.expirer.set(topic, expiry);
 
     if (activatePairing) {
@@ -137,7 +137,7 @@ class Pairing implements IPairing {
       methods: methods,
     );
     await pairings!.set(topic, pairing);
-    await core.relayClient.subscribe(topic);
+    await core.relayClient.subscribe(topic: topic);
     await core.expirer.set(topic, expiry);
 
     return CreateResponse(
@@ -295,7 +295,12 @@ class Pairing implements IPairing {
       request,
     );
     // print('sent request');
-    await core.relayClient.publish(topic, message, opts.ttl);
+    await core.relayClient.publish(
+      topic: topic,
+      message: message,
+      ttl: opts.ttl,
+      tag: opts.tag,
+    );
     final Completer completer = Completer.sync();
     pendingRequests[payload['id']] = completer;
 
@@ -325,7 +330,12 @@ class Pairing implements IPairing {
     //   return;
     // }
     final RpcOptions opts = PairingMethods.RPC_OPTS[method]['res'];
-    await core.relayClient.publish(topic, message, opts.ttl);
+    await core.relayClient.publish(
+      topic: topic,
+      message: message,
+      ttl: opts.ttl,
+      tag: opts.tag,
+    );
     // await core.history.resolve(payload);
   }
 
@@ -343,12 +353,17 @@ class Pairing implements IPairing {
     final RpcOptions opts = PairingMethods.RPC_OPTS.containsKey(method)
         ? PairingMethods.RPC_OPTS[method]['res']
         : PairingMethods.RPC_OPTS[PairingMethods.UNREGISTERED_METHOD]['res'];
-    await core.relayClient.publish(topic, message, opts.ttl);
+    await core.relayClient.publish(
+      topic: topic,
+      message: message,
+      ttl: opts.ttl,
+      tag: opts.tag,
+    );
     await core.history.resolve(payload);
   }
 
   Future<void> _deletePairing(String topic, bool expirerHasDeleted) async {
-    await core.relayClient.unsubscribe(topic);
+    await core.relayClient.unsubscribe(topic: topic);
     await Future.wait([
       pairings!.delete(topic),
       core.crypto.deleteSymKey(topic),

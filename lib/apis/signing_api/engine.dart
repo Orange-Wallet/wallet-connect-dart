@@ -203,7 +203,7 @@ class Engine implements IEngine {
     // Delete the proposal, we are done with it
     await _deleteProposal(requestId);
 
-    await core.relayClient.subscribe(sessionTopic);
+    await core.relayClient.subscribe(topic: sessionTopic);
     await core.pairing.activate(topic: topic);
   }
 
@@ -288,7 +288,7 @@ class Engine implements IEngine {
       );
     }
 
-    await core.relayClient.subscribe(sessionTopic);
+    await core.relayClient.subscribe(topic: sessionTopic);
     bool acknowledged = await core.pairing.sendRequest(
       sessionTopic,
       SigningMethods.WC_SESSION_SETTLE,
@@ -526,7 +526,7 @@ class Engine implements IEngine {
     if (session == null) {
       return;
     }
-    await core.relayClient.unsubscribe(topic);
+    await core.relayClient.unsubscribe(topic: topic);
     await Future.wait([
       sessions.delete(topic),
       core.crypto.deleteKeyPair(session.self.publicKey),

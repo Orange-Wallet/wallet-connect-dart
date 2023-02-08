@@ -12,16 +12,15 @@ class PublishOptions {
 
 abstract class IRelayClient {
   Future<void> init();
-  Future<void> publish(
-    String topic,
-    String message,
-    int ttl, {
-    bool? prompt,
-    int? tag,
+  Future<void> publish({
+    required String topic,
+    required String message,
+    required int ttl,
+    required int tag,
   });
-  Future<String> subscribe(String topic);
-  Future<void> unsubscribe(String topic);
-  Future<void> connect(String? relayUrl);
+  Future<String> subscribe({required String topic});
+  Future<void> unsubscribe({required String topic});
+  Future<void> connect({String? relayUrl});
   Future<void> disconnect();
 
   /// Relay Client Events

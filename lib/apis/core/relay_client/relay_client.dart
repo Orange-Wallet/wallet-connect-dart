@@ -81,10 +81,10 @@ class RelayClient implements IRelayClient {
 
     // Setup the json RPC server
     jsonRPC = await _createJsonRPCProvider();
-    jsonRPC.registerMethod(
-      _buildMethod(JSON_RPC_PUBLISH),
-      _handlePublish,
-    );
+    // jsonRPC.registerMethod(
+    //   _buildMethod(JSON_RPC_PUBLISH),
+    //   _handlePublish,
+    // );
     jsonRPC.registerMethod(
       _buildMethod(JSON_RPC_SUBSCRIPTION),
       _handleSubscription,
@@ -115,12 +115,11 @@ class RelayClient implements IRelayClient {
   }
 
   @override
-  Future<void> publish(
-    String topic,
-    String message,
-    int ttl, {
-    bool? prompt,
-    int? tag,
+  Future<void> publish({
+    required String topic,
+    required String message,
+    required int ttl,
+    required int tag,
   }) async {
     _checkInitialized();
 
@@ -129,9 +128,6 @@ class RelayClient implements IRelayClient {
       'ttl': ttl,
       'topic': topic,
     };
-
-    if (prompt != null) data['prompt'] = prompt;
-    if (tag != null) data['tag'] = tag;
 
     try {
       // print('publishing');
@@ -148,7 +144,7 @@ class RelayClient implements IRelayClient {
   }
 
   @override
-  Future<String> subscribe(String topic) async {
+  Future<String> subscribe({required String topic}) async {
     _checkInitialized();
 
     pendingSubscriptions[topic] = _onSubscribe(topic);
@@ -157,7 +153,7 @@ class RelayClient implements IRelayClient {
   }
 
   @override
-  Future<void> unsubscribe(String topic) async {
+  Future<void> unsubscribe({required String topic}) async {
     _checkInitialized();
 
     String id = topicMap!.get(topic);
@@ -184,7 +180,7 @@ class RelayClient implements IRelayClient {
   }
 
   @override
-  Future<void> connect(String? relayUrl) async {
+  Future<void> connect({String? relayUrl}) async {
     _checkInitialized();
 
     jsonRPC = await _createJsonRPCProvider();
@@ -256,12 +252,12 @@ class RelayClient implements IRelayClient {
     return true;
   }
 
-  Future<bool> _handlePublish(Parameters params) async {
-    // print('handle publish');
-    String topic = params['topic'].value;
-    String message = params['message'].value;
-    return await handlePublish(topic, message);
-  }
+  // Future<bool> _handlePublish(Parameters params) async {
+  //   // print('handle publish');
+  //   String topic = params['topic'].value;
+  //   String message = params['message'].value;
+  //   return await handlePublish(topic, message);
+  // }
 
   Future<bool> _handleSubscription(Parameters params) async {
     // print('handle subscription.');
