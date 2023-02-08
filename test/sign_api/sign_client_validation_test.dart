@@ -477,13 +477,23 @@ void main() {
       ),
       true,
     );
+    expect(
+      SignApiValidatorUtils.isConformingNamespaces(
+        requiredNamespaces: TEST_REQUIRED_NAMESPACES,
+        namespaces: TEST_NAMESPACES,
+        context: 'test',
+      ),
+      true,
+    );
     final List nonconformingNamespaces = [
-      TEST_NAMESPACES_NONCONFORMING_KEY,
+      TEST_NAMESPACES_NONCONFORMING_KEY_1,
+      TEST_NAMESPACES_NONCONFORMING_KEY_2,
       TEST_NAMESPACES_NONCONFORMING_CHAINS,
       TEST_NAMESPACES_NONCONFORMING_METHODS,
       TEST_NAMESPACES_NONCONFORMING_EVENTS,
     ];
     final List errors = [
+      "Non conforming namespaces. test namespaces keys don't satisfy requiredNamespaces",
       "Non conforming namespaces. test namespaces keys don't satisfy requiredNamespaces",
       "Non conforming namespaces. test namespaces accounts don't satisfy requiredNamespaces chains for $EVM_NAMESPACE",
       "Non conforming namespaces. test namespaces methods don't satisfy requiredNamespaces methods for $EVM_NAMESPACE",
@@ -516,7 +526,8 @@ void main() {
       true,
     );
     final List nonconformingNamespaces = [
-      TEST_NAMESPACES_NONCONFORMING_KEY,
+      TEST_NAMESPACES_NONCONFORMING_KEY_1,
+      TEST_NAMESPACES_NONCONFORMING_KEY_2,
       TEST_NAMESPACES_NONCONFORMING_CHAINS,
       TEST_NAMESPACES_NONCONFORMING_METHODS,
       TEST_NAMESPACES_NONCONFORMING_EVENTS,

@@ -191,7 +191,7 @@ class SignApiValidatorUtils {
 
     // If the namespaces doesn't have the correct keys, we can fail automatically
     if (!isContainedIn(
-        container: requiredNamespaceKeys, contained: namespaceKeys)) {
+        container: namespaceKeys, contained: requiredNamespaceKeys)) {
       throw Errors.getInternalError(
         Errors.NON_CONFORMING_NAMESPACES,
         context: "$context namespaces keys don't satisfy requiredNamespaces",

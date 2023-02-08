@@ -125,7 +125,7 @@ class SignClient implements ISignClient {
     try {
       return await engine.pair(uri: uri);
     } catch (e) {
-      throw e;
+      rethrow;
     }
   }
 
@@ -142,7 +142,7 @@ class SignClient implements ISignClient {
         relayProtocol: relayProtocol,
       );
     } catch (e) {
-      throw e;
+      rethrow;
     }
   }
 
@@ -157,7 +157,7 @@ class SignClient implements ISignClient {
         reason: reason,
       );
     } catch (e) {
-      throw e;
+      rethrow;
     }
   }
 
@@ -172,7 +172,9 @@ class SignClient implements ISignClient {
         namespaces: namespaces,
       );
     } catch (e) {
-      throw e;
+      final error = e as WCError;
+      print(error.message);
+      rethrow;
     }
   }
 
@@ -183,7 +185,7 @@ class SignClient implements ISignClient {
     try {
       return await engine.extend(topic: topic);
     } catch (e) {
-      throw e;
+      rethrow;
     }
   }
 
@@ -200,7 +202,7 @@ class SignClient implements ISignClient {
         handler: handler,
       );
     } catch (e) {
-      throw e;
+      rethrow;
     }
   }
 
@@ -217,7 +219,7 @@ class SignClient implements ISignClient {
         request: request,
       );
     } catch (e) {
-      throw e;
+      rethrow;
     }
   }
 
@@ -234,7 +236,7 @@ class SignClient implements ISignClient {
         handler: handler,
       );
     } catch (e) {
-      throw e;
+      rethrow;
     }
   }
 
@@ -251,7 +253,7 @@ class SignClient implements ISignClient {
         event: event,
       );
     } catch (e) {
-      throw e;
+      rethrow;
     }
   }
 
@@ -262,7 +264,7 @@ class SignClient implements ISignClient {
     try {
       return await engine.ping(topic: topic);
     } catch (e) {
-      throw e;
+      rethrow;
     }
   }
 
@@ -277,7 +279,7 @@ class SignClient implements ISignClient {
         reason: reason,
       );
     } catch (e) {
-      throw e;
+      rethrow;
     }
   }
 
@@ -288,7 +290,7 @@ class SignClient implements ISignClient {
     try {
       return engine.find(requiredNamespaces: requiredNamespaces);
     } catch (e) {
-      throw e;
+      rethrow;
     }
   }
 

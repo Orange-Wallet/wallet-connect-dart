@@ -194,8 +194,7 @@ void main() {
     });
 
     group("update", () {
-      test("updates session namespaces state with provided namespaces",
-          () async {
+      test("session namespaces state with provided namespaces", () async {
         final connectionInfo = await SignClientHelpers.testConnectMethod(
           clientA,
           clientB,
@@ -211,6 +210,8 @@ void main() {
             events: ["accountsChanged"],
           ),
         };
+        print(clientA.engine.sessions.get(sessionATopic)!.requiredNamespaces);
+        print(namespacesAfter);
 
         await clientA.update(
           topic: sessionATopic,
