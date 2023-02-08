@@ -66,8 +66,8 @@ class Expirer implements IExpirer {
     if (!expired) {
       created.broadcast(
         ExpirationEvent(
-          key,
-          value,
+          target: key,
+          expiry: value,
         ),
       );
       await persist();
@@ -82,8 +82,8 @@ class Expirer implements IExpirer {
     expiry ??= -1;
     deleted.broadcast(
       ExpirationEvent(
-        key,
-        expiry,
+        target: key,
+        expiry: expiry,
       ),
     );
     await persist();
@@ -108,8 +108,8 @@ class Expirer implements IExpirer {
     }
     expired.broadcast(
       ExpirationEvent(
-        key,
-        expiry,
+        target: key,
+        expiry: expiry,
       ),
     );
   }

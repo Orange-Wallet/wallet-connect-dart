@@ -22,11 +22,11 @@ class PairingInfo {
   bool active;
   PairingMetadata? peerMetadata;
 
-  PairingInfo(
-    this.topic,
-    this.expiry,
-    this.relay,
-    this.active, {
+  PairingInfo({
+    required this.topic,
+    required this.expiry,
+    required this.relay,
+    required this.active,
     this.peerMetadata,
   });
 
@@ -44,11 +44,11 @@ class PairingMetadata {
   final List<String> icons;
   final Redirect? redirect;
 
-  PairingMetadata(
-    this.name,
-    this.description,
-    this.url,
-    this.icons, {
+  PairingMetadata({
+    required this.name,
+    required this.description,
+    required this.url,
+    required this.icons,
     this.redirect,
   });
 
@@ -84,10 +84,10 @@ class Redirect {
   final String? native;
   final String? universal;
 
-  Redirect(
+  Redirect({
     this.native,
     this.universal,
-  );
+  });
 
   factory Redirect.fromJson(Map<String, dynamic> json) =>
       _$RedirectFromJson(json);
@@ -109,23 +109,26 @@ class CreateResponse {
   String topic;
   Uri uri;
 
-  CreateResponse(
-    this.topic,
-    this.uri,
-  );
+  CreateResponse({
+    required this.topic,
+    required this.uri,
+  });
 }
 
 class ExpirationEvent extends EventArgs {
   String target;
   int expiry;
 
-  ExpirationEvent(this.target, this.expiry);
+  ExpirationEvent({
+    required this.target,
+    required this.expiry,
+  });
 }
 
 class HistoryEvent extends EventArgs {
   JsonRpcRecord record;
 
-  HistoryEvent(this.record);
+  HistoryEvent({required this.record});
 }
 
 class PairingInvalidEvent extends EventArgs {
@@ -157,11 +160,11 @@ class JsonRpcRecord {
   dynamic response;
   String? chainId;
 
-  JsonRpcRecord(
-    this.id,
-    this.topic,
-    this.method,
-    this.params, {
+  JsonRpcRecord({
+    required this.id,
+    required this.topic,
+    required this.method,
+    required this.params,
     this.chainId,
   });
 

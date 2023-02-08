@@ -7,10 +7,10 @@ part of 'pairing_models.dart';
 // **************************************************************************
 
 PairingInfo _$PairingInfoFromJson(Map<String, dynamic> json) => PairingInfo(
-      json['topic'] as String,
-      json['expiry'] as int,
-      Relay.fromJson(json['relay'] as Map<String, dynamic>),
-      json['active'] as bool,
+      topic: json['topic'] as String,
+      expiry: json['expiry'] as int,
+      relay: Relay.fromJson(json['relay'] as Map<String, dynamic>),
+      active: json['active'] as bool,
       peerMetadata: json['peerMetadata'] == null
           ? null
           : PairingMetadata.fromJson(
@@ -28,10 +28,10 @@ Map<String, dynamic> _$PairingInfoToJson(PairingInfo instance) =>
 
 PairingMetadata _$PairingMetadataFromJson(Map<String, dynamic> json) =>
     PairingMetadata(
-      json['name'] as String,
-      json['description'] as String,
-      json['url'] as String,
-      (json['icons'] as List<dynamic>).map((e) => e as String).toList(),
+      name: json['name'] as String,
+      description: json['description'] as String,
+      url: json['url'] as String,
+      icons: (json['icons'] as List<dynamic>).map((e) => e as String).toList(),
       redirect: json['redirect'] == null
           ? null
           : Redirect.fromJson(json['redirect'] as Map<String, dynamic>),
@@ -47,8 +47,8 @@ Map<String, dynamic> _$PairingMetadataToJson(PairingMetadata instance) =>
     };
 
 Redirect _$RedirectFromJson(Map<String, dynamic> json) => Redirect(
-      json['native'] as String?,
-      json['universal'] as String?,
+      native: json['native'] as String?,
+      universal: json['universal'] as String?,
     );
 
 Map<String, dynamic> _$RedirectToJson(Redirect instance) => <String, dynamic>{
@@ -58,10 +58,10 @@ Map<String, dynamic> _$RedirectToJson(Redirect instance) => <String, dynamic>{
 
 JsonRpcRecord _$JsonRpcRecordFromJson(Map<String, dynamic> json) =>
     JsonRpcRecord(
-      json['id'] as int,
-      json['topic'] as String,
-      json['method'] as String,
-      json['params'],
+      id: json['id'] as int,
+      topic: json['topic'] as String,
+      method: json['method'] as String,
+      params: json['params'],
       chainId: json['chainId'] as String?,
     )..response = json['response'];
 

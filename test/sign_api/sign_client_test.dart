@@ -19,10 +19,10 @@ void main() {
           memoryStore: true,
         ),
         self: PairingMetadata(
-          'App A (Proposer, dapp)',
-          'Description of Proposer App run by client A',
-          'https://walletconnect.com',
-          ['https://avatars.githubusercontent.com/u/37784886'],
+          name: 'App A (Proposer, dapp)',
+          description: 'Description of Proposer App run by client A',
+          url: 'https://walletconnect.com',
+          icons: ['https://avatars.githubusercontent.com/u/37784886'],
         ),
       );
       clientB = await SignClient.createInstance(
@@ -32,10 +32,10 @@ void main() {
           memoryStore: true,
         ),
         self: PairingMetadata(
-          'App B (Responder, Wallet)',
-          'Description of Proposer App run by client B',
-          'https://walletconnect.com',
-          ['https://avatars.githubusercontent.com/u/37784886'],
+          name: 'App B (Responder, Wallet)',
+          description: 'Description of Proposer App run by client B',
+          url: 'https://walletconnect.com',
+          icons: ['https://avatars.githubusercontent.com/u/37784886'],
         ),
       );
     });

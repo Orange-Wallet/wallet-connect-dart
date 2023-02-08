@@ -81,10 +81,10 @@ class RelayClient implements IRelayClient {
 
     // Setup the json RPC server
     jsonRPC = await _createJsonRPCProvider();
-    // jsonRPC.registerMethod(
-    //   _buildMethod(JSON_RPC_PUBLISH),
-    //   _handlePublish,
-    // );
+    jsonRPC.registerMethod(
+      _buildMethod(JSON_RPC_PUBLISH),
+      _handlePublish,
+    );
     jsonRPC.registerMethod(
       _buildMethod(JSON_RPC_SUBSCRIPTION),
       _handleSubscription,
@@ -130,7 +130,7 @@ class RelayClient implements IRelayClient {
     };
 
     try {
-      // print('publishing');
+      print('publishing');
       var value = await jsonRPC.sendRequest(
         _buildMethod(JSON_RPC_PUBLISH),
         data,
@@ -252,15 +252,15 @@ class RelayClient implements IRelayClient {
     return true;
   }
 
-  // Future<bool> _handlePublish(Parameters params) async {
-  //   // print('handle publish');
-  //   String topic = params['topic'].value;
-  //   String message = params['message'].value;
-  //   return await handlePublish(topic, message);
-  // }
+  Future<bool> _handlePublish(Parameters params) async {
+    // print('handle publish');
+    String topic = params['topic'].value;
+    String message = params['message'].value;
+    return await handlePublish(topic, message);
+  }
 
   Future<bool> _handleSubscription(Parameters params) async {
-    // print('handle subscription.');
+    print('handle subscription.');
     String topic = params['data']['topic'].value;
     String message = params['data']['message'].value;
     // print(topic);

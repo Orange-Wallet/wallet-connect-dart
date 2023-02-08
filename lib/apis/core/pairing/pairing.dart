@@ -2,11 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:event/event.dart';
-import 'package:http/http.dart';
 import 'package:wallet_connect_v2_dart/apis/core/i_core.dart';
 import 'package:wallet_connect_v2_dart/apis/core/pairing/i_pairing.dart';
 import 'package:wallet_connect_v2_dart/apis/core/pairing/i_pairing_store.dart';
-import 'package:wallet_connect_v2_dart/apis/core/pairing/utils/pairing_methods.dart';
 import 'package:wallet_connect_v2_dart/apis/models/uri_parse_result.dart';
 import 'package:wallet_connect_v2_dart/apis/core/pairing/utils/pairing_models.dart';
 import 'package:wallet_connect_v2_dart/apis/core/pairing/pairing_store.dart';
@@ -18,6 +16,7 @@ import 'package:wallet_connect_v2_dart/apis/models/json_rpc_response.dart';
 import 'package:wallet_connect_v2_dart/apis/models/basic_errors.dart';
 import 'package:wallet_connect_v2_dart/apis/utils/constants.dart';
 import 'package:wallet_connect_v2_dart/apis/utils/errors.dart';
+import 'package:wallet_connect_v2_dart/apis/utils/method_constants.dart';
 import 'package:wallet_connect_v2_dart/apis/utils/wallet_connect_utils.dart';
 
 class Pairing implements IPairing {
@@ -76,10 +75,10 @@ class Pairing implements IPairing {
     final Relay relay = parsedUri.relay;
     final String symKey = parsedUri.symKey;
     final PairingInfo pairing = PairingInfo(
-      topic,
-      expiry,
-      relay,
-      false,
+      topic: topic,
+      expiry: expiry,
+      relay: relay,
+      active: false,
     );
 
     try {
@@ -127,7 +126,12 @@ class Pairing implements IPairing {
       WalletConnectConstants.FIVE_MINUTES,
     );
     final Relay relay = Relay(WalletConnectConstants.RELAYER_DEFAULT_PROTOCOL);
-    final PairingInfo pairing = PairingInfo(topic, expiry, relay, false);
+    final PairingInfo pairing = PairingInfo(
+      topic: topic,
+      expiry: expiry,
+      relay: relay,
+      active: false,
+    );
     final Uri uri = WalletConnectUtils.formatUri(
       protocol: core.protocol,
       version: core.version,
@@ -141,8 +145,8 @@ class Pairing implements IPairing {
     await core.expirer.set(topic, expiry);
 
     return CreateResponse(
-      topic,
-      uri,
+      topic: topic,
+      uri: uri,
     );
   }
 
@@ -215,14 +219,15 @@ class Pairing implements IPairing {
 
     _isValidPing(topic);
 
-    print('swag 4');
     if (pairings!.has(topic)) {
       try {
+        print('swag 4');
         final bool response = await sendRequest(
           topic,
-          PairingMethods.WC_PAIRING_PING,
+          MethodConstants.WC_PAIRING_PING,
           {},
         );
+        print('swag 5');
         onPairingPing.broadcast(
           PairingEvent(
             topic: topic,
@@ -248,7 +253,7 @@ class Pairing implements IPairing {
       try {
         await sendRequest(
           topic,
-          PairingMethods.WC_PAIRING_DELETE,
+          MethodConstants.WC_PAIRING_DELETE,
           Errors.getSdkError(Errors.USER_DISCONNECTED).toJson(),
         );
         await pairings!.delete(topic);
@@ -288,13 +293,12 @@ class Pairing implements IPairing {
     );
     final JsonRpcRequest request = JsonRpcRequest.fromJson(payload);
     final String message = await core.crypto.encode(topic, payload);
-    final RpcOptions opts =
-        PairingMethods.RPC_OPTS[method]['req'] as RpcOptions;
+    final RpcOptions opts = MethodConstants.RPC_OPTS[method]!['req']!;
     await core.history.set(
       topic,
       request,
     );
-    // print('sent request');
+    print('sent request');
     await core.relayClient.publish(
       topic: topic,
       message: message,
@@ -329,7 +333,7 @@ class Pairing implements IPairing {
     // if (record == null) {
     //   return;
     // }
-    final RpcOptions opts = PairingMethods.RPC_OPTS[method]['res'];
+    final RpcOptions opts = MethodConstants.RPC_OPTS[method]!['res']!;
     await core.relayClient.publish(
       topic: topic,
       message: message,
@@ -350,9 +354,10 @@ class Pairing implements IPairing {
       error,
     );
     final String message = await core.crypto.encode(topic, payload);
-    final RpcOptions opts = PairingMethods.RPC_OPTS.containsKey(method)
-        ? PairingMethods.RPC_OPTS[method]['res']
-        : PairingMethods.RPC_OPTS[PairingMethods.UNREGISTERED_METHOD]['res'];
+    final RpcOptions opts = MethodConstants.RPC_OPTS.containsKey(method)
+        ? MethodConstants.RPC_OPTS[method]!['res']!
+        : MethodConstants
+            .RPC_OPTS[MethodConstants.UNREGISTERED_METHOD]!['res']!;
     await core.relayClient.publish(
       topic: topic,
       message: message,
@@ -397,12 +402,12 @@ class Pairing implements IPairing {
     core.relayClient.onRelayClientMessage.subscribe(_onMessageEvent);
 
     register(
-      method: PairingMethods.WC_PAIRING_PING,
+      method: MethodConstants.WC_PAIRING_PING,
       function: _onPairingPingRequest,
       type: ProtocolType.Pair,
     );
     register(
-      method: PairingMethods.WC_PAIRING_DELETE,
+      method: MethodConstants.WC_PAIRING_DELETE,
       function: _onPairingDeleteRequest,
       type: ProtocolType.Pair,
     );

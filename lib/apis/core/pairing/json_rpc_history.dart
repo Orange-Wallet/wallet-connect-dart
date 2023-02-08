@@ -65,15 +65,15 @@ class JsonRpcHistory implements IJsonRpcHistory {
     _checkInitialized();
 
     final JsonRpcRecord record = JsonRpcRecord(
-      value.id,
-      topic,
-      value.method,
-      value.params,
+      id: value.id,
+      topic: topic,
+      method: value.method,
+      params: value.params,
       chainId: chainId,
     );
 
     history[value.id.toString()] = record.toJson();
-    created.broadcast(HistoryEvent(record));
+    created.broadcast(HistoryEvent(record: record));
     await persist();
   }
 
@@ -96,7 +96,7 @@ class JsonRpcHistory implements IJsonRpcHistory {
     record.response =
         response.containsKey('result') ? response['result'] : response['error'];
     history[response['id'].toString()] = record.toJson();
-    updated.broadcast(HistoryEvent(record));
+    updated.broadcast(HistoryEvent(record: record));
     await persist();
   }
 
@@ -107,7 +107,7 @@ class JsonRpcHistory implements IJsonRpcHistory {
     if (r != null) {
       deleted.broadcast(
         HistoryEvent(
-          JsonRpcRecord.fromJson(
+          record: JsonRpcRecord.fromJson(
             r,
           ),
         ),

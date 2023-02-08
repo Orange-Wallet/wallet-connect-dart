@@ -7,7 +7,7 @@ import 'package:wallet_connect_v2_dart/apis/core/relay_client/relay_client_model
 import 'package:wallet_connect_v2_dart/apis/models/json_rpc_error.dart';
 import 'package:wallet_connect_v2_dart/apis/models/basic_errors.dart';
 import 'package:wallet_connect_v2_dart/apis/models/uri_parse_result.dart';
-import 'package:wallet_connect_v2_dart/apis/signing_api/utils/signing_methods.dart';
+import 'package:wallet_connect_v2_dart/apis/utils/method_constants.dart';
 import 'package:wallet_connect_v2_dart/apis/utils/wallet_connect_utils.dart';
 
 import '../shared/shared_test_values.dart';
@@ -26,7 +26,7 @@ void main() {
         symKey: 'xyz',
         relay: Relay('irn'),
         methods: [
-          [SigningMethods.WC_SESSION_PROPOSE],
+          [MethodConstants.WC_SESSION_PROPOSE],
           ['wc_authRequest', 'wc_authBatchRequest'],
         ]);
     expect(
@@ -140,10 +140,10 @@ void main() {
     test("can update peer metadata", () async {
       final CreateResponse response = await coreA.pairing.create();
       PairingMetadata mock = PairingMetadata(
-        'Mock',
-        'Mock Metadata',
-        'https://mockurl.com',
-        [],
+        name: 'Mock',
+        description: 'Mock Metadata',
+        url: 'https://mockurl.com',
+        icons: [],
       );
 
       expect(
@@ -294,7 +294,7 @@ void main() {
             () async {
           List<RegisteredFunction> registeredFunctions = [
             RegisteredFunction(
-              method: SigningMethods.WC_SESSION_PROPOSE,
+              method: MethodConstants.WC_SESSION_PROPOSE,
               function: (s, r) => {},
               type: ProtocolType.Sign,
             ),
