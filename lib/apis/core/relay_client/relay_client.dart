@@ -10,7 +10,7 @@ import 'package:wallet_connect_v2_dart/apis/core/relay_client/i_topic_map.dart';
 import 'package:wallet_connect_v2_dart/apis/core/relay_client/message_tracker.dart';
 import 'package:wallet_connect_v2_dart/apis/core/relay_client/relay_client_models.dart';
 import 'package:wallet_connect_v2_dart/apis/core/relay_client/topic_map.dart';
-import 'package:wallet_connect_v2_dart/apis/models/basic_errors.dart';
+import 'package:wallet_connect_v2_dart/apis/models/basic_models.dart';
 import 'package:wallet_connect_v2_dart/apis/utils/constants.dart';
 import 'package:wallet_connect_v2_dart/apis/utils/errors.dart';
 import 'package:wallet_connect_v2_dart/apis/utils/wallet_connect_utils.dart';
@@ -220,7 +220,7 @@ class RelayClient implements IRelayClient {
       return Peer(socket.cast<String>());
     } catch (e) {
       onRelayClientError.broadcast(ErrorEvent(e));
-      throw Error(
+      throw WCError(
         code: 401,
         message:
             "Project ID doesn't exist, is invalid, or has too many requests",

@@ -6,8 +6,7 @@ part of 'session_models.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-BaseNamespace _$BaseNamespaceFromJson(Map<String, dynamic> json) =>
-    BaseNamespace(
+Namespace _$NamespaceFromJson(Map<String, dynamic> json) => Namespace(
       accounts:
           (json['accounts'] as List<dynamic>).map((e) => e as String).toList(),
       methods:
@@ -16,43 +15,11 @@ BaseNamespace _$BaseNamespaceFromJson(Map<String, dynamic> json) =>
           (json['events'] as List<dynamic>).map((e) => e as String).toList(),
     );
 
-Map<String, dynamic> _$BaseNamespaceToJson(BaseNamespace instance) =>
-    <String, dynamic>{
+Map<String, dynamic> _$NamespaceToJson(Namespace instance) => <String, dynamic>{
       'accounts': instance.accounts,
       'methods': instance.methods,
       'events': instance.events,
     };
-
-Namespace _$NamespaceFromJson(Map<String, dynamic> json) => Namespace(
-      accounts:
-          (json['accounts'] as List<dynamic>).map((e) => e as String).toList(),
-      methods:
-          (json['methods'] as List<dynamic>).map((e) => e as String).toList(),
-      events: (json['events'] as List<dynamic>?)
-              ?.map((e) => e as String)
-              .toList() ??
-          const [],
-      extension: (json['extension'] as List<dynamic>?)
-          ?.map((e) => BaseNamespace.fromJson(e as Map<String, dynamic>))
-          .toList(),
-    );
-
-Map<String, dynamic> _$NamespaceToJson(Namespace instance) {
-  final val = <String, dynamic>{
-    'accounts': instance.accounts,
-    'methods': instance.methods,
-    'events': instance.events,
-  };
-
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
-    }
-  }
-
-  writeNotNull('extension', instance.extension);
-  return val;
-}
 
 SessionData _$SessionDataFromJson(Map<String, dynamic> json) => SessionData(
       topic: json['topic'] as String,
@@ -63,13 +30,22 @@ SessionData _$SessionDataFromJson(Map<String, dynamic> json) => SessionData(
       namespaces: (json['namespaces'] as Map<String, dynamic>).map(
         (k, e) => MapEntry(k, Namespace.fromJson(e as Map<String, dynamic>)),
       ),
-      self: ConnectionMetadata.fromJson(json['self'] as Map<String, dynamic>),
-      peer: ConnectionMetadata.fromJson(json['peer'] as Map<String, dynamic>),
       requiredNamespaces:
-          (json['requiredNamespaces'] as Map<String, dynamic>?)?.map(
+          (json['requiredNamespaces'] as Map<String, dynamic>).map(
         (k, e) =>
             MapEntry(k, RequiredNamespace.fromJson(e as Map<String, dynamic>)),
       ),
+      optionalNamespaces:
+          (json['optionalNamespaces'] as Map<String, dynamic>).map(
+        (k, e) =>
+            MapEntry(k, RequiredNamespace.fromJson(e as Map<String, dynamic>)),
+      ),
+      sessionProperties:
+          (json['sessionProperties'] as Map<String, dynamic>?)?.map(
+        (k, e) => MapEntry(k, e as String),
+      ),
+      self: ConnectionMetadata.fromJson(json['self'] as Map<String, dynamic>),
+      peer: ConnectionMetadata.fromJson(json['peer'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$SessionDataToJson(SessionData instance) =>
@@ -81,6 +57,8 @@ Map<String, dynamic> _$SessionDataToJson(SessionData instance) =>
       'controller': instance.controller,
       'namespaces': instance.namespaces,
       'requiredNamespaces': instance.requiredNamespaces,
+      'optionalNamespaces': instance.optionalNamespaces,
+      'sessionProperties': instance.sessionProperties,
       'self': instance.self,
       'peer': instance.peer,
     };

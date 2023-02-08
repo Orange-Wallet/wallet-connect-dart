@@ -1,7 +1,7 @@
 import 'package:event/event.dart';
 import 'package:wallet_connect_v2_dart/apis/core/pairing/i_pairing_store.dart';
 import 'package:wallet_connect_v2_dart/apis/core/relay_client/relay_client_models.dart';
-import 'package:wallet_connect_v2_dart/apis/models/basic_errors.dart';
+import 'package:wallet_connect_v2_dart/apis/models/basic_models.dart';
 import 'package:wallet_connect_v2_dart/apis/signing_api/engine.dart';
 import 'package:wallet_connect_v2_dart/apis/signing_api/i_engine.dart';
 import 'package:wallet_connect_v2_dart/apis/core/pairing/utils/pairing_models.dart';
@@ -149,7 +149,7 @@ class SignClient implements ISignClient {
   @override
   Future<void> reject({
     required int id,
-    required ErrorResponse reason,
+    required WCErrorResponse reason,
   }) async {
     try {
       return await engine.reject(
@@ -269,7 +269,7 @@ class SignClient implements ISignClient {
   @override
   Future<void> disconnect({
     required String topic,
-    required ErrorResponse reason,
+    required WCErrorResponse reason,
   }) async {
     try {
       return await engine.disconnect(

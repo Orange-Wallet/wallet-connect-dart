@@ -31,16 +31,20 @@ class WcPairingPingRequest {
   Map<String, dynamic> toJson() => _$WcPairingPingRequestToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(includeIfNull: false)
 class WcSessionProposeRequest {
   final List<Relay> relays;
   final Map<String, RequiredNamespace> requiredNamespaces;
+  final Map<String, RequiredNamespace> optionalNamespaces;
+  final Map<String, String>? sessionProperties;
   final ConnectionMetadata proposer;
 
   WcSessionProposeRequest({
     required this.relays,
     required this.requiredNamespaces,
+    required this.optionalNamespaces,
     required this.proposer,
+    this.sessionProperties,
   });
 
   factory WcSessionProposeRequest.fromJson(Map<String, dynamic> json) =>
@@ -65,12 +69,14 @@ class WcSessionProposeResponse {
   Map<String, dynamic> toJson() => _$WcSessionProposeResponseToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(includeIfNull: false)
 class WcSessionSettleRequest {
   final int id;
   final Relay relay;
   final Map<String, Namespace> namespaces;
   final Map<String, RequiredNamespace> requiredNamespaces;
+  final Map<String, RequiredNamespace> optionalNamespaces;
+  final Map<String, String>? sessionProperties;
   final int expiry;
   final ConnectionMetadata controller;
 
@@ -79,6 +85,8 @@ class WcSessionSettleRequest {
     required this.relay,
     required this.namespaces,
     required this.requiredNamespaces,
+    required this.optionalNamespaces,
+    this.sessionProperties,
     required this.expiry,
     required this.controller,
   });

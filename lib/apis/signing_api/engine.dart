@@ -8,7 +8,7 @@ import 'package:wallet_connect_v2_dart/apis/core/i_core.dart';
 import 'package:wallet_connect_v2_dart/apis/core/relay_client/relay_client_models.dart';
 import 'package:wallet_connect_v2_dart/apis/models/json_rpc_error.dart';
 import 'package:wallet_connect_v2_dart/apis/models/json_rpc_request.dart';
-import 'package:wallet_connect_v2_dart/apis/models/basic_errors.dart';
+import 'package:wallet_connect_v2_dart/apis/models/basic_models.dart';
 import 'package:wallet_connect_v2_dart/apis/signing_api/i_engine.dart';
 import 'package:wallet_connect_v2_dart/apis/signing_api/models/generic_models.dart';
 import 'package:wallet_connect_v2_dart/apis/signing_api/models/json_rpc_models.dart';
@@ -102,16 +102,20 @@ class Engine implements IEngine {
 
   @override
   Future<ConnectResponse> connect({
-    required Map<String, RequiredNamespace> requiredNamespaces,
+    Map<String, RequiredNamespace>? requiredNamespaces,
+    Map<String, RequiredNamespace>? optionalNamespaces,
+    Map<String, String>? sessionProperties,
     String? pairingTopic,
     List<Relay>? relays,
   }) async {
     _checkInitialized();
 
     await _isValidConnect(
-      requiredNamespaces,
-      pairingTopic,
-      relays,
+      requiredNamespaces: requiredNamespaces ?? {},
+      optionalNamespaces: optionalNamespaces ?? {},
+      sessionProperties: sessionProperties,
+      pairingTopic: pairingTopic,
+      relays: relays,
     );
     String? topic = pairingTopic;
     Uri? uri;
@@ -136,11 +140,13 @@ class Engine implements IEngine {
       relays: relays == null
           ? [Relay(WalletConnectConstants.RELAYER_DEFAULT_PROTOCOL)]
           : relays,
-      requiredNamespaces: requiredNamespaces,
+      requiredNamespaces: requiredNamespaces ?? {},
+      optionalNamespaces: optionalNamespaces ?? {},
       proposer: ConnectionMetadata(
         publicKey: publicKey,
         metadata: selfMetadata,
       ),
+      sessionProperties: sessionProperties,
     );
 
     final expiry = WalletConnectUtils.calculateExpiry(
@@ -152,6 +158,8 @@ class Engine implements IEngine {
       relays: request.relays,
       proposer: request.proposer,
       requiredNamespaces: request.requiredNamespaces,
+      optionalNamespaces: request.optionalNamespaces,
+      sessionProperties: request.sessionProperties,
       pairingTopic: topic,
     );
     await _setProposal(
@@ -162,10 +170,12 @@ class Engine implements IEngine {
     Completer completer = Completer.sync();
 
     pendingProposals[id] = SessionProposalCompleter(
-      publicKey,
-      topic,
-      request.requiredNamespaces,
-      completer,
+      selfPublicKey: publicKey,
+      pairingTopic: topic,
+      requiredNamespaces: request.requiredNamespaces,
+      optionalNamespaces: request.optionalNamespaces,
+      sessionProperties: request.sessionProperties,
+      completer: completer,
     );
     connectResponseHandler(
       topic,
@@ -227,14 +237,16 @@ class Engine implements IEngine {
   Future<ApproveResponse> approve({
     required int id,
     required Map<String, Namespace> namespaces,
+    Map<String, String>? sessionProperties,
     String? relayProtocol,
   }) async {
     _checkInitialized();
 
     await _isValidApprove(
-      id,
-      namespaces,
-      relayProtocol,
+      id: id,
+      namespaces: namespaces,
+      sessionProperties: sessionProperties,
+      relayProtocol: relayProtocol,
     );
     final ProposalData proposal = proposals.get(
       id.toString(),
@@ -258,6 +270,8 @@ class Engine implements IEngine {
       relay: relay,
       namespaces: namespaces,
       requiredNamespaces: proposal.requiredNamespaces,
+      optionalNamespaces: proposal.optionalNamespaces,
+      sessionProperties: sessionProperties,
       expiry: expiry,
       controller: ConnectionMetadata(
         publicKey: selfPubKey,
@@ -307,6 +321,8 @@ class Engine implements IEngine {
       acknowledged: acknowledged,
       controller: selfPubKey,
       namespaces: namespaces,
+      requiredNamespaces: proposal.requiredNamespaces,
+      optionalNamespaces: proposal.optionalNamespaces,
       self: ConnectionMetadata(
         publicKey: selfPubKey,
         metadata: selfMetadata,
@@ -328,7 +344,7 @@ class Engine implements IEngine {
   @override
   Future<void> reject({
     required int id,
-    required ErrorResponse reason,
+    required WCErrorResponse reason,
   }) async {
     _checkInitialized();
 
@@ -482,7 +498,7 @@ class Engine implements IEngine {
   @override
   Future<void> disconnect({
     required String topic,
-    required ErrorResponse reason,
+    required WCErrorResponse reason,
   }) async {
     _checkInitialized();
     _isValidDisconnect(topic);
@@ -507,7 +523,9 @@ class Engine implements IEngine {
     return sessions.getAll().firstWhere(
       (element) {
         return SignApiValidatorUtils.isSessionCompatible(
-            element, requiredNamespaces);
+          session: element,
+          requiredNamespaces: requiredNamespaces,
+        );
       },
     );
   }
@@ -638,9 +656,11 @@ class Engine implements IEngine {
       // print(payload.params);
       final proposeRequest = WcSessionProposeRequest.fromJson(payload.params);
       await _isValidConnect(
-        proposeRequest.requiredNamespaces,
-        topic,
-        proposeRequest.relays,
+        requiredNamespaces: proposeRequest.requiredNamespaces,
+        optionalNamespaces: proposeRequest.optionalNamespaces,
+        sessionProperties: proposeRequest.sessionProperties,
+        pairingTopic: topic,
+        relays: proposeRequest.relays,
       );
       final expiry = WalletConnectUtils.calculateExpiry(
         WalletConnectConstants.FIVE_MINUTES,
@@ -651,6 +671,8 @@ class Engine implements IEngine {
         relays: proposeRequest.relays,
         proposer: proposeRequest.proposer,
         requiredNamespaces: proposeRequest.requiredNamespaces,
+        optionalNamespaces: proposeRequest.optionalNamespaces,
+        sessionProperties: proposeRequest.sessionProperties,
         pairingTopic: topic,
       );
 
@@ -659,7 +681,7 @@ class Engine implements IEngine {
         payload.id,
         proposal,
       ));
-    } on Error catch (err) {
+    } on WCError catch (err) {
       await core.pairing.sendError(
         payload.id,
         topic,
@@ -690,12 +712,14 @@ class Engine implements IEngine {
         acknowledged: true,
         controller: request.controller.publicKey,
         namespaces: request.namespaces,
+        requiredNamespaces: sProposalCompleter.requiredNamespaces,
+        optionalNamespaces: sProposalCompleter.optionalNamespaces,
+        sessionProperties: sProposalCompleter.sessionProperties,
         self: ConnectionMetadata(
           publicKey: sProposalCompleter.selfPublicKey,
           metadata: selfMetadata,
         ),
         peer: request.controller,
-        requiredNamespaces: sProposalCompleter.requiredNamespaces,
       );
 
       // Update all the things: session, expiry, metadata, pairing
@@ -720,7 +744,7 @@ class Engine implements IEngine {
       onSessionConnect.broadcast(
         SessionConnect(session),
       );
-    } on Error catch (err) {
+    } on WCError catch (err) {
       await core.pairing.sendError(
         payload.id,
         topic,
@@ -757,7 +781,7 @@ class Engine implements IEngine {
           request.namespaces,
         ),
       );
-    } on Error catch (err) {
+    } on WCError catch (err) {
       await core.pairing.sendError(
         payload.id,
         topic,
@@ -794,7 +818,7 @@ class Engine implements IEngine {
           topic,
         ),
       );
-    } on Error catch (err) {
+    } on WCError catch (err) {
       await core.pairing.sendError(
         payload.id,
         topic,
@@ -825,7 +849,7 @@ class Engine implements IEngine {
           topic,
         ),
       );
-    } on Error catch (err) {
+    } on WCError catch (err) {
       await core.pairing.sendError(
         payload.id,
         topic,
@@ -857,7 +881,7 @@ class Engine implements IEngine {
           topic,
         ),
       );
-    } on Error catch (err) {
+    } on WCError catch (err) {
       await core.pairing.sendError(
         payload.id,
         topic,
@@ -932,7 +956,7 @@ class Engine implements IEngine {
           request.request.params,
         ),
       );
-    } on Error catch (err) {
+    } on WCError catch (err) {
       await core.pairing.sendError(
         payload.id,
         topic,
@@ -1004,7 +1028,7 @@ class Engine implements IEngine {
           event.data,
         ),
       );
-    } on Error catch (err) {
+    } on WCError catch (err) {
       await core.pairing.sendError(
         payload.id,
         topic,
@@ -1047,10 +1071,10 @@ class Engine implements IEngine {
 
   /// ---- Validation Helpers ---- ///
 
-  bool _isValidPairingTopic(dynamic topic) {
+  bool _isValidPairingTopic(String topic) {
     if (!core.pairing.getStore().has(topic)) {
       throw Errors.getInternalError(
-        "NO_MATCHING_KEY",
+        Errors.NO_MATCHING_KEY,
         context: "pairing topic doesn't exist: $topic",
       );
     }
@@ -1070,7 +1094,7 @@ class Engine implements IEngine {
   Future<bool> _isValidSessionTopic(String topic) async {
     if (!sessions.has(topic)) {
       throw Errors.getInternalError(
-        "NO_MATCHING_KEY",
+        Errors.NO_MATCHING_KEY,
         context: "session topic doesn't exist: $topic",
       );
     }
@@ -1078,7 +1102,7 @@ class Engine implements IEngine {
     if (WalletConnectUtils.isExpired(sessions.get(topic)!.expiry)) {
       await _deleteSession(topic);
       throw Errors.getInternalError(
-        "EXPIRED",
+        Errors.EXPIRED,
         context: "session topic: $topic",
       );
     }
@@ -1093,7 +1117,7 @@ class Engine implements IEngine {
       _isValidPairingTopic(topic);
     } else {
       throw Errors.getInternalError(
-        "NO_MATCHING_KEY",
+        Errors.NO_MATCHING_KEY,
         context: "session or pairing topic doesn't exist: $topic",
       );
     }
@@ -1104,14 +1128,14 @@ class Engine implements IEngine {
   Future<bool> _isValidProposalId(int id) async {
     if (!proposals.has(id.toString())) {
       throw Errors.getInternalError(
-        "NO_MATCHING_KEY",
+        Errors.NO_MATCHING_KEY,
         context: "proposal id doesn't exist: $id",
       );
     }
     if (WalletConnectUtils.isExpired(proposals.get(id.toString())!.expiry)) {
       await _deleteProposal(id);
       throw Errors.getInternalError(
-        "EXPIRED",
+        Errors.EXPIRED,
         context: "proposal id: $id",
       );
     }
@@ -1121,39 +1145,75 @@ class Engine implements IEngine {
 
   /// ---- Validations ---- ///
 
-  Future<bool> _isValidConnect(
-    Map<String, RequiredNamespace> requiredNamespaces,
+  Future<bool> _isValidConnect({
+    Map<String, RequiredNamespace>? requiredNamespaces,
+    Map<String, RequiredNamespace>? optionalNamespaces,
+    Map<String, String>? sessionProperties,
     String? pairingTopic,
     List<Relay>? relays,
-  ) async {
+  }) async {
+    // No need to validate sessionProperties. Strict typing enforces Strings are valid
+    // No need to see if the relays are a valid array and whatnot. Strict typing enforces that.
     if (pairingTopic != null) {
       _isValidPairingTopic(pairingTopic);
     }
 
-    return SignApiValidatorUtils.isValidRequiredNamespaces(
-        requiredNamespaces, "connect()");
-  }
-
-  Future<bool> _isValidApprove(
-    int id,
-    Map<String, Namespace> namespaces,
-    String? relayProtocol,
-  ) async {
-    final ProposalData? proposal = proposals.get(id.toString());
-    if (proposal == null) {
-      throw Errors.getInternalError(
-        Errors.NO_MATCHING_KEY,
-        context: 'No proposal matching id: $id',
+    if (requiredNamespaces != null) {
+      return SignApiValidatorUtils.isValidRequiredNamespaces(
+        requiredNamespaces: requiredNamespaces,
+        context: "connect requiredNamespaces",
       );
     }
-    SignApiValidatorUtils.isValidNamespaces(namespaces, "approve()");
-    SignApiValidatorUtils.isConformingNamespaces(
-        proposal.requiredNamespaces, namespaces, "update()");
+
+    if (optionalNamespaces != null) {
+      return SignApiValidatorUtils.isValidRequiredNamespaces(
+        requiredNamespaces: optionalNamespaces,
+        context: "connect optionalNamespaces",
+      );
+    }
 
     return true;
   }
 
-  Future<bool> _isValidReject(int id, ErrorResponse reason) async {
+  Future<bool> _isValidApprove({
+    required int id,
+    required Map<String, Namespace> namespaces,
+    Map<String, String>? sessionProperties,
+    String? relayProtocol,
+  }) async {
+    // No need to validate sessionProperties. Strict typing enforces Strings are valid
+    await _isValidProposalId(id);
+    final ProposalData proposal = proposals.get(id.toString())!;
+
+    // Validate the namespaces
+    SignApiValidatorUtils.isValidNamespaces(
+      namespaces: namespaces,
+      context: "approve()",
+    );
+
+    // Validate the required and optional namespaces
+    SignApiValidatorUtils.isValidRequiredNamespaces(
+      requiredNamespaces: proposal.requiredNamespaces,
+      context: "approve()",
+    );
+    SignApiValidatorUtils.isValidRequiredNamespaces(
+      requiredNamespaces: proposal.optionalNamespaces,
+      context: "approve()",
+    );
+
+    // Make sure the provided namespaces conforms with the required
+    SignApiValidatorUtils.isConformingNamespaces(
+      requiredNamespaces: proposal.requiredNamespaces,
+      namespaces: namespaces,
+      context: "approve()",
+    );
+
+    return true;
+  }
+
+  Future<bool> _isValidReject(int id, WCErrorResponse reason) async {
+    // No need to validate reason. Strict typing enforces ErrorResponse is valid
+    await _isValidProposalId(id);
     return true;
   }
 
@@ -1162,7 +1222,10 @@ class Engine implements IEngine {
     int expiry,
   ) async {
     SignApiValidatorUtils.isValidNamespaces(
-        namespaces, "onSessionSettleRequest()");
+      namespaces: namespaces,
+      context: "onSessionSettleRequest()",
+    );
+
     if (WalletConnectUtils.isExpired(expiry)) {
       throw Errors.getInternalError(
         Errors.EXPIRED,
@@ -1179,13 +1242,15 @@ class Engine implements IEngine {
   ) async {
     await _isValidSessionTopic(topic);
     SignApiValidatorUtils.isValidNamespaces(
-        namespaces, "onSessionSettleRequest()");
+      namespaces: namespaces,
+      context: "onSessionSettleRequest()",
+    );
     final SessionData session = sessions.get(topic)!;
 
     SignApiValidatorUtils.isConformingNamespaces(
-      session.requiredNamespaces == null ? {} : session.requiredNamespaces!,
-      namespaces,
-      'update()',
+      requiredNamespaces: session.requiredNamespaces,
+      namespaces: namespaces,
+      context: 'update()',
     );
 
     return true;
@@ -1199,13 +1264,13 @@ class Engine implements IEngine {
     await _isValidSessionTopic(topic);
     final SessionData session = sessions.get(topic)!;
     SignApiValidatorUtils.isValidNamespacesChainId(
-      session.namespaces,
-      chainId,
+      namespaces: session.namespaces,
+      chainId: chainId,
     );
     SignApiValidatorUtils.isValidNamespacesRequest(
-      session.namespaces,
-      chainId,
-      request.method,
+      namespaces: session.namespaces,
+      chainId: chainId,
+      method: request.method,
     );
 
     return true;
@@ -1235,13 +1300,13 @@ class Engine implements IEngine {
     await _isValidSessionTopic(topic);
     final SessionData session = sessions.get(topic)!;
     SignApiValidatorUtils.isValidNamespacesChainId(
-      session.namespaces,
-      chainId,
+      namespaces: session.namespaces,
+      chainId: chainId,
     );
     SignApiValidatorUtils.isValidNamespacesEvent(
-      session.namespaces,
-      chainId,
-      event.name,
+      namespaces: session.namespaces,
+      chainId: chainId,
+      eventName: event.name,
     );
 
     return true;

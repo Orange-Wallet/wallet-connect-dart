@@ -5,7 +5,7 @@ import 'package:wallet_connect_v2_dart/apis/core/pairing/utils/pairing_models.da
 import 'package:wallet_connect_v2_dart/apis/core/pairing/utils/pairing_utils.dart';
 import 'package:wallet_connect_v2_dart/apis/core/relay_client/relay_client_models.dart';
 import 'package:wallet_connect_v2_dart/apis/models/json_rpc_error.dart';
-import 'package:wallet_connect_v2_dart/apis/models/basic_errors.dart';
+import 'package:wallet_connect_v2_dart/apis/models/basic_models.dart';
 import 'package:wallet_connect_v2_dart/apis/models/uri_parse_result.dart';
 import 'package:wallet_connect_v2_dart/apis/utils/method_constants.dart';
 import 'package:wallet_connect_v2_dart/apis/utils/wallet_connect_utils.dart';
@@ -224,7 +224,7 @@ void main() {
             () async => await coreA.pairing.pair(uri: Uri.parse('')),
             throwsA(
               predicate(
-                (e) => e is Error && e.message == 'Invalid URI: Missing @',
+                (e) => e is WCError && e.message == 'Invalid URI: Missing @',
               ),
             ),
           );
@@ -232,7 +232,7 @@ void main() {
             () async => await coreA.pairing.pair(uri: Uri.parse('wc:abc')),
             throwsA(
               predicate(
-                (e) => e is Error && e.message == 'Invalid URI: Missing @',
+                (e) => e is WCError && e.message == 'Invalid URI: Missing @',
               ),
             ),
           );
@@ -248,7 +248,7 @@ void main() {
             throwsA(
               predicate(
                 (e) =>
-                    e is Error &&
+                    e is WCError &&
                     e.message ==
                         'Unsupported wc_ method. The following methods are not registered: wc_sessionPropose, wc_authRequest, wc_authBatchRequest.',
               ),
@@ -265,7 +265,7 @@ void main() {
             throwsA(
               predicate(
                 (e) =>
-                    e is Error &&
+                    e is WCError &&
                     e.message ==
                         'Unsupported wc_ method. The following methods are not registered: wc_authRequest, wc_authBatchRequest.',
               ),
@@ -282,7 +282,7 @@ void main() {
             throwsA(
               predicate(
                 (e) =>
-                    e is Error &&
+                    e is WCError &&
                     e.message ==
                         'Unsupported wc_ method. The following methods are not registered: wc_authBatchRequest.',
               ),

@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:universal_io/io.dart';
 import 'package:wallet_connect_v2_dart/apis/core/relay_client/relay_client_models.dart';
-import 'package:wallet_connect_v2_dart/apis/models/basic_errors.dart';
+import 'package:wallet_connect_v2_dart/apis/models/basic_models.dart';
 import 'package:wallet_connect_v2_dart/apis/models/uri_parse_result.dart';
 
 class WalletConnectUtils {
@@ -79,7 +79,7 @@ class WalletConnectUtils {
     String path = uri.path;
     final List<String> splitParams = path.split('@');
     if (splitParams.length == 1) {
-      throw Error(
+      throw WCError(
         code: 0,
         message: 'Invalid URI: Missing @',
       );

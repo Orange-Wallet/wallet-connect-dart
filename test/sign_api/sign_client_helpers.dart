@@ -33,7 +33,7 @@ class SignClientHelpers {
     final Map<String, RequiredNamespace> reqNamespaces =
         requiredNamespaces != null
             ? requiredNamespaces
-            : SignClientConstants.TEST_REQUIRED_NAMESPACES;
+            : TEST_REQUIRED_NAMESPACES;
     // final connectParams = ConnectParams(
     //   requiredNamespaces: requiredNamespaces != null
     //       ? requiredNamespaces
@@ -43,7 +43,7 @@ class SignClientHelpers {
     // );
 
     Map<String, Namespace> workingNamespaces =
-        namespaces != null ? namespaces : SignClientConstants.TEST_NAMESPACES;
+        namespaces != null ? namespaces : TEST_NAMESPACES;
 
     SessionData? sessionA;
     SessionData? sessionB;
@@ -136,7 +136,7 @@ class SignClientHelpers {
     // relay
     expect(
       sessionA.relay.protocol,
-      SignClientConstants.TEST_RELAY_OPTIONS['protocol'],
+      TEST_RELAY_OPTIONS['protocol'],
     );
     expect(sessionA.relay.protocol, sessionB!.relay.protocol);
     // namespaces
@@ -170,11 +170,11 @@ class SignClientHelpers {
     // relay
     expect(
       pairingA.relay.protocol,
-      SignClientConstants.TEST_RELAY_OPTIONS['protocol'],
+      TEST_RELAY_OPTIONS['protocol'],
     );
     expect(
       pairingB.relay.protocol,
-      SignClientConstants.TEST_RELAY_OPTIONS['protocol'],
+      TEST_RELAY_OPTIONS['protocol'],
     );
     // active
     expect(pairingA.active, true);

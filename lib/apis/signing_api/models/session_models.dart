@@ -11,36 +11,40 @@ class SessionProposalCompleter {
   String selfPublicKey;
   String pairingTopic;
   Map<String, RequiredNamespace> requiredNamespaces;
+  Map<String, RequiredNamespace> optionalNamespaces;
+  Map<String, String>? sessionProperties;
   Completer completer;
 
-  SessionProposalCompleter(
-    this.selfPublicKey,
-    this.pairingTopic,
-    this.requiredNamespaces,
-    this.completer,
-  );
+  SessionProposalCompleter({
+    required this.selfPublicKey,
+    required this.pairingTopic,
+    required this.requiredNamespaces,
+    required this.optionalNamespaces,
+    required this.completer,
+    this.sessionProperties,
+  });
 }
 
 @JsonSerializable()
-class BaseNamespace {
+class Namespace {
   final List<String> accounts;
   final List<String> methods;
   final List<String> events;
 
-  BaseNamespace({
+  const Namespace({
     required this.accounts,
     required this.methods,
     required this.events,
   });
 
-  factory BaseNamespace.fromJson(Map<String, dynamic> json) =>
-      _$BaseNamespaceFromJson(json);
+  factory Namespace.fromJson(Map<String, dynamic> json) =>
+      _$NamespaceFromJson(json);
 
-  Map<String, dynamic> toJson() => _$BaseNamespaceToJson(this);
+  Map<String, dynamic> toJson() => _$NamespaceToJson(this);
 
   @override
   bool operator ==(Object other) {
-    return other is BaseNamespace && hashCode == other.hashCode;
+    return other is Namespace && hashCode == other.hashCode;
   }
 
   @override
@@ -59,53 +63,19 @@ class BaseNamespace {
       );
 }
 
-@JsonSerializable(includeIfNull: false)
-class Namespace extends BaseNamespace {
-  final List<BaseNamespace>? extension;
-
-  Namespace({
-    required List<String> accounts,
-    required List<String> methods,
-    List<String> events = const [],
-    this.extension,
-  }) : super(
-          accounts: accounts,
-          methods: methods,
-          events: events,
-        );
-
-  factory Namespace.fromJson(Map<String, dynamic> json) =>
-      _$NamespaceFromJson(json);
-
-  Map<String, dynamic> toJson() => _$NamespaceToJson(this);
-
-  @override
-  bool operator ==(Object other) {
-    return other is Namespace && hashCode == other.hashCode;
-  }
-
-  @override
-  int get hashCode =>
-      super.hashCode +
-      (extension == null
-          ? 0
-          : extension!.fold<int>(
-              0,
-              (previousValue, element) => previousValue + element.hashCode,
-            ));
-}
-
 @JsonSerializable()
 class SessionData {
-  String topic;
-  Relay relay;
+  final String topic;
+  final Relay relay;
   int expiry;
   bool acknowledged;
-  String controller;
+  final String controller;
   Map<String, Namespace> namespaces;
-  Map<String, RequiredNamespace>? requiredNamespaces;
-  ConnectionMetadata self;
-  ConnectionMetadata peer;
+  final Map<String, RequiredNamespace> requiredNamespaces;
+  final Map<String, RequiredNamespace> optionalNamespaces;
+  final Map<String, String>? sessionProperties;
+  final ConnectionMetadata self;
+  final ConnectionMetadata peer;
 
   SessionData({
     required this.topic,
@@ -114,9 +84,11 @@ class SessionData {
     required this.acknowledged,
     required this.controller,
     required this.namespaces,
+    required this.requiredNamespaces,
+    required this.optionalNamespaces,
+    this.sessionProperties,
     required this.self,
     required this.peer,
-    this.requiredNamespaces,
   });
 
   factory SessionData.fromJson(Map<String, dynamic> json) =>

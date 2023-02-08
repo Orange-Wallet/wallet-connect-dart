@@ -2,7 +2,7 @@ import 'package:event/event.dart';
 import 'package:wallet_connect_v2_dart/apis/core/i_core.dart';
 import 'package:wallet_connect_v2_dart/apis/core/pairing/utils/pairing_models.dart';
 import 'package:wallet_connect_v2_dart/apis/core/relay_client/relay_client_models.dart';
-import 'package:wallet_connect_v2_dart/apis/models/basic_errors.dart';
+import 'package:wallet_connect_v2_dart/apis/models/basic_models.dart';
 import 'package:wallet_connect_v2_dart/apis/signing_api/i_proposals.dart';
 import 'package:wallet_connect_v2_dart/apis/signing_api/i_sessions.dart';
 import 'package:wallet_connect_v2_dart/apis/signing_api/models/json_rpc_models.dart';
@@ -42,7 +42,7 @@ abstract class IEngine {
   });
   Future<void> reject({
     required int id,
-    required ErrorResponse reason,
+    required WCErrorResponse reason,
   });
   Future<void> update({
     required String topic,
@@ -76,7 +76,7 @@ abstract class IEngine {
   });
   Future<void> disconnect({
     required String topic,
-    required ErrorResponse reason,
+    required WCErrorResponse reason,
   });
   SessionData find({
     required Map<String, RequiredNamespace> requiredNamespaces,

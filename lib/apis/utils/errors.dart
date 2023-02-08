@@ -1,4 +1,4 @@
-import 'package:wallet_connect_v2_dart/apis/models/basic_errors.dart';
+import 'package:wallet_connect_v2_dart/apis/models/basic_models.dart';
 
 class Errors {
   static const INVALID_METHOD = 'INVALID_METHOD';
@@ -166,33 +166,33 @@ class Errors {
     },
   };
 
-  static Error getInternalError(
+  static WCError getInternalError(
     String key, {
     String context = '',
   }) {
     if (INTERNAL_ERRORS.containsKey(key)) {
-      return new Error(
+      return new WCError(
         code: INTERNAL_ERRORS[key]!['code']! as int,
         message: context != ''
             ? "${INTERNAL_ERRORS[key]!['message']! as String} $context"
             : INTERNAL_ERRORS[key]!['message']! as String,
       );
     }
-    return new Error(code: -1, message: "UNKNOWN INTERNAL ERROR");
+    return new WCError(code: -1, message: "UNKNOWN INTERNAL ERROR");
   }
 
-  static Error getSdkError(
+  static WCError getSdkError(
     String key, {
     String context = '',
   }) {
     if (SDK_ERRORS.containsKey(key)) {
-      return new Error(
+      return new WCError(
         code: SDK_ERRORS[key]!['code']! as int,
         message: context != ''
             ? "${SDK_ERRORS[key]!['message']! as String} $context"
             : SDK_ERRORS[key]!['message']! as String,
       );
     }
-    return new Error(code: -1, message: "UNKNOWN SDK ERROR");
+    return new WCError(code: -1, message: "UNKNOWN SDK ERROR");
   }
 }

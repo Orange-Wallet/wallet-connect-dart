@@ -43,17 +43,37 @@ WcSessionProposeRequest _$WcSessionProposeRequestFromJson(
         (k, e) =>
             MapEntry(k, RequiredNamespace.fromJson(e as Map<String, dynamic>)),
       ),
+      optionalNamespaces:
+          (json['optionalNamespaces'] as Map<String, dynamic>).map(
+        (k, e) =>
+            MapEntry(k, RequiredNamespace.fromJson(e as Map<String, dynamic>)),
+      ),
       proposer:
           ConnectionMetadata.fromJson(json['proposer'] as Map<String, dynamic>),
+      sessionProperties:
+          (json['sessionProperties'] as Map<String, dynamic>?)?.map(
+        (k, e) => MapEntry(k, e as String),
+      ),
     );
 
 Map<String, dynamic> _$WcSessionProposeRequestToJson(
-        WcSessionProposeRequest instance) =>
-    <String, dynamic>{
-      'relays': instance.relays,
-      'requiredNamespaces': instance.requiredNamespaces,
-      'proposer': instance.proposer,
-    };
+    WcSessionProposeRequest instance) {
+  final val = <String, dynamic>{
+    'relays': instance.relays,
+    'requiredNamespaces': instance.requiredNamespaces,
+    'optionalNamespaces': instance.optionalNamespaces,
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('sessionProperties', instance.sessionProperties);
+  val['proposer'] = instance.proposer;
+  return val;
+}
 
 WcSessionProposeResponse _$WcSessionProposeResponseFromJson(
         Map<String, dynamic> json) =>
@@ -82,21 +102,41 @@ WcSessionSettleRequest _$WcSessionSettleRequestFromJson(
         (k, e) =>
             MapEntry(k, RequiredNamespace.fromJson(e as Map<String, dynamic>)),
       ),
+      optionalNamespaces:
+          (json['optionalNamespaces'] as Map<String, dynamic>).map(
+        (k, e) =>
+            MapEntry(k, RequiredNamespace.fromJson(e as Map<String, dynamic>)),
+      ),
+      sessionProperties:
+          (json['sessionProperties'] as Map<String, dynamic>?)?.map(
+        (k, e) => MapEntry(k, e as String),
+      ),
       expiry: json['expiry'] as int,
       controller: ConnectionMetadata.fromJson(
           json['controller'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$WcSessionSettleRequestToJson(
-        WcSessionSettleRequest instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'relay': instance.relay,
-      'namespaces': instance.namespaces,
-      'requiredNamespaces': instance.requiredNamespaces,
-      'expiry': instance.expiry,
-      'controller': instance.controller,
-    };
+    WcSessionSettleRequest instance) {
+  final val = <String, dynamic>{
+    'id': instance.id,
+    'relay': instance.relay,
+    'namespaces': instance.namespaces,
+    'requiredNamespaces': instance.requiredNamespaces,
+    'optionalNamespaces': instance.optionalNamespaces,
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('sessionProperties', instance.sessionProperties);
+  val['expiry'] = instance.expiry;
+  val['controller'] = instance.controller;
+  return val;
+}
 
 WcSessionUpdateRequest _$WcSessionUpdateRequestFromJson(
         Map<String, dynamic> json) =>

@@ -10,7 +10,7 @@ class RequiredNamespace {
   final List<String> methods;
   final List<String> events;
 
-  RequiredNamespace({
+  const RequiredNamespace({
     this.chains,
     required this.methods,
     required this.events,
@@ -52,7 +52,7 @@ class ProposalData {
   final ConnectionMetadata proposer;
   final Map<String, RequiredNamespace> requiredNamespaces;
   final Map<String, RequiredNamespace> optionalNamespaces;
-  final Map<String, String> sessionProperties;
+  final Map<String, String>? sessionProperties;
   final String? pairingTopic;
 
   ProposalData({
@@ -62,7 +62,7 @@ class ProposalData {
     required this.proposer,
     required this.requiredNamespaces,
     required this.optionalNamespaces,
-    required this.sessionProperties,
+    this.sessionProperties,
     required this.pairingTopic,
   });
 

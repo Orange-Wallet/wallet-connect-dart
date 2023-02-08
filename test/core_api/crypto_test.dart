@@ -8,7 +8,7 @@ import 'package:wallet_connect_v2_dart/apis/core/crypto/crypto.dart';
 import 'package:wallet_connect_v2_dart/apis/core/crypto/crypto_models.dart';
 import 'package:wallet_connect_v2_dart/apis/core/crypto/crypto_utils.dart';
 import 'package:wallet_connect_v2_dart/apis/core/i_core.dart';
-import 'package:wallet_connect_v2_dart/apis/models/basic_errors.dart';
+import 'package:wallet_connect_v2_dart/apis/models/basic_models.dart';
 
 import 'shared/shared_test_utils.mocks.dart';
 import '../shared/shared_test_values.dart';
@@ -59,7 +59,7 @@ void main() {
         cryptoAPI = Crypto(core, keyChain: keyChain);
         expect(
           () async => await cryptoAPI.generateKeyPair(),
-          throwsA(isA<Error>()),
+          throwsA(isA<WCError>()),
         );
       });
 
@@ -89,7 +89,7 @@ void main() {
         cryptoAPI = Crypto(core, keyChain: keyChain);
         expect(
           () async => await cryptoAPI.generateSharedKey('a', 'b'),
-          throwsA(isA<Error>()),
+          throwsA(isA<WCError>()),
         );
       });
 
@@ -134,7 +134,7 @@ void main() {
         cryptoAPI = Crypto(core, keyChain: keyChain);
         expect(
           () async => await cryptoAPI.setSymKey('a'),
-          throwsA(isA<Error>()),
+          throwsA(isA<WCError>()),
         );
       });
 
@@ -175,7 +175,7 @@ void main() {
         cryptoAPI = Crypto(core, keyChain: keyChain);
         expect(
           () async => await cryptoAPI.deleteKeyPair('a'),
-          throwsA(isA<Error>()),
+          throwsA(isA<WCError>()),
         );
       });
 
@@ -198,7 +198,7 @@ void main() {
         cryptoAPI = Crypto(core, keyChain: keyChain);
         expect(
           () async => await cryptoAPI.deleteSymKey('a'),
-          throwsA(isA<Error>()),
+          throwsA(isA<WCError>()),
         );
       });
 
@@ -227,7 +227,7 @@ void main() {
         cryptoAPI = Crypto(core, keyChain: keyChain);
         expect(
           () async => await cryptoAPI.encode('a', {}),
-          throwsA(isA<Error>()),
+          throwsA(isA<WCError>()),
         );
       });
 

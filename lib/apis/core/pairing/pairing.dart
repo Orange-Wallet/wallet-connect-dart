@@ -13,7 +13,7 @@ import 'package:wallet_connect_v2_dart/apis/core/relay_client/relay_client_model
 import 'package:wallet_connect_v2_dart/apis/models/json_rpc_error.dart';
 import 'package:wallet_connect_v2_dart/apis/models/json_rpc_request.dart';
 import 'package:wallet_connect_v2_dart/apis/models/json_rpc_response.dart';
-import 'package:wallet_connect_v2_dart/apis/models/basic_errors.dart';
+import 'package:wallet_connect_v2_dart/apis/models/basic_models.dart';
 import 'package:wallet_connect_v2_dart/apis/utils/constants.dart';
 import 'package:wallet_connect_v2_dart/apis/utils/errors.dart';
 import 'package:wallet_connect_v2_dart/apis/utils/method_constants.dart';
@@ -86,7 +86,7 @@ class Pairing implements IPairing {
         parsedUri.methods,
         routerMapRequest.values.toList(),
       );
-    } on Error catch (e) {
+    } on WCError catch (e) {
       // Tell people that the pairing is invalid
       onPairingInvalid.broadcast(
         PairingInvalidEvent(
@@ -171,7 +171,7 @@ class Pairing implements IPairing {
     required ProtocolType type,
   }) {
     if (routerMapRequest.containsKey(method)) {
-      throw Error(
+      throw WCError(
         code: -1,
         message: 'Method already exists',
       );
@@ -296,7 +296,7 @@ class Pairing implements IPairing {
       topic,
       request,
     );
-    print('sent request');
+    // print('sent request');
     await core.relayClient.publish(
       topic: topic,
       message: message,

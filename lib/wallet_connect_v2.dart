@@ -9,6 +9,6 @@ export 'apis/signing_api/models/session_models.dart';
 export 'apis/signing_api/models/json_rpc_models.dart';
 export 'apis/signing_api/models/signing_models.dart';
 export 'apis/signing_api/models/sign_client_models.dart';
-export 'apis/models/basic_errors.dart';
+export 'apis/models/basic_models.dart';
 export 'apis/utils/errors.dart';
 export 'apis/utils/wallet_connect_utils.dart';

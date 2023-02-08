@@ -1,38 +1,39 @@
 import 'package:json_annotation/json_annotation.dart';
 
-part 'basic_errors.g.dart';
+part 'basic_models.g.dart';
 
 /// ERRORS
 
 @JsonSerializable()
-class Error {
+class WCError {
   int code;
   String message;
 
-  Error({
+  WCError({
     required this.code,
     required this.message,
   });
 
-  factory Error.fromJson(Map<String, dynamic> json) => _$ErrorFromJson(json);
+  factory WCError.fromJson(Map<String, dynamic> json) =>
+      _$WCErrorFromJson(json);
 
-  Map<String, dynamic> toJson() => _$ErrorToJson(this);
+  Map<String, dynamic> toJson() => _$WCErrorToJson(this);
 }
 
 @JsonSerializable()
-class ErrorResponse extends Error {
+class WCErrorResponse extends WCError {
   String? data;
 
-  ErrorResponse({
+  WCErrorResponse({
     required super.code,
     required super.message,
     this.data,
   });
 
-  factory ErrorResponse.fromJson(Map<String, dynamic> json) =>
-      _$ErrorResponseFromJson(json);
+  factory WCErrorResponse.fromJson(Map<String, dynamic> json) =>
+      _$WCErrorResponseFromJson(json);
 
-  Map<String, dynamic> toJson() => _$ErrorResponseToJson(this);
+  Map<String, dynamic> toJson() => _$WCErrorResponseToJson(this);
 }
 
 class RpcOptions {

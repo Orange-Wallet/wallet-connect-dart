@@ -1,29 +1,29 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'basic_errors.dart';
+part of 'basic_models.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-Error _$ErrorFromJson(Map<String, dynamic> json) => Error(
+WCError _$WCErrorFromJson(Map<String, dynamic> json) => WCError(
       code: json['code'] as int,
       message: json['message'] as String,
     );
 
-Map<String, dynamic> _$ErrorToJson(Error instance) => <String, dynamic>{
+Map<String, dynamic> _$WCErrorToJson(WCError instance) => <String, dynamic>{
       'code': instance.code,
       'message': instance.message,
     };
 
-ErrorResponse _$ErrorResponseFromJson(Map<String, dynamic> json) =>
-    ErrorResponse(
+WCErrorResponse _$WCErrorResponseFromJson(Map<String, dynamic> json) =>
+    WCErrorResponse(
       code: json['code'] as int,
       message: json['message'] as String,
       data: json['data'] as String?,
     );
 
-Map<String, dynamic> _$ErrorResponseToJson(ErrorResponse instance) =>
+Map<String, dynamic> _$WCErrorResponseToJson(WCErrorResponse instance) =>
     <String, dynamic>{
       'code': instance.code,
       'message': instance.message,

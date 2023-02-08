@@ -1,147 +1,193 @@
+import 'package:wallet_connect_v2_dart/apis/core/pairing/utils/pairing_models.dart';
 import 'package:wallet_connect_v2_dart/apis/core/relay_client/relay_client_models.dart';
-import 'package:wallet_connect_v2_dart/apis/signing_api/models/json_rpc_models.dart';
+import 'package:wallet_connect_v2_dart/apis/signing_api/models/generic_models.dart';
 import 'package:wallet_connect_v2_dart/apis/signing_api/models/proposal_models.dart';
 import 'package:wallet_connect_v2_dart/apis/signing_api/models/session_models.dart';
-import 'package:wallet_connect_v2_dart/apis/signing_api/models/signing_models.dart';
 import 'package:wallet_connect_v2_dart/apis/utils/constants.dart';
 
-class SignClientConstants {
-  static const TEST_RELAY_OPTIONS = {
-    "protocol": WalletConnectConstants.RELAYER_DEFAULT_PROTOCOL,
-  };
+const TEST_RELAY_OPTIONS = {
+  "protocol": WalletConnectConstants.RELAYER_DEFAULT_PROTOCOL,
+};
 
-  static const TEST_ETHEREUM_CHAIN = "eip155:1";
-  static const TEST_ARBITRUM_CHAIN = "eip155:42161";
-  static const TEST_AVALANCHE_CHAIN = "eip155:43114";
+const EVM_NAMESPACE = 'eip155';
 
-  static const TEST_CHAINS = [
-    TEST_ETHEREUM_CHAIN,
-    TEST_ARBITRUM_CHAIN,
-    TEST_AVALANCHE_CHAIN
-  ];
-  static const TEST_METHODS = [
-    "eth_sendTransaction",
-    "eth_signTransaction",
-    "personal_sign",
-    "eth_signTypedData",
-  ];
-  static const TEST_EVENTS = ["chainChanged", "accountsChanged"];
+const TEST_ETHEREUM_CHAIN = "eip155:1";
+const TEST_ARBITRUM_CHAIN = "eip155:42161";
+const TEST_AVALANCHE_CHAIN = "eip155:43114";
+const TEST_UNINCLUDED_CHAIN = "eip155:2";
 
-  static const TEST_ETHEREUM_ADDRESS =
-      "0x3c582121909DE92Dc89A36898633C1aE4790382b";
+const TEST_CHAINS = [
+  TEST_ETHEREUM_CHAIN,
+  TEST_ARBITRUM_CHAIN,
+];
+const TEST_CHAIN_INVALID_1 = "swag";
+const TEST_CHAIN_INVALID_2 = "s:w:a";
+const TEST_CHAINS_INVALID = [
+  TEST_CHAIN_INVALID_1,
+  TEST_CHAIN_INVALID_2,
+];
 
-  static const TEST_ETHEREUM_ACCOUNT =
-      "${TEST_ETHEREUM_CHAIN}:${TEST_ETHEREUM_ADDRESS}";
-  static const TEST_ARBITRUM_ACCOUNT =
-      "${TEST_ARBITRUM_CHAIN}:${TEST_ETHEREUM_ADDRESS}";
-  static const TEST_AVALANCHE_ACCOUNT =
-      "${TEST_AVALANCHE_CHAIN}:${TEST_ETHEREUM_ADDRESS}";
+const TEST_ETHEREUM_ADDRESS = "0x3c582121909DE92Dc89A36898633C1aE4790382b";
 
-  static const TEST_ACCOUNTS = [
-    TEST_ETHEREUM_ACCOUNT,
-    TEST_ARBITRUM_ACCOUNT,
-    TEST_AVALANCHE_ACCOUNT
-  ];
+const TEST_ETHEREUM_ACCOUNT = "$TEST_ETHEREUM_CHAIN:$TEST_ETHEREUM_ADDRESS";
+const TEST_ARBITRUM_ACCOUNT = "$TEST_ARBITRUM_CHAIN:$TEST_ETHEREUM_ADDRESS";
+const TEST_AVALANCHE_ACCOUNT = "$TEST_AVALANCHE_CHAIN:$TEST_ETHEREUM_ADDRESS";
 
-  static final TEST_REQUIRED_NAMESPACES = {
-    "eip155": RequiredNamespace(
-      chains: TEST_CHAINS,
-      methods: TEST_METHODS,
-      events: TEST_EVENTS,
-    ),
-  };
+const TEST_ACCOUNTS = [
+  TEST_ETHEREUM_ACCOUNT,
+  TEST_ARBITRUM_ACCOUNT,
+];
+const TEST_ACCOUNT_INVALID_1 = 'swag';
+const TEST_ACCOUNT_INVALID_2 = 's:w';
+const TEST_ACCOUNT_INVALID_3 = 's:w:a:g';
+const TEST_ACCOUNTS_INVALID = [
+  TEST_ACCOUNT_INVALID_1,
+  TEST_ACCOUNT_INVALID_2,
+  TEST_ACCOUNT_INVALID_3,
+];
 
-  static final TEST_NAMESPACES = {
-    "eip155": Namespace(
-      accounts: TEST_ACCOUNTS,
-      methods: TEST_METHODS,
-      events: TEST_EVENTS,
-    ),
-    // {
-    //   "methods": TEST_METHODS,
-    //   "accounts": TEST_ACCOUNTS,
-    //   "events": TEST_EVENTS,
-    // },
-  };
+const TEST_METHOD_1 = 'eth_sendTransaction';
+const TEST_METHOD_2 = 'eth_signTransaction';
+const TEST_METHOD_3 = 'personal_sign';
+const TEST_METHOD_4 = 'eth_signTypedData';
+const TEST_METHODS_1 = [
+  TEST_METHOD_1,
+  TEST_METHOD_2,
+];
+const TEST_METHODS_2 = [
+  TEST_METHOD_3,
+  TEST_METHOD_4,
+];
+const TEST_METHODS_FULL = [
+  ...TEST_METHODS_1,
+  ...TEST_METHODS_2,
+];
+const TEST_METHOD_INVALID_1 = 'eth_invalid';
 
-  static final TEST_NAMESPACES_INVALID_METHODS = {
-    "eip155": Namespace(
-      accounts: TEST_ACCOUNTS,
-      methods: ["eth_invalid"],
-      events: TEST_EVENTS,
-    ),
-  };
-  static final TEST_NAMESPACES_INVALID_CHAIN = {
-    "eip1111": {
-      Namespace(
-        accounts: TEST_ACCOUNTS,
-        methods: TEST_METHODS,
-        events: TEST_EVENTS,
-      )
-    }
-  };
+const TEST_EVENT_1 = "chainChanged";
+const TEST_EVENT_2 = "accountsChanged";
+const TEST_EVENTS_FULL = [
+  TEST_EVENT_1,
+  TEST_EVENT_2,
+];
+const TEST_EVENT_INVALID_1 = 'eth_event_invalid';
 
-  static const TEST_MESSAGE = "My name is John Doe";
-  static const TEST_SIGNATURE =
-      "0xc8906b32c9f74d0805226ffff5ecd6897ea55cdf58f54a53a2e5b5d5a21fb67f43ef1d4c2ed790a724a1549b4cc40137403048c4aed9825cfd5ba6c1d15bd0721c";
+const TEST_ETH_ARB_REQUIRED_NAMESPACE = RequiredNamespace(
+  chains: TEST_CHAINS,
+  methods: TEST_METHODS_1,
+  events: [TEST_EVENT_1],
+);
+const TEST_AVA_REQUIRED_NAMESPACE = RequiredNamespace(
+  methods: TEST_METHODS_2,
+  events: [TEST_EVENT_2],
+);
+const TEST_REQUIRED_NAMESPACES = {
+  EVM_NAMESPACE: TEST_ETH_ARB_REQUIRED_NAMESPACE,
+  TEST_AVALANCHE_CHAIN: TEST_AVA_REQUIRED_NAMESPACE,
+};
 
-  static const TEST_SIGN_METHOD = "personal_sign";
-  static const TEST_SIGN_PARAMS = [
-    TEST_MESSAGE,
-    TEST_ETHEREUM_ADDRESS,
-  ];
-  static const TEST_SIGN_REQUEST = {
-    "method": TEST_SIGN_METHOD,
-    "params": TEST_SIGN_PARAMS
-  };
+const TEST_ETH_ARB_NAMESPACE = Namespace(
+  accounts: TEST_ACCOUNTS,
+  methods: TEST_METHODS_1,
+  events: [TEST_EVENT_1],
+);
+const TEST_AVA_NAMESPACE = Namespace(
+  accounts: [TEST_AVALANCHE_ACCOUNT],
+  methods: TEST_METHODS_2,
+  events: [TEST_EVENT_2],
+);
+const TEST_NAMESPACES = {
+  EVM_NAMESPACE: TEST_ETH_ARB_NAMESPACE,
+  TEST_AVALANCHE_CHAIN: TEST_AVA_NAMESPACE,
+};
 
-  static const TEST_RANDOM_REQUEST = {"method": "random_method", "params": []};
+// Invalid RequiredNamespaces
+const TEST_REQUIRED_NAMESPACES_INVALID_CHAINS_1 = {
+  "eip155:2": TEST_ETH_ARB_REQUIRED_NAMESPACE,
+};
+const TEST_REQUIRED_NAMESPACES_INVALID_CHAINS_2 = {
+  EVM_NAMESPACE: RequiredNamespace(
+    chains: ['eip155:1', TEST_CHAIN_INVALID_1],
+    methods: [],
+    events: [],
+  ),
+};
 
-  static final TEST_CONNECT_PARAMS = ConnectParams(
-    requiredNamespaces: TEST_REQUIRED_NAMESPACES,
-    relays: [
-      Relay(
-        WalletConnectConstants.RELAYER_DEFAULT_PROTOCOL,
-      ),
-    ],
-  );
+// Invalid Namespaces
+const TEST_NAMESPACES_INVALID_ACCOUNTS = {
+  EVM_NAMESPACE: Namespace(
+    accounts: [TEST_ACCOUNT_INVALID_1],
+    methods: TEST_METHODS_FULL,
+    events: TEST_EVENTS_FULL,
+  ),
+};
 
-  static final TEST_APPROVE_PARAMS = ApproveParams(
-    id: 123,
-    namespaces: TEST_NAMESPACES,
-  );
+// Invalid Conforming Namespaces
+const TEST_NAMESPACES_NONCONFORMING_KEY_VALUE = 'eip1111';
+const TEST_NAMESPACES_NONCONFORMING_KEY = {
+  TEST_NAMESPACES_NONCONFORMING_KEY_VALUE: Namespace(
+    accounts: TEST_ACCOUNTS,
+    methods: TEST_METHODS_FULL,
+    events: TEST_EVENTS_FULL,
+  )
+};
+const TEST_NAMESPACES_NONCONFORMING_CHAINS = {
+  EVM_NAMESPACE: Namespace(
+    accounts: [TEST_ETHEREUM_ACCOUNT],
+    methods: TEST_METHODS_FULL,
+    events: TEST_EVENTS_FULL,
+  ),
+  TEST_AVALANCHE_CHAIN: TEST_AVA_NAMESPACE,
+};
+const TEST_NAMESPACES_NONCONFORMING_METHODS = {
+  EVM_NAMESPACE: Namespace(
+    accounts: TEST_ACCOUNTS,
+    methods: [TEST_METHOD_INVALID_1],
+    events: TEST_EVENTS_FULL,
+  ),
+  TEST_AVALANCHE_CHAIN: TEST_AVA_NAMESPACE,
+};
+const TEST_NAMESPACES_NONCONFORMING_EVENTS = {
+  EVM_NAMESPACE: Namespace(
+    accounts: TEST_ACCOUNTS,
+    methods: TEST_METHODS_FULL,
+    events: [TEST_EVENT_INVALID_1],
+  ),
+  TEST_AVALANCHE_CHAIN: TEST_AVA_NAMESPACE,
+};
 
-  static final TEST_REJECT_PARAMS = RejectParams(
-    id: 123,
-    reason: 'GENERIC',
-  );
+// Session Data
+final testSessionData = SessionData(
+  topic: 'abc',
+  relay: Relay('irn:'),
+  expiry: 1000,
+  acknowledged: true,
+  controller: 'test',
+  namespaces: TEST_NAMESPACES,
+  requiredNamespaces: TEST_REQUIRED_NAMESPACES,
+  optionalNamespaces: {},
+  self: ConnectionMetadata(
+    publicKey: '',
+    metadata: PairingMetadata(name: '', description: '', url: '', icons: []),
+  ),
+  peer: ConnectionMetadata(
+    publicKey: '',
+    metadata: PairingMetadata(name: '', description: '', url: '', icons: []),
+  ),
+);
 
-  static final TEST_UPDATE_PARAMS = UpdateParams(
-    topic: '123',
-    namespaces: TEST_NAMESPACES,
-  );
+const TEST_MESSAGE = "My name is John Doe";
+const TEST_SIGNATURE =
+    "0xc8906b32c9f74d0805226ffff5ecd6897ea55cdf58f54a53a2e5b5d5a21fb67f43ef1d4c2ed790a724a1549b4cc40137403048c4aed9825cfd5ba6c1d15bd0721c";
 
-  static final TEST_REQUEST_PARAMS = RequestParams(
-    topic: '123',
-    request: WcSessionRequestRequest(
-      chainId: TEST_METHODS[0],
-      request: SessionRequestParams(
-        method: TEST_METHODS[0],
-        params: {},
-      ),
-    ),
-  );
+const TEST_SIGN_METHOD = "personal_sign";
+const TEST_SIGN_PARAMS = [
+  TEST_MESSAGE,
+  TEST_ETHEREUM_ADDRESS,
+];
+const TEST_SIGN_REQUEST = {
+  "method": TEST_SIGN_METHOD,
+  "params": TEST_SIGN_PARAMS
+};
 
-  static const TEST_RESPOND_PARAMS = {
-    "response": {
-      "id": 1,
-      "jsonrpc": "2.0",
-      "result": {},
-    },
-  };
-
-  static final TEST_EMIT_PARAMS = {
-    "event": {"name": TEST_EVENTS[0], "data": ""},
-    "chainId": TEST_CHAINS[0],
-  };
-}
+const TEST_RANDOM_REQUEST = {"method": "random_method", "params": []};

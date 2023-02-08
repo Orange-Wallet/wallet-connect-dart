@@ -84,7 +84,7 @@ void main() {
           final reason = Errors.getSdkError("USER_DISCONNECTED");
           await clientA.disconnect(
             topic: pairingATopic,
-            reason: ErrorResponse(
+            reason: WCErrorResponse(
               code: reason.code,
               message: reason.message,
             ),
@@ -101,7 +101,7 @@ void main() {
           expect(
             promise,
             throwsA(
-              isA<Error>().having(
+              isA<WCError>().having(
                 (e) => e.message,
                 'message',
                 "No matching key. session or pairing topic doesn't exist: $pairingATopic",
@@ -121,7 +121,7 @@ void main() {
           final reason = Errors.getSdkError("USER_DISCONNECTED");
           await clientA.disconnect(
             topic: sessionATopic,
-            reason: ErrorResponse(
+            reason: WCErrorResponse(
               code: reason.code,
               message: reason.message,
             ),
@@ -143,7 +143,7 @@ void main() {
         expect(
           promise,
           throwsA(
-            isA<Error>().having(
+            isA<WCError>().having(
               (e) => e.message,
               'message',
               "No matching key. session or pairing topic doesn't exist: $fakeTopic",
