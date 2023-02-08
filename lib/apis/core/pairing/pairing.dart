@@ -141,7 +141,8 @@ class Pairing implements IPairing {
       methods: methods,
     );
     await pairings!.set(topic, pairing);
-    await core.relayClient.subscribe(topic: topic);
+    final s = await core.relayClient.subscribe(topic: topic);
+    print('subscribe: $s');
     await core.expirer.set(topic, expiry);
 
     return CreateResponse(

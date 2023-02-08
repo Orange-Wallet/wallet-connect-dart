@@ -236,7 +236,7 @@ class RelayClient implements IRelayClient {
 
   Future<bool> handlePublish(String topic, String message) async {
     // If we want to ignore the message, stop
-    // print('handle publish');
+    print('handle publish');
     if (await _shouldIgnoreMessageEvent(topic, message)) return false;
 
     // Record a message event
