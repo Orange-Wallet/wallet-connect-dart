@@ -19,6 +19,7 @@ import 'package:wallet_connect_v2_dart/apis/signing_api/i_sessions.dart';
 import 'package:wallet_connect_v2_dart/apis/signing_api/i_proposals.dart';
 import 'package:wallet_connect_v2_dart/apis/signing_api/models/signing_models.dart';
 import 'package:wallet_connect_v2_dart/apis/signing_api/utils/sign_api_validator_utils.dart';
+import 'package:wallet_connect_v2_dart/apis/signing_api/utils/signing_methods.dart';
 import 'package:wallet_connect_v2_dart/apis/utils/constants.dart';
 import 'package:wallet_connect_v2_dart/apis/utils/errors.dart';
 import 'package:wallet_connect_v2_dart/apis/utils/wallet_connect_utils.dart';
@@ -184,7 +185,7 @@ class Engine implements IEngine {
     // print('connectResponseHandler requestId: $requestId');
     final Map<String, dynamic> resp = await core.pairing.sendRequest(
       topic,
-      'wc_sessionPropose',
+      SigningMethods.WC_SESSION_PROPOSE,
       request.toJson(),
       id: requestId,
     );
@@ -242,7 +243,7 @@ class Engine implements IEngine {
     );
     // print('approve session topic: $sessionTopic');
     final relay = Relay(
-      relayProtocol != null ? relayProtocol! : 'irn',
+      relayProtocol != null ? relayProtocol : 'irn',
     );
     final int expiry = WalletConnectUtils.calculateExpiry(
       WalletConnectConstants.SEVEN_DAYS,
@@ -268,7 +269,7 @@ class Engine implements IEngine {
       await core.pairing.sendResult(
         id,
         proposal.pairingTopic!,
-        'wc_sessionPropose',
+        SigningMethods.WC_SESSION_PROPOSE,
         WcSessionProposeResponse(
           relay: Relay(
             relayProtocol != null
@@ -290,7 +291,7 @@ class Engine implements IEngine {
     await core.relayClient.subscribe(sessionTopic);
     bool acknowledged = await core.pairing.sendRequest(
       sessionTopic,
-      'wc_sessionSettle',
+      SigningMethods.WC_SESSION_SETTLE,
       request.toJson(),
     );
 
@@ -333,7 +334,7 @@ class Engine implements IEngine {
       await core.pairing.sendError(
         id,
         proposal.pairingTopic!,
-        'wc_sessionPropose',
+        SigningMethods.WC_SESSION_PROPOSE,
         JsonRpcError.serverError('User rejected request'),
       );
       await _deleteProposal(id);
@@ -358,7 +359,7 @@ class Engine implements IEngine {
 
     await core.pairing.sendRequest(
       topic,
-      'wc_sessionUpdate',
+      SigningMethods.WC_SESSION_UPDATE,
       WcSessionUpdateRequest(namespaces: namespaces).toJson(),
     );
   }
@@ -372,7 +373,7 @@ class Engine implements IEngine {
 
     await core.pairing.sendRequest(
       topic,
-      'wc_sessionUpdate',
+      SigningMethods.WC_SESSION_UPDATE,
       {},
     );
 
@@ -415,7 +416,7 @@ class Engine implements IEngine {
     request.toJson();
     return await core.pairing.sendRequest(
       topic,
-      'wc_sessionRequest',
+      SigningMethods.WC_SESSION_REQUEST,
       payload,
     );
   }
@@ -430,7 +431,7 @@ class Engine implements IEngine {
     if (sessions.has(topic)) {
       bool pong = await core.pairing.sendRequest(
         topic,
-        'wc_sessionPing',
+        SigningMethods.WC_SESSION_PING,
         {},
       );
     } else if (core.pairing.getStore().has(topic)) {
@@ -468,7 +469,7 @@ class Engine implements IEngine {
     ).toJson();
     await core.pairing.sendRequest(
       topic,
-      'wc_sessionEvent',
+      SigningMethods.WC_SESSION_EVENT,
       payload,
     );
   }
@@ -484,7 +485,7 @@ class Engine implements IEngine {
     if (sessions.has(topic)) {
       await core.pairing.sendRequest(
         topic,
-        "wc_sessionDelete",
+        SigningMethods.WC_SESSION_DELETE,
         Errors.getSdkError(Errors.USER_DISCONNECTED).toJson(),
       );
       await _deleteSession(topic);
@@ -583,42 +584,42 @@ class Engine implements IEngine {
 
   void _registerRelayClientFunctions() {
     core.pairing.register(
-      method: 'wc_sessionPropose',
+      method: SigningMethods.WC_SESSION_PROPOSE,
       function: _onSessionProposeRequest,
       type: ProtocolType.Sign,
     );
     core.pairing.register(
-      method: 'wc_sessionSettle',
+      method: SigningMethods.WC_SESSION_SETTLE,
       function: _onSessionSettleRequest,
       type: ProtocolType.Sign,
     );
     core.pairing.register(
-      method: 'wc_sessionUpdate',
+      method: SigningMethods.WC_SESSION_UPDATE,
       function: _onSessionUpdateRequest,
       type: ProtocolType.Sign,
     );
     core.pairing.register(
-      method: 'wc_sessionExtend',
+      method: SigningMethods.WC_SESSION_EXTEND,
       function: _onSessionExtendRequest,
       type: ProtocolType.Sign,
     );
     core.pairing.register(
-      method: 'wc_sessionPing',
+      method: SigningMethods.WC_SESSION_PING,
       function: _onSessionPingRequest,
       type: ProtocolType.Sign,
     );
     core.pairing.register(
-      method: 'wc_sessionDelete',
+      method: SigningMethods.WC_SESSION_DELETE,
       function: _onSessionDeleteRequest,
       type: ProtocolType.Sign,
     );
     core.pairing.register(
-      method: 'wc_sessionRequest',
+      method: SigningMethods.WC_SESSION_REQUEST,
       function: _onSessionRequest,
       type: ProtocolType.Sign,
     );
     core.pairing.register(
-      method: 'wc_sessionEvent',
+      method: SigningMethods.WC_SESSION_EVENT,
       function: _onSessionEventRequest,
       type: ProtocolType.Sign,
     );
@@ -708,7 +709,7 @@ class Engine implements IEngine {
       await core.pairing.sendResult(
         payload.id,
         topic,
-        'wc_sessionSettle',
+        SigningMethods.WC_SESSION_SETTLE,
         true,
       );
       onSessionConnect.broadcast(
@@ -741,7 +742,7 @@ class Engine implements IEngine {
       await core.pairing.sendResult(
         payload.id,
         topic,
-        'wc_sessionUpdate',
+        SigningMethods.WC_SESSION_UPDATE,
         true,
       );
       onSessionUpdate.broadcast(
@@ -779,7 +780,7 @@ class Engine implements IEngine {
       await core.pairing.sendResult(
         payload.id,
         topic,
-        'wc_sessionExtend',
+        SigningMethods.WC_SESSION_EXTEND,
         true,
       );
       onSessionExtend.broadcast(
@@ -810,7 +811,7 @@ class Engine implements IEngine {
       await core.pairing.sendResult(
         payload.id,
         topic,
-        'wc_sessionPing',
+        SigningMethods.WC_SESSION_PING,
         true,
       );
       onSessionPing.broadcast(
@@ -842,7 +843,7 @@ class Engine implements IEngine {
       await core.pairing.sendResult(
         payload.id,
         topic,
-        'wc_sessionDelete',
+        SigningMethods.WC_SESSION_DELETE,
         true,
       );
       onSessionDelete.broadcast(
@@ -893,7 +894,7 @@ class Engine implements IEngine {
           await core.pairing.sendResult(
             payload.id,
             topic,
-            'wc_sessionRequest',
+            SigningMethods.WC_SESSION_REQUEST,
             result,
           );
         } catch (err) {
@@ -967,7 +968,7 @@ class Engine implements IEngine {
           await core.pairing.sendResult(
             payload.id,
             topic,
-            'wc_sessionRequest',
+            SigningMethods.WC_SESSION_REQUEST,
             true,
           );
         } catch (err) {

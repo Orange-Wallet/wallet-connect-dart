@@ -2,8 +2,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:wallet_connect_v2_dart/apis/core/core.dart';
 import 'package:wallet_connect_v2_dart/apis/core/i_core.dart';
 import 'package:wallet_connect_v2_dart/apis/core/pairing/utils/pairing_models.dart';
+import 'package:wallet_connect_v2_dart/apis/core/pairing/utils/pairing_utils.dart';
+import 'package:wallet_connect_v2_dart/apis/core/relay_client/relay_client_models.dart';
 import 'package:wallet_connect_v2_dart/apis/models/json_rpc_error.dart';
 import 'package:wallet_connect_v2_dart/apis/models/basic_errors.dart';
+import 'package:wallet_connect_v2_dart/apis/models/uri_parse_result.dart';
+import 'package:wallet_connect_v2_dart/apis/signing_api/utils/signing_methods.dart';
+import 'package:wallet_connect_v2_dart/apis/utils/wallet_connect_utils.dart';
 
 import '../shared/shared_test_values.dart';
 
@@ -12,6 +17,34 @@ void main() {
 
   const uri =
       "wc:7f6e504bfad60b485450578e05678ed3e8e8c4751d3c6160be17160d63ec90f9@2?symKey=587d5484ce2a2a6ee3ba1962fdd7e8588e06200c46823bd18fbd67def96ad303&relay-protocol=irn";
+
+  test("Format and parses URI correctly", () {
+    final Uri response = WalletConnectUtils.formatUri(
+        protocol: 'wc',
+        version: '2',
+        topic: 'abc',
+        symKey: 'xyz',
+        relay: Relay('irn'),
+        methods: [
+          [SigningMethods.WC_SESSION_PROPOSE],
+          ['wc_authRequest', 'wc_authBatchRequest'],
+        ]);
+    expect(
+      Uri.decodeFull(response.toString()),
+      'wc:abc@2?relay-protocol=irn&symKey=xyz&methods=["wc_sessionPropose"],["wc_authRequest","wc_authBatchRequest"]',
+    );
+
+    final URIParseResult parsed = WalletConnectUtils.parseUri(response);
+    expect(parsed.protocol, 'wc');
+    expect(parsed.version, '2');
+    expect(parsed.topic, 'abc');
+    expect(parsed.symKey, 'xyz');
+    expect(parsed.relay.protocol, 'irn');
+    expect(parsed.methods.length, 3);
+    expect(parsed.methods[0], 'wc_sessionPropose');
+    expect(parsed.methods[1], 'wc_authRequest');
+    expect(parsed.methods[2], 'wc_authBatchRequest');
+  });
 
   group('Pairing API', () {
     late ICore coreA;
@@ -133,11 +166,8 @@ void main() {
         gotPing = true;
       });
 
-      print('swag 1');
       await coreB.pairing.pair(uri: response.uri, activatePairing: true);
-      print('swag 2');
       await coreA.pairing.activate(topic: response.topic);
-      print('swag 3');
       await coreA.pairing.ping(topic: response.topic);
       await Future.delayed(Duration(milliseconds: 500));
       expect(gotPing, true);
@@ -262,53 +292,43 @@ void main() {
 
         test("succeeds when required methods are contained in registered",
             () async {
-          final String uriWithMethods =
-              '$uri&methods=[wc_sessionPropose],[wc_authRequest,wc_authBatchRequest]';
-          expect(
-            () async =>
-                await coreA.pairing.pair(uri: Uri.parse(uriWithMethods)),
-            throwsA(
-              predicate(
-                (e) =>
-                    e is Error &&
-                    e.message ==
-                        'Unsupported wc_ method. The following methods are not registered: wc_sessionPropose, wc_authRequest, wc_authBatchRequest.',
-              ),
+          List<RegisteredFunction> registeredFunctions = [
+            RegisteredFunction(
+              method: SigningMethods.WC_SESSION_PROPOSE,
+              function: (s, r) => {},
+              type: ProtocolType.Sign,
             ),
-          );
-          coreA.pairing.register(
-            method: 'wc_sessionPropose',
-            function: (s, r) => {},
-            type: ProtocolType.Sign,
-          );
-          expect(
-            () async =>
-                await coreA.pairing.pair(uri: Uri.parse(uriWithMethods)),
-            throwsA(
-              predicate(
-                (e) =>
-                    e is Error &&
-                    e.message ==
-                        'Unsupported wc_ method. The following methods are not registered: wc_authRequest, wc_authBatchRequest.',
-              ),
+            RegisteredFunction(
+              method: 'wc_authRequest',
+              function: (s, r) => {},
+              type: ProtocolType.Sign,
             ),
-          );
-          coreA.pairing.register(
-            method: 'wc_authRequest',
-            function: (s, r) => {},
-            type: ProtocolType.Auth,
+            RegisteredFunction(
+              method: 'wc_authBatchRequest',
+              function: (s, r) => {},
+              type: ProtocolType.Sign,
+            )
+          ];
+          expect(
+            PairingUtils.validateMethods(
+              ['wc_sessionPropose'],
+              registeredFunctions,
+            ),
+            true,
           );
           expect(
-            () async =>
-                await coreA.pairing.pair(uri: Uri.parse(uriWithMethods)),
-            throwsA(
-              predicate(
-                (e) =>
-                    e is Error &&
-                    e.message ==
-                        'Unsupported wc_ method. The following methods are not registered: wc_authBatchRequest.',
-              ),
+            PairingUtils.validateMethods(
+              ['wc_sessionPropose', 'wc_authRequest'],
+              registeredFunctions,
             ),
+            true,
+          );
+          expect(
+            PairingUtils.validateMethods(
+              ['wc_sessionPropose', 'wc_authRequest', 'wc_authBatchRequest'],
+              registeredFunctions,
+            ),
+            true,
           );
         });
       });
@@ -340,13 +360,6 @@ void main() {
           );
         });
       });
-
-      // it("throws when invalid uri is provided", async () => {
-      //   // @ts-expect-error - ignore TS error to test runtime validation
-      //   await expect(coreA.pairing.pair({ uri: 123 })).rejects.toThrowError(
-      //     "Missing or invalid. pair() uri: 123",
-      //   );
-      // });
     });
   });
 }

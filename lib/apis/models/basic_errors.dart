@@ -36,11 +36,11 @@ class ErrorResponse extends Error {
 }
 
 class RpcOptions {
-  int ttl;
-  bool prompt;
-  int tag;
+  final int ttl;
+  final bool prompt;
+  final int tag;
 
-  RpcOptions(
+  const RpcOptions(
     this.ttl,
     this.prompt,
     this.tag,

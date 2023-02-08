@@ -87,7 +87,7 @@ class WalletConnectUtils {
     List<String> methods = uri.queryParameters['methods']!
         // Replace all the square brackets with empty string, split by comma
         .replaceAll(
-          RegExp(r'[\[\]]+'),
+          RegExp(r'[\[\]"]+'),
           '',
         )
         .split(
