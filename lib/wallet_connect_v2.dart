@@ -12,3 +12,4 @@ export 'apis/signing_api/models/sign_client_models.dart';
 export 'apis/models/basic_models.dart';
 export 'apis/utils/errors.dart';
 export 'apis/utils/wallet_connect_utils.dart';
+export 'apis/models/json_rpc_error.dart';

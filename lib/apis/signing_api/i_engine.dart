@@ -13,15 +13,15 @@ import 'package:wallet_connect_v2_dart/apis/signing_api/models/sign_client_model
 import 'package:wallet_connect_v2_dart/apis/signing_api/models/signing_models.dart';
 
 abstract class IEngine {
-  abstract final Event<SessionProposal> onSessionProposal;
   abstract final Event<SessionConnect> onSessionConnect;
+  abstract final Event<SessionProposal> onSessionProposal;
   abstract final Event<SessionUpdate> onSessionUpdate;
   abstract final Event<SessionExtend> onSessionExtend;
-  abstract final Event<SessionPing> onSessionPing;
-  abstract final Event<SessionDelete> onSessionDelete;
   abstract final Event<SessionExpire> onSessionExpire;
   abstract final Event<SessionRequest> onSessionRequest;
   abstract final Event<SessionEvent> onSessionEvent;
+  abstract final Event<SessionPing> onSessionPing;
+  abstract final Event<SessionDelete> onSessionDelete;
 
   abstract final ICore core;
   abstract final IProposals proposals;
@@ -81,7 +81,7 @@ abstract class IEngine {
     required String topic,
     required WCErrorResponse reason,
   });
-  SessionData find({
+  SessionData? find({
     required Map<String, RequiredNamespace> requiredNamespaces,
   });
   abstract final IPairingStore pairings;

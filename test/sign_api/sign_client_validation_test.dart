@@ -340,11 +340,17 @@ void main() {
       true,
     );
     expect(
-      SignApiValidatorUtils.isValidNamespacesChainId(
+      () => SignApiValidatorUtils.isValidNamespacesChainId(
         namespaces: TEST_NAMESPACES,
         chainId: TEST_UNINCLUDED_CHAIN,
       ),
-      false,
+      throwsA(
+        isA<WCError>().having(
+          (e) => e.message,
+          'message',
+          'Unsupported chains. The chain $TEST_UNINCLUDED_CHAIN is not supported',
+        ),
+      ),
     );
     expect(
       () => SignApiValidatorUtils.isValidNamespacesChainId(
@@ -384,12 +390,18 @@ void main() {
       true,
     );
     expect(
-      SignApiValidatorUtils.isValidNamespacesRequest(
+      () => SignApiValidatorUtils.isValidNamespacesRequest(
         namespaces: TEST_NAMESPACES,
         chainId: TEST_ETHEREUM_CHAIN,
         method: TEST_METHOD_3,
       ),
-      false,
+      throwsA(
+        isA<WCError>().having(
+          (e) => e.message,
+          'message',
+          'Unsupported methods. The method $TEST_METHOD_3 is not supported',
+        ),
+      ),
     );
     expect(
       () => SignApiValidatorUtils.isValidNamespacesRequest(
@@ -431,12 +443,18 @@ void main() {
       true,
     );
     expect(
-      SignApiValidatorUtils.isValidNamespacesEvent(
+      () => SignApiValidatorUtils.isValidNamespacesEvent(
         namespaces: TEST_NAMESPACES,
         chainId: TEST_ETHEREUM_CHAIN,
         eventName: TEST_EVENT_2,
       ),
-      false,
+      throwsA(
+        isA<WCError>().having(
+          (e) => e.message,
+          'message',
+          'Unsupported events. The event $TEST_EVENT_2 is not supported',
+        ),
+      ),
     );
     expect(
       () => SignApiValidatorUtils.isValidNamespacesEvent(

@@ -177,26 +177,45 @@ WcSessionDeleteRequest _$WcSessionDeleteRequestFromJson(
     WcSessionDeleteRequest(
       code: json['code'] as int,
       message: json['message'] as String,
+      data: json['data'] as String?,
     );
 
 Map<String, dynamic> _$WcSessionDeleteRequestToJson(
-        WcSessionDeleteRequest instance) =>
-    <String, dynamic>{
-      'code': instance.code,
-      'message': instance.message,
-    };
+    WcSessionDeleteRequest instance) {
+  final val = <String, dynamic>{
+    'code': instance.code,
+    'message': instance.message,
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('data', instance.data);
+  return val;
+}
 
 WcSessionPingRequest _$WcSessionPingRequestFromJson(
         Map<String, dynamic> json) =>
     WcSessionPingRequest(
-      data: json['data'] as Map<String, dynamic>,
+      data: json['data'] as Map<String, dynamic>?,
     );
 
 Map<String, dynamic> _$WcSessionPingRequestToJson(
-        WcSessionPingRequest instance) =>
-    <String, dynamic>{
-      'data': instance.data,
-    };
+    WcSessionPingRequest instance) {
+  final val = <String, dynamic>{};
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('data', instance.data);
+  return val;
+}
 
 WcSessionRequestRequest _$WcSessionRequestRequestFromJson(
         Map<String, dynamic> json) =>

@@ -287,7 +287,7 @@ class SignClient implements ISignClient {
   }
 
   @override
-  SessionData find({
+  SessionData? find({
     required Map<String, RequiredNamespace> requiredNamespaces,
   }) {
     try {

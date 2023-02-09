@@ -121,12 +121,17 @@ class WcSessionExtendRequest {
   Map<String, dynamic> toJson() => _$WcSessionExtendRequestToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(includeIfNull: false)
 class WcSessionDeleteRequest {
   final int code;
   final String message;
+  final String? data;
 
-  WcSessionDeleteRequest({required this.code, required this.message});
+  WcSessionDeleteRequest({
+    required this.code,
+    required this.message,
+    this.data,
+  });
 
   factory WcSessionDeleteRequest.fromJson(Map<String, dynamic> json) =>
       _$WcSessionDeleteRequestFromJson(json);
@@ -134,9 +139,9 @@ class WcSessionDeleteRequest {
   Map<String, dynamic> toJson() => _$WcSessionDeleteRequestToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(includeIfNull: false)
 class WcSessionPingRequest {
-  final Map<String, dynamic> data;
+  final Map<String, dynamic>? data;
 
   WcSessionPingRequest({required this.data});
 

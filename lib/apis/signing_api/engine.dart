@@ -29,31 +29,23 @@ class Engine implements IEngine {
   bool _initialized = false;
 
   @override
-  final Event<SessionDelete> onSessionDelete = Event<SessionDelete>();
-
-  @override
   final Event<SessionConnect> onSessionConnect = Event<SessionConnect>();
-
-  @override
-  final Event<SessionEvent> onSessionEvent = Event<SessionEvent>();
-
-  @override
-  final Event<SessionExpire> onSessionExpire = Event<SessionExpire>();
-
-  @override
-  final Event<SessionExtend> onSessionExtend = Event<SessionExtend>();
-
-  @override
-  final Event<SessionPing> onSessionPing = Event<SessionPing>();
-
   @override
   final Event<SessionProposal> onSessionProposal = Event<SessionProposal>();
-
-  @override
-  final Event<SessionRequest> onSessionRequest = Event<SessionRequest>();
-
   @override
   final Event<SessionUpdate> onSessionUpdate = Event<SessionUpdate>();
+  @override
+  final Event<SessionExtend> onSessionExtend = Event<SessionExtend>();
+  @override
+  final Event<SessionExpire> onSessionExpire = Event<SessionExpire>();
+  @override
+  final Event<SessionRequest> onSessionRequest = Event<SessionRequest>();
+  @override
+  final Event<SessionEvent> onSessionEvent = Event<SessionEvent>();
+  @override
+  final Event<SessionPing> onSessionPing = Event<SessionPing>();
+  @override
+  final Event<SessionDelete> onSessionDelete = Event<SessionDelete>();
 
   @override
   final ICore core;
@@ -445,24 +437,6 @@ class Engine implements IEngine {
     );
   }
 
-  @override
-  Future<void> ping({
-    required String topic,
-  }) async {
-    _checkInitialized();
-    await _isValidPing(topic);
-
-    if (sessions.has(topic)) {
-      bool pong = await core.pairing.sendRequest(
-        topic,
-        MethodConstants.WC_SESSION_PING,
-        {},
-      );
-    } else if (core.pairing.getStore().has(topic)) {
-      await core.pairing.ping(topic: topic);
-    }
-  }
-
   /// Maps a request using chainId:event to its handler
   Map<String, dynamic Function(String, dynamic)> _eventHandlers = {};
 
@@ -499,18 +473,41 @@ class Engine implements IEngine {
   }
 
   @override
+  Future<void> ping({
+    required String topic,
+  }) async {
+    _checkInitialized();
+    await _isValidPing(topic);
+
+    if (sessions.has(topic)) {
+      bool pong = await core.pairing.sendRequest(
+        topic,
+        MethodConstants.WC_SESSION_PING,
+        {},
+      );
+    } else if (core.pairing.getStore().has(topic)) {
+      await core.pairing.ping(topic: topic);
+    }
+  }
+
+  @override
   Future<void> disconnect({
     required String topic,
     required WCErrorResponse reason,
   }) async {
     _checkInitialized();
-    _isValidDisconnect(topic);
+    await _isValidDisconnect(topic);
 
     if (sessions.has(topic)) {
+      Map<String, dynamic> payload = WcSessionDeleteRequest(
+        code: reason.code,
+        message: reason.message,
+        data: reason.data,
+      ).toJson();
       await core.pairing.sendRequest(
         topic,
         MethodConstants.WC_SESSION_DELETE,
-        Errors.getSdkError(Errors.USER_DISCONNECTED).toJson(),
+        payload,
       );
       await _deleteSession(topic);
     } else {
@@ -519,18 +516,18 @@ class Engine implements IEngine {
   }
 
   @override
-  SessionData find({
+  SessionData? find({
     required Map<String, RequiredNamespace> requiredNamespaces,
   }) {
     _checkInitialized();
-    return sessions.getAll().firstWhere(
-      (element) {
-        return SignApiValidatorUtils.isSessionCompatible(
-          session: element,
-          requiredNamespaces: requiredNamespaces,
-        );
-      },
-    );
+    final compatible = sessions.getAll().where((element) {
+      return SignApiValidatorUtils.isSessionCompatible(
+        session: element,
+        requiredNamespaces: requiredNamespaces,
+      );
+    });
+
+    return compatible.isNotEmpty ? compatible.first : null;
   }
 
   @override
@@ -874,7 +871,6 @@ class Engine implements IEngine {
     try {
       final request = WcSessionDeleteRequest.fromJson(payload.params);
       await _isValidDisconnect(topic);
-      await _deleteSession(topic);
       await core.pairing.sendResult(
         payload.id,
         topic,
@@ -887,6 +883,7 @@ class Engine implements IEngine {
           topic,
         ),
       );
+      await _deleteSession(topic);
     } on WCError catch (err) {
       await core.pairing.sendError(
         payload.id,

@@ -120,7 +120,15 @@ class SignApiValidatorUtils {
     List<String> chains = NamespaceUtils.getChainsFromNamespaces(
       namespaces: namespaces,
     );
-    return chains.contains(chainId);
+
+    if (!chains.contains(chainId)) {
+      throw Errors.getSdkError(
+        Errors.UNSUPPORTED_CHAINS,
+        context: 'The chain $chainId is not supported',
+      );
+    }
+
+    return true;
   }
 
   /// Validates the provided chainId, then gets the methods for that chainId
@@ -148,7 +156,15 @@ class SignApiValidatorUtils {
       namespaces: namespaces,
       chainId: chainId,
     );
-    return methods.contains(method);
+
+    if (!methods.contains(method)) {
+      throw Errors.getSdkError(
+        Errors.UNSUPPORTED_METHODS,
+        context: 'The method $method is not supported',
+      );
+    }
+
+    return true;
   }
 
   /// Validates the provided chainId, then gets the events for that chainId
@@ -176,7 +192,15 @@ class SignApiValidatorUtils {
       namespaces: namespaces,
       chainId: chainId,
     );
-    return events.contains(eventName);
+
+    if (!events.contains(eventName)) {
+      throw Errors.getSdkError(
+        Errors.UNSUPPORTED_EVENTS,
+        context: 'The event $eventName is not supported',
+      );
+    }
+
+    return true;
   }
 
   /// Makes sure that the chains, methods and events of the required namespaces
