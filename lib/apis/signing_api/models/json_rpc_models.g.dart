@@ -92,7 +92,6 @@ Map<String, dynamic> _$WcSessionProposeResponseToJson(
 WcSessionSettleRequest _$WcSessionSettleRequestFromJson(
         Map<String, dynamic> json) =>
     WcSessionSettleRequest(
-      id: json['id'] as int,
       relay: Relay.fromJson(json['relay'] as Map<String, dynamic>),
       namespaces: (json['namespaces'] as Map<String, dynamic>).map(
         (k, e) => MapEntry(k, Namespace.fromJson(e as Map<String, dynamic>)),
@@ -119,7 +118,6 @@ WcSessionSettleRequest _$WcSessionSettleRequestFromJson(
 Map<String, dynamic> _$WcSessionSettleRequestToJson(
     WcSessionSettleRequest instance) {
   final val = <String, dynamic>{
-    'id': instance.id,
     'relay': instance.relay,
     'namespaces': instance.namespaces,
     'requiredNamespaces': instance.requiredNamespaces,

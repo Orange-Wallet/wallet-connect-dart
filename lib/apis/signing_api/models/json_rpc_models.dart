@@ -71,7 +71,6 @@ class WcSessionProposeResponse {
 
 @JsonSerializable(includeIfNull: false)
 class WcSessionSettleRequest {
-  final int id;
   final Relay relay;
   final Map<String, Namespace> namespaces;
   final Map<String, RequiredNamespace> requiredNamespaces;
@@ -81,7 +80,6 @@ class WcSessionSettleRequest {
   final ConnectionMetadata controller;
 
   WcSessionSettleRequest({
-    required this.id,
     required this.relay,
     required this.namespaces,
     required this.requiredNamespaces,

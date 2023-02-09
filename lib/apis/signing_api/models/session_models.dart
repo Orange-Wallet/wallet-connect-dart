@@ -8,14 +8,16 @@ import 'package:wallet_connect_v2_dart/apis/signing_api/models/proposal_models.d
 part 'session_models.g.dart';
 
 class SessionProposalCompleter {
-  String selfPublicKey;
-  String pairingTopic;
-  Map<String, RequiredNamespace> requiredNamespaces;
-  Map<String, RequiredNamespace> optionalNamespaces;
-  Map<String, String>? sessionProperties;
-  Completer completer;
+  final int id;
+  final String selfPublicKey;
+  final String pairingTopic;
+  final Map<String, RequiredNamespace> requiredNamespaces;
+  final Map<String, RequiredNamespace> optionalNamespaces;
+  final Map<String, String>? sessionProperties;
+  final Completer completer;
 
-  SessionProposalCompleter({
+  const SessionProposalCompleter({
+    required this.id,
     required this.selfPublicKey,
     required this.pairingTopic,
     required this.requiredNamespaces,

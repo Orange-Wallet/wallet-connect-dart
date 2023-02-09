@@ -54,9 +54,7 @@ class Engine implements IEngine {
   @override
   final ISessions sessions;
 
-  // Map<int, ConnectResponse> pendingProposals = {};
-  Map<int, SessionProposalCompleter> pendingProposals = {};
-  // Map<int, Function(SessionConnect?)> pendingProposalSubs = {};
+  List<SessionProposalCompleter> pendingProposals = [];
 
   late PairingMetadata selfMetadata;
 
@@ -110,24 +108,27 @@ class Engine implements IEngine {
       pairingTopic: pairingTopic,
       relays: relays,
     );
-    String? topic = pairingTopic;
+    String? pTopic = pairingTopic;
     Uri? uri;
     bool active = false;
 
-    if (topic != null) {
-      final PairingInfo pairing = core.pairing.getStore().get(topic)!;
+    if (pTopic != null) {
+      final PairingInfo pairing = core.pairing.getStore().get(pTopic)!;
       active = pairing.active;
     }
 
-    if (topic == null || !active) {
+    if (pTopic == null || !active) {
       final CreateResponse newTopicAndUri = await core.pairing.create();
-      topic = newTopicAndUri.topic;
+      pTopic = newTopicAndUri.topic;
       uri = newTopicAndUri.uri;
       // print('connect generated topic: $topic');
     }
 
     final publicKey = await core.crypto.generateKeyPair();
     final int id = PairingUtils.payloadId();
+    print('connect');
+    print(pTopic);
+    print(id);
 
     final WcSessionProposeRequest request = WcSessionProposeRequest(
       relays: relays == null
@@ -153,7 +154,7 @@ class Engine implements IEngine {
       requiredNamespaces: request.requiredNamespaces,
       optionalNamespaces: request.optionalNamespaces,
       sessionProperties: request.sessionProperties,
-      pairingTopic: topic,
+      pairingTopic: pTopic,
     );
     await _setProposal(
       id,
@@ -162,16 +163,19 @@ class Engine implements IEngine {
 
     Completer completer = Completer.sync();
 
-    pendingProposals[id] = SessionProposalCompleter(
-      selfPublicKey: publicKey,
-      pairingTopic: topic,
-      requiredNamespaces: request.requiredNamespaces,
-      optionalNamespaces: request.optionalNamespaces,
-      sessionProperties: request.sessionProperties,
-      completer: completer,
+    pendingProposals.add(
+      SessionProposalCompleter(
+        id: id,
+        selfPublicKey: publicKey,
+        pairingTopic: pTopic,
+        requiredNamespaces: request.requiredNamespaces,
+        optionalNamespaces: request.optionalNamespaces,
+        sessionProperties: request.sessionProperties,
+        completer: completer,
+      ),
     );
     _connectResponseHandler(
-      topic,
+      pTopic,
       request,
       id,
     );
@@ -259,7 +263,6 @@ class Engine implements IEngine {
       WalletConnectConstants.SEVEN_DAYS,
     );
     final request = WcSessionSettleRequest(
-      id: id,
       relay: relay,
       namespaces: namespaces,
       requiredNamespaces: proposal.requiredNamespaces,
@@ -704,8 +707,10 @@ class Engine implements IEngine {
     final request = WcSessionSettleRequest.fromJson(payload.params);
     try {
       await _isValidSessionSettleRequest(request.namespaces, request.expiry);
-      SessionProposalCompleter sProposalCompleter =
-          pendingProposals.remove(request.id)!;
+      // SessionProposalCompleter sProposalCompleter =
+      //     pendingProposals.remove(topic)!;
+      final SessionProposalCompleter sProposalCompleter =
+          pendingProposals.removeLast();
 
       // Create the session
       final SessionData session = SessionData(
@@ -715,9 +720,9 @@ class Engine implements IEngine {
         acknowledged: true,
         controller: request.controller.publicKey,
         namespaces: request.namespaces,
-        requiredNamespaces: sProposalCompleter.requiredNamespaces,
-        optionalNamespaces: sProposalCompleter.optionalNamespaces,
-        sessionProperties: sProposalCompleter.sessionProperties,
+        requiredNamespaces: request.requiredNamespaces,
+        optionalNamespaces: request.optionalNamespaces,
+        sessionProperties: request.sessionProperties,
         self: ConnectionMetadata(
           publicKey: sProposalCompleter.selfPublicKey,
           metadata: selfMetadata,
