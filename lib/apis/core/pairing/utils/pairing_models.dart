@@ -44,7 +44,7 @@ class PairingMetadata {
   final List<String> icons;
   final Redirect? redirect;
 
-  PairingMetadata({
+  const PairingMetadata({
     required this.name,
     required this.description,
     required this.url,

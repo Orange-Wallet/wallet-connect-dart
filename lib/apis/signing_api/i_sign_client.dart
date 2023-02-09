@@ -4,5 +4,5 @@ abstract class ISignClient extends IEngine {
   final String protocol = 'wc';
   final int version = 2;
 
-  abstract IEngine engine;
+  abstract final IEngine engine;
 }

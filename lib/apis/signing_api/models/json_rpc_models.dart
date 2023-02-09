@@ -109,11 +109,11 @@ class WcSessionUpdateRequest {
   Map<String, dynamic> toJson() => _$WcSessionUpdateRequestToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(includeIfNull: false)
 class WcSessionExtendRequest {
-  final Map<String, dynamic> data;
+  final Map<String, dynamic>? data;
 
-  WcSessionExtendRequest({required this.data});
+  WcSessionExtendRequest({this.data});
 
   factory WcSessionExtendRequest.fromJson(Map<String, dynamic> json) =>
       _$WcSessionExtendRequestFromJson(json);

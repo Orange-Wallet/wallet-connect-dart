@@ -102,13 +102,17 @@ class SignClient implements ISignClient {
 
   @override
   Future<ConnectResponse> connect({
-    required Map<String, RequiredNamespace> requiredNamespaces,
+    Map<String, RequiredNamespace>? requiredNamespaces,
+    Map<String, RequiredNamespace>? optionalNamespaces,
+    Map<String, String>? sessionProperties,
     String? pairingTopic,
     List<Relay>? relays,
   }) async {
     try {
       return await engine.connect(
         requiredNamespaces: requiredNamespaces,
+        optionalNamespaces: optionalNamespaces,
+        sessionProperties: sessionProperties,
         pairingTopic: pairingTopic,
         relays: relays,
       );
@@ -172,8 +176,7 @@ class SignClient implements ISignClient {
         namespaces: namespaces,
       );
     } catch (e) {
-      final error = e as WCError;
-      print(error.message);
+      // final error = e as WCError;
       rethrow;
     }
   }

@@ -1,5 +1,6 @@
 import 'package:event/event.dart';
 import 'package:wallet_connect_v2_dart/apis/core/i_core.dart';
+import 'package:wallet_connect_v2_dart/apis/core/pairing/i_pairing_store.dart';
 import 'package:wallet_connect_v2_dart/apis/core/pairing/utils/pairing_models.dart';
 import 'package:wallet_connect_v2_dart/apis/core/relay_client/relay_client_models.dart';
 import 'package:wallet_connect_v2_dart/apis/models/basic_models.dart';
@@ -28,7 +29,9 @@ abstract class IEngine {
 
   Future<void> init();
   Future<ConnectResponse> connect({
-    required Map<String, RequiredNamespace> requiredNamespaces,
+    Map<String, RequiredNamespace>? requiredNamespaces,
+    Map<String, RequiredNamespace>? optionalNamespaces,
+    Map<String, String>? sessionProperties,
     String? pairingTopic,
     List<Relay>? relays,
   });
@@ -81,4 +84,5 @@ abstract class IEngine {
   SessionData find({
     required Map<String, RequiredNamespace> requiredNamespaces,
   });
+  abstract final IPairingStore pairings;
 }

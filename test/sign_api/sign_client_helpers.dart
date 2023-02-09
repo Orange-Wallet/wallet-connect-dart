@@ -1,9 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:wallet_connect_v2_dart/apis/signing_api/i_engine.dart';
 import 'package:wallet_connect_v2_dart/wallet_connect_v2.dart';
 
-import 'sign_client_constants.dart';
+import 'utils/engine_constants.dart';
+import 'utils/sign_client_constants.dart';
 
 class TestConnectMethodReturn {
   PairingInfo pairing;
@@ -20,27 +22,21 @@ class TestConnectMethodReturn {
 }
 
 class SignClientHelpers {
-  static Future<TestConnectMethodReturn> testConnectMethod(
-    SignClient a,
-    SignClient b, {
+  static Future<TestConnectMethodReturn> testConnectPairApprove(
+    IEngine a,
+    IEngine b, {
     Map<String, Namespace>? namespaces,
     Map<String, RequiredNamespace>? requiredNamespaces,
     List<Relay>? relays,
     String? pairingTopic,
     int? qrCodeScanLatencyMs,
+    bool testFailure = false,
   }) async {
     final start = DateTime.now().millisecondsSinceEpoch;
     final Map<String, RequiredNamespace> reqNamespaces =
         requiredNamespaces != null
             ? requiredNamespaces
             : TEST_REQUIRED_NAMESPACES;
-    // final connectParams = ConnectParams(
-    //   requiredNamespaces: requiredNamespaces != null
-    //       ? requiredNamespaces
-    //       : SignClientConstants.TEST_REQUIRED_NAMESPACES,
-    //   pairingTopic: pairingTopic,
-    //   relays: relays != null ? relays : [],
-    // );
 
     Map<String, Namespace> workingNamespaces =
         namespaces != null ? namespaces : TEST_NAMESPACES;
@@ -51,6 +47,7 @@ class SignClientHelpers {
     // Listen for a proposal via connect to avoid race conditions
     final f = (SessionProposal? args) async {
       // print('B Session Proposal');
+
       expect(
         args!.params.requiredNamespaces,
         reqNamespaces,
@@ -61,7 +58,9 @@ class SignClientHelpers {
         namespaces: workingNamespaces,
       );
       sessionB = response.session;
+
       // print('B Session assigned: $sessionB');
+      // expect(b.core.expirer.has(args.params.id.toString()), true);
     };
     b.onSessionProposal.subscribe(f);
 
@@ -144,6 +143,9 @@ class SignClientHelpers {
     expect(sessionA.namespaces, sessionB!.namespaces);
     // expiry
     expect((sessionA.expiry - sessionB!.expiry).abs() < 5, true);
+    // Check that there is an expiry
+    expect(a.core.expirer.has(sessionA.topic), true);
+    expect(b.core.expirer.has(sessionB!.topic), true);
     // acknowledged
     expect(sessionA.acknowledged, sessionB!.acknowledged);
     // participants

@@ -4,7 +4,7 @@ import 'package:wallet_connect_v2_dart/apis/signing_api/utils/namespace_utils.da
 import 'package:wallet_connect_v2_dart/apis/signing_api/utils/sign_api_validator_utils.dart';
 
 import '../shared/shared_test_values.dart';
-import 'sign_client_constants.dart';
+import 'utils/sign_client_constants.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -520,7 +520,7 @@ void main() {
   test('isSessionCompatible', () {
     expect(
       SignApiValidatorUtils.isSessionCompatible(
-        session: testSessionData,
+        session: testSessionValid,
         requiredNamespaces: TEST_REQUIRED_NAMESPACES,
       ),
       true,
@@ -533,10 +533,10 @@ void main() {
       TEST_NAMESPACES_NONCONFORMING_EVENTS,
     ];
     for (int i = 0; i < nonconformingNamespaces.length; i++) {
-      testSessionData.namespaces = nonconformingNamespaces[i];
+      testSessionValid.namespaces = nonconformingNamespaces[i];
       expect(
         SignApiValidatorUtils.isSessionCompatible(
-          session: testSessionData,
+          session: testSessionValid,
           requiredNamespaces: TEST_REQUIRED_NAMESPACES,
         ),
         false,

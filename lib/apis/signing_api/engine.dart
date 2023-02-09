@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:event/event.dart';
 import 'package:wallet_connect_v2_dart/apis/core/pairing/i_pairing.dart';
+import 'package:wallet_connect_v2_dart/apis/core/pairing/i_pairing_store.dart';
 import 'package:wallet_connect_v2_dart/apis/core/pairing/utils/pairing_utils.dart';
 import 'package:wallet_connect_v2_dart/apis/core/pairing/utils/pairing_models.dart';
 import 'package:wallet_connect_v2_dart/apis/core/i_core.dart';
@@ -55,11 +56,11 @@ class Engine implements IEngine {
   final Event<SessionUpdate> onSessionUpdate = Event<SessionUpdate>();
 
   @override
-  ICore core;
+  final ICore core;
   @override
-  IProposals proposals;
+  final IProposals proposals;
   @override
-  ISessions sessions;
+  final ISessions sessions;
 
   // Map<int, ConnectResponse> pendingProposals = {};
   Map<int, SessionProposalCompleter> pendingProposals = {};
@@ -177,7 +178,7 @@ class Engine implements IEngine {
       sessionProperties: request.sessionProperties,
       completer: completer,
     );
-    connectResponseHandler(
+    _connectResponseHandler(
       topic,
       request,
       id,
@@ -191,7 +192,7 @@ class Engine implements IEngine {
     return resp;
   }
 
-  Future<void> connectResponseHandler(
+  Future<void> _connectResponseHandler(
     String topic,
     WcSessionProposeRequest request,
     int requestId,
@@ -331,6 +332,7 @@ class Engine implements IEngine {
     );
 
     await sessions.set(sessionTopic, session);
+    await _setExpiry(sessionTopic, expiry);
 
     // If we have a pairing topic, update its metadata with the peer
     if (proposal.pairingTopic != null) {}
@@ -358,8 +360,8 @@ class Engine implements IEngine {
         MethodConstants.WC_SESSION_PROPOSE,
         JsonRpcError.serverError('User rejected request'),
       );
-      await _deleteProposal(id);
     }
+    await _deleteProposal(id);
   }
 
   @override
@@ -373,6 +375,7 @@ class Engine implements IEngine {
       namespaces,
     );
 
+    print('got here 1');
     await sessions.update(
       topic,
       namespaces: namespaces,
@@ -394,7 +397,7 @@ class Engine implements IEngine {
 
     await core.pairing.sendRequest(
       topic,
-      MethodConstants.WC_SESSION_UPDATE,
+      MethodConstants.WC_SESSION_EXTEND,
       {},
     );
 
@@ -529,6 +532,9 @@ class Engine implements IEngine {
       },
     );
   }
+
+  @override
+  IPairingStore get pairings => core.pairing.getStore();
 
   /// ---- PRIVATE HELPERS ---- ////
   void _checkInitialized() {
@@ -1159,16 +1165,16 @@ class Engine implements IEngine {
     }
 
     if (requiredNamespaces != null) {
-      return SignApiValidatorUtils.isValidRequiredNamespaces(
+      SignApiValidatorUtils.isValidRequiredNamespaces(
         requiredNamespaces: requiredNamespaces,
-        context: "connect requiredNamespaces",
+        context: "connect() check requiredNamespaces.",
       );
     }
 
     if (optionalNamespaces != null) {
-      return SignApiValidatorUtils.isValidRequiredNamespaces(
+      SignApiValidatorUtils.isValidRequiredNamespaces(
         requiredNamespaces: optionalNamespaces,
-        context: "connect optionalNamespaces",
+        context: "connect() check optionalNamespaces.",
       );
     }
 
@@ -1194,11 +1200,11 @@ class Engine implements IEngine {
     // Validate the required and optional namespaces
     SignApiValidatorUtils.isValidRequiredNamespaces(
       requiredNamespaces: proposal.requiredNamespaces,
-      context: "approve()",
+      context: "approve() check requiredNamespaces.",
     );
     SignApiValidatorUtils.isValidRequiredNamespaces(
       requiredNamespaces: proposal.optionalNamespaces,
-      context: "approve()",
+      context: "approve() check optionalNamespaces.",
     );
 
     // Make sure the provided namespaces conforms with the required
@@ -1243,7 +1249,7 @@ class Engine implements IEngine {
     await _isValidSessionTopic(topic);
     SignApiValidatorUtils.isValidNamespaces(
       namespaces: namespaces,
-      context: "onSessionSettleRequest()",
+      context: "update()",
     );
     final SessionData session = sessions.get(topic)!;
 

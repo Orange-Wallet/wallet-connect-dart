@@ -155,14 +155,22 @@ Map<String, dynamic> _$WcSessionUpdateRequestToJson(
 WcSessionExtendRequest _$WcSessionExtendRequestFromJson(
         Map<String, dynamic> json) =>
     WcSessionExtendRequest(
-      data: json['data'] as Map<String, dynamic>,
+      data: json['data'] as Map<String, dynamic>?,
     );
 
 Map<String, dynamic> _$WcSessionExtendRequestToJson(
-        WcSessionExtendRequest instance) =>
-    <String, dynamic>{
-      'data': instance.data,
-    };
+    WcSessionExtendRequest instance) {
+  final val = <String, dynamic>{};
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('data', instance.data);
+  return val;
+}
 
 WcSessionDeleteRequest _$WcSessionDeleteRequestFromJson(
         Map<String, dynamic> json) =>

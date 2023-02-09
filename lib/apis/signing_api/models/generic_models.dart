@@ -5,10 +5,10 @@ part 'generic_models.g.dart';
 
 @JsonSerializable()
 class ConnectionMetadata {
-  String publicKey;
-  PairingMetadata metadata;
+  final String publicKey;
+  final PairingMetadata metadata;
 
-  ConnectionMetadata({
+  const ConnectionMetadata({
     required this.publicKey,
     required this.metadata,
   });

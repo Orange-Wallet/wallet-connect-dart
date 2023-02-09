@@ -164,10 +164,33 @@ const TEST_NAMESPACES_NONCONFORMING_EVENTS = {
 };
 
 // Session Data
-final testSessionData = SessionData(
-  topic: 'abc',
-  relay: Relay('irn:'),
-  expiry: 1000,
+const TEST_SESSION_INVALID_TOPIC = 'swagmaster';
+const TEST_SESSION_VALID_TOPIC = 'abc';
+const TEST_SESSION_EXPIRED_TOPIC = 'expired';
+final testSessionValid = SessionData(
+  topic: TEST_SESSION_VALID_TOPIC,
+  relay: Relay('irn'),
+  expiry: 1000000000000,
+  acknowledged: true,
+  controller: 'test',
+  namespaces: TEST_NAMESPACES,
+  requiredNamespaces: {
+    EVM_NAMESPACE: TEST_ETH_ARB_REQUIRED_NAMESPACE,
+  },
+  optionalNamespaces: {},
+  self: ConnectionMetadata(
+    publicKey: '',
+    metadata: PairingMetadata(name: '', description: '', url: '', icons: []),
+  ),
+  peer: ConnectionMetadata(
+    publicKey: '',
+    metadata: PairingMetadata(name: '', description: '', url: '', icons: []),
+  ),
+);
+final testSessionExpired = SessionData(
+  topic: TEST_SESSION_EXPIRED_TOPIC,
+  relay: Relay('irn'),
+  expiry: -1,
   acknowledged: true,
   controller: 'test',
   namespaces: TEST_NAMESPACES,
@@ -182,6 +205,8 @@ final testSessionData = SessionData(
     metadata: PairingMetadata(name: '', description: '', url: '', icons: []),
   ),
 );
+
+// Test Messages
 
 const TEST_MESSAGE = "My name is John Doe";
 const TEST_SIGNATURE =
