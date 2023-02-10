@@ -125,9 +125,6 @@ class SignEngine implements ISignEngine {
 
     final publicKey = await core.crypto.generateKeyPair();
     final int id = PairingUtils.payloadId();
-    print('connect');
-    print(pTopic);
-    print(id);
 
     final WcSessionProposeRequest request = WcSessionProposeRequest(
       relays: relays == null

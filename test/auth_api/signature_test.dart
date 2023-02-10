@@ -23,7 +23,7 @@ void main() {
         TEST_PROJECT_ID,
       );
 
-      print(bool);
+      // print(bool);
       expect(bool, true);
     });
   });
