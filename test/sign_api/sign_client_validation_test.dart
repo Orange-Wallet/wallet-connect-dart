@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wallet_connect_v2_dart/wallet_connect_v2.dart';
-import 'package:wallet_connect_v2_dart/apis/signing_api/utils/namespace_utils.dart';
+import 'package:wallet_connect_v2_dart/apis/utils/namespace_utils.dart';
 import 'package:wallet_connect_v2_dart/apis/signing_api/utils/sign_api_validator_utils.dart';
 
 import '../shared/shared_test_values.dart';

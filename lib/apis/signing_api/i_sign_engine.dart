@@ -9,10 +9,10 @@ import 'package:wallet_connect_v2_dart/apis/signing_api/i_sessions.dart';
 import 'package:wallet_connect_v2_dart/apis/signing_api/models/json_rpc_models.dart';
 import 'package:wallet_connect_v2_dart/apis/signing_api/models/proposal_models.dart';
 import 'package:wallet_connect_v2_dart/apis/signing_api/models/session_models.dart';
+import 'package:wallet_connect_v2_dart/apis/signing_api/models/sign_client_events.dart';
 import 'package:wallet_connect_v2_dart/apis/signing_api/models/sign_client_models.dart';
-import 'package:wallet_connect_v2_dart/apis/signing_api/models/signing_models.dart';
 
-abstract class IEngine {
+abstract class ISignEngine {
   abstract final Event<SessionConnect> onSessionConnect;
   abstract final Event<SessionProposal> onSessionProposal;
   abstract final Event<SessionUpdate> onSessionUpdate;

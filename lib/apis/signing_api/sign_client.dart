@@ -2,8 +2,8 @@ import 'package:event/event.dart';
 import 'package:wallet_connect_v2_dart/apis/core/pairing/i_pairing_store.dart';
 import 'package:wallet_connect_v2_dart/apis/core/relay_client/relay_client_models.dart';
 import 'package:wallet_connect_v2_dart/apis/models/basic_models.dart';
-import 'package:wallet_connect_v2_dart/apis/signing_api/engine.dart';
-import 'package:wallet_connect_v2_dart/apis/signing_api/i_engine.dart';
+import 'package:wallet_connect_v2_dart/apis/signing_api/sign_engine.dart';
+import 'package:wallet_connect_v2_dart/apis/signing_api/i_sign_engine.dart';
 import 'package:wallet_connect_v2_dart/apis/core/pairing/utils/pairing_models.dart';
 import 'package:wallet_connect_v2_dart/apis/core/i_core.dart';
 import 'package:wallet_connect_v2_dart/apis/signing_api/i_sessions.dart';
@@ -11,8 +11,8 @@ import 'package:wallet_connect_v2_dart/apis/signing_api/i_proposals.dart';
 import 'package:wallet_connect_v2_dart/apis/signing_api/i_sign_client.dart';
 import 'package:wallet_connect_v2_dart/apis/signing_api/models/json_rpc_models.dart';
 import 'package:wallet_connect_v2_dart/apis/signing_api/models/proposal_models.dart';
-import 'package:wallet_connect_v2_dart/apis/signing_api/models/signing_models.dart';
 import 'package:wallet_connect_v2_dart/apis/signing_api/models/sign_client_models.dart';
+import 'package:wallet_connect_v2_dart/apis/signing_api/models/sign_client_events.dart';
 import 'package:wallet_connect_v2_dart/apis/signing_api/models/session_models.dart';
 import 'package:wallet_connect_v2_dart/apis/signing_api/proposals.dart';
 import 'package:wallet_connect_v2_dart/apis/signing_api/sessions.dart';
@@ -62,7 +62,7 @@ class SignClient implements ISignClient {
   final ICore core;
 
   @override
-  late IEngine engine;
+  late ISignEngine engine;
 
   static Future<SignClient> createInstance(
     ICore core, {
@@ -80,7 +80,7 @@ class SignClient implements ISignClient {
   }) {
     Proposals p = Proposals(core);
     Sessions s = Sessions(core);
-    engine = Engine(
+    engine = SignEngine(
       core,
       p,
       s,

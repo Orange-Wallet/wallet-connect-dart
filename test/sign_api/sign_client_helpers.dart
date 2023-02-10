@@ -1,10 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:wallet_connect_v2_dart/apis/signing_api/i_engine.dart';
+import 'package:wallet_connect_v2_dart/apis/signing_api/i_sign_engine.dart';
 import 'package:wallet_connect_v2_dart/wallet_connect_v2.dart';
 
-import 'utils/engine_constants.dart';
 import 'utils/sign_client_constants.dart';
 
 class TestConnectMethodReturn {
@@ -23,8 +22,8 @@ class TestConnectMethodReturn {
 
 class SignClientHelpers {
   static Future<TestConnectMethodReturn> testConnectPairApprove(
-    IEngine a,
-    IEngine b, {
+    ISignEngine a,
+    ISignEngine b, {
     Map<String, Namespace>? namespaces,
     Map<String, RequiredNamespace>? requiredNamespaces,
     List<Relay>? relays,

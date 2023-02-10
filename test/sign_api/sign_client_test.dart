@@ -3,8 +3,8 @@ import 'dart:math';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wallet_connect_v2_dart/apis/core/i_core.dart';
 import 'package:wallet_connect_v2_dart/apis/models/json_rpc_error.dart';
-import 'package:wallet_connect_v2_dart/apis/signing_api/engine.dart';
-import 'package:wallet_connect_v2_dart/apis/signing_api/i_engine.dart';
+import 'package:wallet_connect_v2_dart/apis/signing_api/sign_engine.dart';
+import 'package:wallet_connect_v2_dart/apis/signing_api/i_sign_engine.dart';
 import 'package:wallet_connect_v2_dart/apis/signing_api/proposals.dart';
 import 'package:wallet_connect_v2_dart/apis/signing_api/sessions.dart';
 import 'package:wallet_connect_v2_dart/apis/utils/constants.dart';
@@ -18,7 +18,7 @@ import 'sign_client_helpers.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  final List<Future<IEngine> Function(ICore, PairingMetadata?)>
+  final List<Future<ISignEngine> Function(ICore, PairingMetadata?)>
       signingApiCreators = [
     (ICore core, PairingMetadata? self) async =>
         await SignClient.createInstance(
@@ -28,7 +28,7 @@ void main() {
     (ICore core, PairingMetadata? self) async {
       Proposals p = Proposals(core);
       Sessions s = Sessions(core);
-      IEngine e = Engine(
+      ISignEngine e = SignEngine(
         core,
         p,
         s,
@@ -117,8 +117,8 @@ void signingEngineTests({
   required Function(ICore, PairingMetadata?) engineCreator,
 }) {
   group(context, () {
-    late IEngine clientA;
-    late IEngine clientB;
+    late ISignEngine clientA;
+    late ISignEngine clientB;
 
     setUp(() async {
       clientA = await engineCreator(

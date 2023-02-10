@@ -1,7 +1,7 @@
 import 'package:wallet_connect_v2_dart/apis/signing_api/models/proposal_models.dart';
 import 'package:wallet_connect_v2_dart/apis/signing_api/models/session_models.dart';
-import 'package:wallet_connect_v2_dart/apis/signing_api/models/signing_models.dart';
-import 'package:wallet_connect_v2_dart/apis/signing_api/utils/namespace_utils.dart';
+import 'package:wallet_connect_v2_dart/apis/signing_api/models/sign_client_models.dart';
+import 'package:wallet_connect_v2_dart/apis/utils/namespace_utils.dart';
 import 'package:wallet_connect_v2_dart/apis/utils/errors.dart';
 
 class SignApiValidatorUtils {

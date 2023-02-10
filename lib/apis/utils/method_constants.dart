@@ -15,42 +15,20 @@ class MethodConstants {
   static const WC_SESSION_DELETE = 'wc_sessionDelete';
   static const WC_SESSION_PING = 'wc_sessionPing';
 
+  static const WC_AUTH_REQUEST = 'wc_authRequest';
+
   static const Map<String, Map<String, RpcOptions>> RPC_OPTS = {
     WC_PAIRING_PING: {
-      'req': RpcOptions(
-        WalletConnectConstants.ONE_DAY,
-        false,
-        1000,
-      ),
-      'res': RpcOptions(
-        WalletConnectConstants.ONE_DAY,
-        false,
-        1001,
-      ),
+      'req': RpcOptions(WalletConnectConstants.ONE_DAY, false, 1000),
+      'res': RpcOptions(WalletConnectConstants.ONE_DAY, false, 1001),
     },
     WC_PAIRING_DELETE: {
-      'req': RpcOptions(
-        WalletConnectConstants.THIRTY_SECONDS,
-        false,
-        1002,
-      ),
-      'res': RpcOptions(
-        WalletConnectConstants.THIRTY_SECONDS,
-        false,
-        1003,
-      ),
+      'req': RpcOptions(WalletConnectConstants.THIRTY_SECONDS, false, 1002),
+      'res': RpcOptions(WalletConnectConstants.THIRTY_SECONDS, false, 1003),
     },
     UNREGISTERED_METHOD: {
-      'req': RpcOptions(
-        WalletConnectConstants.ONE_DAY,
-        false,
-        0,
-      ),
-      'res': RpcOptions(
-        WalletConnectConstants.ONE_DAY,
-        false,
-        0,
-      ),
+      'req': RpcOptions(WalletConnectConstants.ONE_DAY, false, 0),
+      'res': RpcOptions(WalletConnectConstants.ONE_DAY, false, 0),
     },
     WC_SESSION_PROPOSE: {
       "req": RpcOptions(WalletConnectConstants.FIVE_MINUTES, true, 1100),
@@ -83,6 +61,10 @@ class MethodConstants {
     WC_SESSION_PING: {
       "req": RpcOptions(WalletConnectConstants.THIRTY_SECONDS, false, 1114),
       "res": RpcOptions(WalletConnectConstants.THIRTY_SECONDS, false, 1115),
+    },
+    WC_AUTH_REQUEST: {
+      "req": RpcOptions(WalletConnectConstants.ONE_DAY, true, 3000),
+      "res": RpcOptions(WalletConnectConstants.ONE_DAY, false, 3001),
     },
   };
 }

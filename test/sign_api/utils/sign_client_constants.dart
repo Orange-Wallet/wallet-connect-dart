@@ -1,9 +1,4 @@
-import 'package:wallet_connect_v2_dart/apis/core/pairing/utils/pairing_models.dart';
-import 'package:wallet_connect_v2_dart/apis/core/relay_client/relay_client_models.dart';
-import 'package:wallet_connect_v2_dart/apis/signing_api/models/generic_models.dart';
-import 'package:wallet_connect_v2_dart/apis/signing_api/models/proposal_models.dart';
-import 'package:wallet_connect_v2_dart/apis/signing_api/models/session_models.dart';
-import 'package:wallet_connect_v2_dart/apis/utils/constants.dart';
+import 'package:wallet_connect_v2_dart/wallet_connect_v2.dart';
 
 const TEST_RELAY_OPTIONS = {
   "protocol": WalletConnectConstants.RELAYER_DEFAULT_PROTOCOL,

@@ -5,12 +5,6 @@ abstract class IProposals extends IStoreUser {
   Future<void> init();
   bool has(String id);
   Future<void> set(String id, ProposalData value);
-  // Future<void> update(
-  //   String topic, {
-  //   int? expiry,
-  //   bool? active,
-  //   ProposalData? metadata,
-  // });
   ProposalData? get(String id);
   List<ProposalData> getAll();
   Future<void> delete(String id);

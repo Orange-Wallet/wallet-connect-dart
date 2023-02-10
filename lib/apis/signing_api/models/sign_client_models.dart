@@ -1,98 +1,50 @@
-import 'package:event/event.dart';
-import 'package:wallet_connect_v2_dart/apis/signing_api/models/proposal_models.dart';
+import 'dart:async';
+
+import 'package:wallet_connect_v2_dart/apis/core/relay_client/relay_client_models.dart';
 import 'package:wallet_connect_v2_dart/apis/signing_api/models/session_models.dart';
 
-class SessionProposal extends EventArgs {
-  int id;
-  ProposalData params;
-
-  SessionProposal(
-    this.id,
-    this.params,
-  );
-}
-
-class SessionConnect extends EventArgs {
-  SessionData session;
-
-  SessionConnect(
-    this.session,
-  );
-}
-
-class SessionUpdate extends EventArgs {
-  int id;
-  String topic;
-  Map<String, Namespace> namespaces;
-
-  SessionUpdate(
-    this.id,
-    this.topic,
-    this.namespaces,
-  );
-}
-
-class SessionExtend extends EventArgs {
-  int id;
-  String topic;
-
-  SessionExtend(this.id, this.topic);
-}
-
-class SessionPing extends EventArgs {
-  int id;
-  String topic;
-
-  SessionPing(this.id, this.topic);
-}
-
-class SessionDelete extends EventArgs {
-  int id;
-  String topic;
-
-  SessionDelete(this.id, this.topic);
-}
-
-class SessionExpire extends EventArgs {
+class UriParameters {
+  final String protocol;
+  final int version;
   final String topic;
+  final String symKey;
+  final Relay relay;
 
-  SessionExpire(this.topic);
-}
-
-class SessionRequest extends EventArgs {
-  int id;
-  String topic;
-  String method;
-  String chainId;
-  dynamic params;
-
-  SessionRequest(
-    this.id,
+  UriParameters(
+    this.protocol,
+    this.version,
     this.topic,
-    this.method,
-    this.chainId,
-    this.params,
+    this.symKey,
+    this.relay,
   );
 }
 
-class SessionEvent extends EventArgs {
-  int id;
-  String topic;
-  String name;
-  String chainId;
-  dynamic data;
+class ConnectResponse {
+  final Completer session;
+  final Uri? uri;
 
-  SessionEvent(
-    this.id,
-    this.topic,
-    this.name,
-    this.chainId,
-    this.data,
-  );
+  ConnectResponse({
+    required this.session,
+    this.uri,
+  });
 }
 
-class ProposalExpire extends EventArgs {
+class ApproveResponse {
+  final String topic;
+  final SessionData session;
+
+  ApproveResponse({
+    required this.topic,
+    required this.session,
+  });
+}
+
+class RejectParams {
   final int id;
+  final String reason;
 
-  ProposalExpire(this.id);
+  RejectParams({
+    required this.id,
+    required this.reason,
+  });
 }
