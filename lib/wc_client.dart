@@ -32,6 +32,8 @@ typedef EthTransaction = void Function(
     int id, WCEthereumTransaction transaction);
 typedef CustomRequest = void Function(int id, String payload);
 typedef WalletSwitchNetwork = void Function(int id, int chainId);
+typedef SessionUpdate = void Function(
+    int id, bool approved, int? chainId, List<String>? accounts);
 
 class WCClient {
   late WebSocketChannel _webSocket;
@@ -58,6 +60,8 @@ class WCClient {
     this.onWalletSwitchNetwork,
     this.onCustomRequest,
     this.onConnect,
+    //add sessionupdate
+    this.onSessionUpdate,
   });
 
   final SessionRequest? onSessionRequest;
@@ -67,6 +71,7 @@ class WCClient {
   final EthTransaction? onEthSignTransaction, onEthSendTransaction;
   final CustomRequest? onCustomRequest;
   final WalletSwitchNetwork? onWalletSwitchNetwork;
+  final SessionUpdate? onSessionUpdate;
   final Function()? onConnect;
 
   WCSession? get session => _session;
@@ -331,6 +336,8 @@ class WCClient {
         if (!param.approved) {
           killSession();
         }
+        onSessionUpdate?.call(
+            request.id, param.approved, param.chainId, param.accounts);
         break;
       case WCMethod.ETH_SIGN:
         // print('ETH_SIGN $request');
