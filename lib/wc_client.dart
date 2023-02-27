@@ -238,8 +238,8 @@ class WCClient {
     _subscribe(peerId);
   }
 
-  disconnect() {
-    _socketSink!.close(WebSocketStatus.normalClosure);
+  disconnect({String? reason}) {
+    _socketSink!.close(WebSocketStatus.normalClosure, reason);
   }
 
   _subscribe(String topic) {
@@ -332,9 +332,9 @@ class WCClient {
         break;
       case WCMethod.SESSION_UPDATE:
         final param = WCSessionUpdate.fromJson(request.params!.first);
-        // print('SESSION_UPDATE $param');
+        print('SESSION_UPDATE $param');
         if (!param.approved) {
-          killSession();
+          killSession(reason: "Session Update Closed");
         }
         onSessionUpdate?.call(
             request.id, param.approved, param.chainId, param.accounts);
@@ -403,9 +403,9 @@ class WCClient {
     }
   }
 
-  killSession() async {
+  killSession({String? reason}) async {
     await updateSession(approved: false);
-    disconnect();
+    disconnect(reason: reason);
   }
 
   _resetState() {
