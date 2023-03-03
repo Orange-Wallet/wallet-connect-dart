@@ -31,7 +31,10 @@ typedef EthSign = void Function(int id, WCEthereumSignMessage message);
 typedef EthTransaction = void Function(int id, WCEthereumTransaction transaction);
 typedef CustomRequest = void Function(int id, String payload);
 typedef WalletSwitchNetwork = void Function(int id, int chainId);
-typedef HnsHandle = void Function(int id, List params);
+
+typedef HnsSignTransaction = void Function(int id, List params);
+typedef HnsSignAnyoneCanPay = void Function(int id, List params);
+typedef HnsAddress = void Function(int id);
 
 class WCClient {
   late WebSocketChannel _webSocket;
@@ -56,7 +59,9 @@ class WCClient {
     this.onEthSignTransaction,
     this.onEthSendTransaction,
     this.onWalletSwitchNetwork,
-    this.onHnsHandle,
+    this.onHnsSendTransaction,
+    this.onHnsSignAnyoneCanPay,
+    this.onHnsAddress,
     this.onCustomRequest,
     this.onConnect,
   });
@@ -66,7 +71,9 @@ class WCClient {
   final SocketClose? onDisconnect;
   final EthSign? onEthSign;
   final EthTransaction? onEthSignTransaction, onEthSendTransaction;
-  final HnsHandle? onHnsHandle;
+  final HnsSignTransaction? onHnsSendTransaction;
+  final HnsSignAnyoneCanPay? onHnsSignAnyoneCanPay;
+  final HnsAddress? onHnsAddress;
   final CustomRequest? onCustomRequest;
   final WalletSwitchNetwork? onWalletSwitchNetwork;
   final Function()? onConnect;
@@ -394,11 +401,17 @@ class WCClient {
         final params = WCWalletSwitchNetwork.fromJson(request.params!.first);
         onWalletSwitchNetwork?.call(request.id, int.parse(params.chainId));
         break;
-      case WCMethod.HNS_HANDLE:
-        final params = request.params ?? [];
-        onHnsHandle?.call(request.id, params);
+      case WCMethod.HNS_SEND_TRANSACTION:
+        final param = request.params!.first;
+        onHnsSendTransaction?.call(request.id, param);
         break;
-
+      case WCMethod.HNS_SIGN_ANYONE_CAN_PAY:
+        final param = request.params!.first;
+        onHnsSignAnyoneCanPay?.call(request.id, param);
+        break;
+      case WCMethod.HNS_ADDRESS:
+        onHnsAddress?.call(request.id);
+        break;
       default:
     }
   }
