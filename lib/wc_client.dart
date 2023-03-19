@@ -32,8 +32,8 @@ typedef EthTransaction = void Function(int id, WCEthereumTransaction transaction
 typedef CustomRequest = void Function(int id, String payload);
 typedef WalletSwitchNetwork = void Function(int id, int chainId);
 
-typedef HnsSignTransaction = void Function(int id, List params);
-typedef HnsSignAnyoneCanPay = void Function(int id, List params);
+typedef HnsSignTransaction = void Function(int id, Map<String, dynamic> params);
+typedef HnsSignAnyoneCanPay = void Function(int id, Map<String, dynamic> params);
 typedef HnsAddress = void Function(int id);
 
 class WCClient {
