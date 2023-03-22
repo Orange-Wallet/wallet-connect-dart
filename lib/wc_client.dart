@@ -2,6 +2,9 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:uuid/uuid.dart';
+import 'package:web_socket_channel/io.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
+
 import 'package:wallet_connect/models/ethereum/wc_ethereum_sign_message.dart';
 import 'package:wallet_connect/models/ethereum/wc_ethereum_transaction.dart';
 import 'package:wallet_connect/models/ethereum/wc_wallet_switch_network.dart';
@@ -21,8 +24,6 @@ import 'package:wallet_connect/models/wc_peer_meta.dart';
 import 'package:wallet_connect/models/wc_socket_message.dart';
 import 'package:wallet_connect/wc_cipher.dart';
 import 'package:wallet_connect/wc_session_store.dart';
-import 'package:web_socket_channel/io.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
 
 typedef SessionRequest = void Function(int id, WCPeerMeta peerMeta);
 typedef SocketError = void Function(dynamic message);
@@ -224,8 +225,8 @@ class WCClient {
     _peerId = peerId;
     _remotePeerId = remotePeerId;
     _chainId = chainId;
-    final bridgeUri =
-        Uri.parse(session.bridge.replaceAll('https://', 'wss://'));
+    final bridgeUri = Uri.parse(session.bridge.replaceAll('https://', 'wss://'));
+    // ignore: close_sinks
     final ws = await WebSocket.connect(
       bridgeUri.toString(),
       customClient: customClient,
@@ -279,7 +280,7 @@ class WCClient {
     _socketStream.listen(
       (event) async {
         // print('DATA: $event ${event.runtimeType}');
-        final Map<String, dynamic> decoded = json.decode("$event");
+        // final Map<String, dynamic> decoded = json.decode("$event");
         // print('DECODED: $decoded ${decoded.runtimeType}');
         final socketMessage = WCSocketMessage.fromJson(jsonDecode("$event"));
         final decryptedMessage = await _decrypt(socketMessage);

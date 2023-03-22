@@ -7,3 +7,5 @@ export 'package:wallet_connect/models/wc_peer_meta.dart';
 export 'package:wallet_connect/models/session/wc_session.dart';
 export 'package:wallet_connect/wc_session_store.dart';
 export 'package:wallet_connect/wc_client.dart';
+export 'package:wallet_connect/web3wallet/web3wallet.dart';
+export 'package:wallet_connect/core/pairing/utils/pairing_models.dart';
