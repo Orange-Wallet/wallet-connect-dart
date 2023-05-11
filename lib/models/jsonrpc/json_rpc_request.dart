@@ -6,7 +6,7 @@ part 'json_rpc_request.g.dart';
 
 @JsonSerializable()
 class JsonRpcRequest {
-  final int id;
+  final dynamic id;
   final String jsonrpc;
   @JsonKey(unknownEnumValue: JsonKey.nullForUndefinedEnumValue)
   final WCMethod? method;

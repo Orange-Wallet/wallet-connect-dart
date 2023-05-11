@@ -5,7 +5,7 @@ part 'json_rpc_response.g.dart';
 
 @JsonSerializable(genericArgumentFactories: true)
 class JsonRpcResponse<T> {
-  final int id;
+  final dynamic id;
   final String jsonrpc;
   final T result;
   JsonRpcResponse({
