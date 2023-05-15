@@ -7,7 +7,7 @@ class HmacException implements Exception {
 }
 
 class InvalidJsonRpcParamsException implements Exception {
-  final int requestId;
+  final dynamic requestId;
   final String message;
 
   InvalidJsonRpcParamsException(this.requestId)
