@@ -12,7 +12,7 @@ JsonRpcRequest _$JsonRpcRequestFromJson(Map<String, dynamic> json) =>
       jsonrpc: json['jsonrpc'] as String? ?? JSONRPC_VERSION,
       method: $enumDecodeNullable(_$WCMethodEnumMap, json['method'],
           unknownValue: JsonKey.nullForUndefinedEnumValue),
-      params: json['params'] as List<dynamic>?,
+      params: json['params'],
     );
 
 Map<String, dynamic> _$JsonRpcRequestToJson(JsonRpcRequest instance) =>

@@ -10,7 +10,7 @@ class JsonRpcRequest {
   final String jsonrpc;
   @JsonKey(unknownEnumValue: JsonKey.nullForUndefinedEnumValue)
   final WCMethod? method;
-  final List<dynamic>? params;
+  final dynamic params;
   JsonRpcRequest({
     required this.id,
     this.jsonrpc = JSONRPC_VERSION,
