@@ -24,14 +24,16 @@ import 'package:wallet_connect/wc_session_store.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
-typedef SessionRequest = void Function(int id, WCPeerMeta peerMeta);
+typedef SessionRequest = void Function(dynamic id, WCPeerMeta peerMeta);
 typedef SocketError = void Function(dynamic message);
 typedef SocketClose = void Function(int? code, String? reason);
-typedef EthSign = void Function(int id, WCEthereumSignMessage message);
+typedef EthSign = void Function(dynamic id, WCEthereumSignMessage message);
 typedef EthTransaction = void Function(
-    int id, WCEthereumTransaction transaction);
-typedef CustomRequest = void Function(int id, String payload);
-typedef WalletSwitchNetwork = void Function(int id, int chainId);
+    dynamic id, WCEthereumTransaction transaction);
+typedef CustomRequest = void Function(dynamic id, String payload);
+typedef WalletSwitchNetwork = void Function(dynamic id, int chainId);
+
+const DappDisconnectCode = -9898;
 
 class WCClient {
   late WebSocketChannel _webSocket;
@@ -42,7 +44,7 @@ class WCClient {
   WCSession? _session;
   WCPeerMeta? _peerMeta;
   WCPeerMeta? _remotePeerMeta;
-  int _handshakeId = -1;
+  dynamic _handshakeId = -1;
   int? _chainId;
   String? _peerId;
   String? _remotePeerId;
@@ -173,7 +175,7 @@ class WCClient {
   }
 
   approveRequest<T>({
-    required int id,
+    required dynamic id,
     required T result,
   }) {
     final response = JsonRpcResponse<T>(
@@ -184,7 +186,7 @@ class WCClient {
   }
 
   rejectRequest({
-    required int id,
+    required dynamic id,
     String message = "Reject by the user",
   }) {
     final response = JsonRpcErrorResponse(
@@ -246,7 +248,7 @@ class WCClient {
     _socketSink!.add(jsonEncode(message));
   }
 
-  _invalidParams(int id) {
+  _invalidParams(dynamic id) {
     final response = JsonRpcErrorResponse(
       id: id,
       error: JsonRpcError.invalidParams("Invalid parameters"),
@@ -329,6 +331,7 @@ class WCClient {
         final param = WCSessionUpdate.fromJson(request.params!.first);
         // print('SESSION_UPDATE $param');
         if (!param.approved) {
+          onDisconnect?.call(DappDisconnectCode, null);
           killSession();
         }
         break;
@@ -374,6 +377,21 @@ class WCClient {
           WCEthereumSignMessage(
             raw: params,
             type: WCSignType.TYPED_MESSAGE,
+          ),
+        );
+        break;
+      case WCMethod.ETH_SIGN_TYPE_DATA_V4:
+        // print('ETH_SIGN_TYPE_DATA $request');
+        final params = request.params!.cast<String>();
+        if (params.length < 2) {
+          throw InvalidJsonRpcParamsException(request.id);
+        }
+
+        onEthSign?.call(
+          request.id,
+          WCEthereumSignMessage(
+            raw: params,
+            type: WCSignType.TYPED_MESSAGE_V4,
           ),
         );
         break;
