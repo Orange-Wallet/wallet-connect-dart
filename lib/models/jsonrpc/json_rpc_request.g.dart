@@ -32,4 +32,7 @@ const _$WCMethodEnumMap = {
   WCMethod.ETH_SIGN_TRANSACTION: 'eth_signTransaction',
   WCMethod.ETH_SEND_TRANSACTION: 'eth_sendTransaction',
   WCMethod.WALLET_SWITCH_NETWORK: 'wallet_switchEthereumChain',
+  WCMethod.HNS_SEND_TRANSACTION: 'hns_sendTransaction',
+  WCMethod.HNS_SIGN_ANYONE_CAN_PAY: 'hns_signAnyoneCanPay',
+  WCMethod.HNS_ADDRESS: 'hns_address'
 };

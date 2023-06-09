@@ -319,7 +319,7 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             Padding(
               padding: const EdgeInsets.only(bottom: 8.0),
-              child: Text('Some Error Occured. $message'),
+              child: Text('Some Error Occurred. $message'),
             ),
             Row(
               children: [
@@ -355,7 +355,7 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             Padding(
               padding: const EdgeInsets.only(bottom: 8.0),
-              child: Text('Some Error Occured. ERROR CODE: $code'),
+              child: Text('Some Error Occurred. ERROR CODE: $code'),
             ),
             if (reason != null)
               Padding(
@@ -491,7 +491,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Receipient',
+                    'Recipient',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16.0,

@@ -2,6 +2,9 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:uuid/uuid.dart';
+import 'package:web_socket_channel/io.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
+
 import 'package:wallet_connect/models/ethereum/wc_ethereum_sign_message.dart';
 import 'package:wallet_connect/models/ethereum/wc_ethereum_transaction.dart';
 import 'package:wallet_connect/models/ethereum/wc_wallet_switch_network.dart';
@@ -21,17 +24,18 @@ import 'package:wallet_connect/models/wc_peer_meta.dart';
 import 'package:wallet_connect/models/wc_socket_message.dart';
 import 'package:wallet_connect/wc_cipher.dart';
 import 'package:wallet_connect/wc_session_store.dart';
-import 'package:web_socket_channel/io.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
 
 typedef SessionRequest = void Function(int id, WCPeerMeta peerMeta);
 typedef SocketError = void Function(dynamic message);
 typedef SocketClose = void Function(int? code, String? reason);
 typedef EthSign = void Function(int id, WCEthereumSignMessage message);
-typedef EthTransaction = void Function(
-    int id, WCEthereumTransaction transaction);
+typedef EthTransaction = void Function(int id, WCEthereumTransaction transaction);
 typedef CustomRequest = void Function(int id, String payload);
 typedef WalletSwitchNetwork = void Function(int id, int chainId);
+
+typedef HnsSignTransaction = void Function(int id, Map<String, dynamic> params);
+typedef HnsSignAnyoneCanPay = void Function(int id, Map<String, dynamic> params);
+typedef HnsAddress = void Function(int id);
 
 class WCClient {
   late WebSocketChannel _webSocket;
@@ -56,6 +60,9 @@ class WCClient {
     this.onEthSignTransaction,
     this.onEthSendTransaction,
     this.onWalletSwitchNetwork,
+    this.onHnsSendTransaction,
+    this.onHnsSignAnyoneCanPay,
+    this.onHnsAddress,
     this.onCustomRequest,
     this.onConnect,
   });
@@ -65,6 +72,9 @@ class WCClient {
   final SocketClose? onDisconnect;
   final EthSign? onEthSign;
   final EthTransaction? onEthSignTransaction, onEthSendTransaction;
+  final HnsSignTransaction? onHnsSendTransaction;
+  final HnsSignAnyoneCanPay? onHnsSignAnyoneCanPay;
+  final HnsAddress? onHnsAddress;
   final CustomRequest? onCustomRequest;
   final WalletSwitchNetwork? onWalletSwitchNetwork;
   final Function()? onConnect;
@@ -215,8 +225,8 @@ class WCClient {
     _peerId = peerId;
     _remotePeerId = remotePeerId;
     _chainId = chainId;
-    final bridgeUri =
-        Uri.parse(session.bridge.replaceAll('https://', 'wss://'));
+    final bridgeUri = Uri.parse(session.bridge.replaceAll('https://', 'wss://'));
+    // ignore: close_sinks
     final ws = await WebSocket.connect(
       bridgeUri.toString(),
       customClient: customClient,
@@ -270,7 +280,7 @@ class WCClient {
     _socketStream.listen(
       (event) async {
         // print('DATA: $event ${event.runtimeType}');
-        final Map<String, dynamic> decoded = json.decode("$event");
+        // final Map<String, dynamic> decoded = json.decode("$event");
         // print('DECODED: $decoded ${decoded.runtimeType}');
         final socketMessage = WCSocketMessage.fromJson(jsonDecode("$event"));
         final decryptedMessage = await _decrypt(socketMessage);
@@ -391,6 +401,17 @@ class WCClient {
         // print('WALLET_SWITCH_NETWORK $request');
         final params = WCWalletSwitchNetwork.fromJson(request.params!.first);
         onWalletSwitchNetwork?.call(request.id, int.parse(params.chainId));
+        break;
+      case WCMethod.HNS_SEND_TRANSACTION:
+        final param = request.params!.first;
+        onHnsSendTransaction?.call(request.id, param);
+        break;
+      case WCMethod.HNS_SIGN_ANYONE_CAN_PAY:
+        final param = request.params!.first;
+        onHnsSignAnyoneCanPay?.call(request.id, param);
+        break;
+      case WCMethod.HNS_ADDRESS:
+        onHnsAddress?.call(request.id);
         break;
       default:
     }
