@@ -5,7 +5,7 @@ part 'json_rpc_response.g.dart';
 
 @JsonSerializable(genericArgumentFactories: true)
 class JsonRpcResponse<T> {
-  final int id;
+  final String id;
   final String jsonrpc;
   final T result;
   JsonRpcResponse({
@@ -14,11 +14,9 @@ class JsonRpcResponse<T> {
     required this.result,
   });
 
-  factory JsonRpcResponse.fromJson(Map<String, dynamic> json) =>
-      _$JsonRpcResponseFromJson(json, (object) => object as T);
+  factory JsonRpcResponse.fromJson(Map<String, dynamic> json) => _$JsonRpcResponseFromJson(json, (object) => object as T);
   Map<String, dynamic> toJson() => _$JsonRpcResponseToJson(this, (t) => t);
 
   @override
-  String toString() =>
-      'JsonRpcResponse(id: $id, jsonrpc: $jsonrpc, result: $result)';
+  String toString() => 'JsonRpcResponse(id: $id, jsonrpc: $jsonrpc, result: $result)';
 }

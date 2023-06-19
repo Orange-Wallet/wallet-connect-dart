@@ -6,17 +6,14 @@ part of 'json_rpc_request.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-JsonRpcRequest _$JsonRpcRequestFromJson(Map<String, dynamic> json) =>
-    JsonRpcRequest(
-      id: json['id'] as int,
+JsonRpcRequest _$JsonRpcRequestFromJson(Map<String, dynamic> json) => JsonRpcRequest(
+      id: json['id'].toString(),
       jsonrpc: json['jsonrpc'] as String? ?? JSONRPC_VERSION,
-      method: $enumDecodeNullable(_$WCMethodEnumMap, json['method'],
-          unknownValue: JsonKey.nullForUndefinedEnumValue),
+      method: $enumDecodeNullable(_$WCMethodEnumMap, json['method'], unknownValue: JsonKey.nullForUndefinedEnumValue),
       params: json['params'] as List<dynamic>?,
     );
 
-Map<String, dynamic> _$JsonRpcRequestToJson(JsonRpcRequest instance) =>
-    <String, dynamic>{
+Map<String, dynamic> _$JsonRpcRequestToJson(JsonRpcRequest instance) => <String, dynamic>{
       'id': instance.id,
       'jsonrpc': instance.jsonrpc,
       'method': _$WCMethodEnumMap[instance.method],

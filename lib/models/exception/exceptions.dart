@@ -7,11 +7,10 @@ class HmacException implements Exception {
 }
 
 class InvalidJsonRpcParamsException implements Exception {
-  final int requestId;
+  final String requestId;
   final String message;
 
-  InvalidJsonRpcParamsException(this.requestId)
-      : this.message = 'Invalid JSON RPC Request.';
+  InvalidJsonRpcParamsException(this.requestId) : this.message = 'Invalid JSON RPC Request.';
 
   String toString() {
     return "InvalidJsonRpcParamsException: $message";
@@ -27,8 +26,7 @@ class InvalidSessionException implements Exception {
 }
 
 class HandshakeException implements Exception {
-  final String message =
-      "handshakeId must be greater than 0 on session approve/reject.";
+  final String message = "handshakeId must be greater than 0 on session approve/reject.";
 
   String toString() {
     return "HandshakeException: $message";
