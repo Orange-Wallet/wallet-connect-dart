@@ -8,7 +8,7 @@ part of 'json_rpc_request.dart';
 
 JsonRpcRequest _$JsonRpcRequestFromJson(Map<String, dynamic> json) =>
     JsonRpcRequest(
-      id: json['id'] as int,
+      id: JsonRpcRequest._idFromValue(json['id']),
       jsonrpc: json['jsonrpc'] as String? ?? JSONRPC_VERSION,
       method: $enumDecodeNullable(_$WCMethodEnumMap, json['method'],
           unknownValue: JsonKey.nullForUndefinedEnumValue),
