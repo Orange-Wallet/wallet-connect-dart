@@ -24,14 +24,14 @@ import 'package:wallet_connect/wc_session_store.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
-typedef SessionRequest = void Function(int id, WCPeerMeta peerMeta);
+typedef SessionRequest = void Function(String id, WCPeerMeta peerMeta);
 typedef SocketError = void Function(dynamic message);
 typedef SocketClose = void Function(int? code, String? reason);
-typedef EthSign = void Function(int id, WCEthereumSignMessage message);
-typedef EthTransaction = void Function(
-    int id, WCEthereumTransaction transaction);
-typedef CustomRequest = void Function(int id, String payload);
-typedef WalletSwitchNetwork = void Function(int id, int chainId);
+typedef EthSign = void Function(String id, WCEthereumSignMessage message);
+typedef EthTransaction = void Function(String id, WCEthereumTransaction transaction);
+typedef CustomRequest = void Function(String id, String payload);
+typedef WalletSwitchNetwork = void Function(String id, int chainId);
+typedef SessionUpdate = void Function(String id, bool approved, int? chainId, List<String>? accounts);
 
 class WCClient {
   late WebSocketChannel _webSocket;
@@ -42,7 +42,7 @@ class WCClient {
   WCSession? _session;
   WCPeerMeta? _peerMeta;
   WCPeerMeta? _remotePeerMeta;
-  int _handshakeId = -1;
+  String _handshakeId = "-1";
   int? _chainId;
   String? _peerId;
   String? _remotePeerId;
@@ -58,6 +58,8 @@ class WCClient {
     this.onWalletSwitchNetwork,
     this.onCustomRequest,
     this.onConnect,
+    //add sessionupdate
+    this.onSessionUpdate,
   });
 
   final SessionRequest? onSessionRequest;
@@ -67,6 +69,7 @@ class WCClient {
   final EthTransaction? onEthSignTransaction, onEthSendTransaction;
   final CustomRequest? onCustomRequest;
   final WalletSwitchNetwork? onWalletSwitchNetwork;
+  final SessionUpdate? onSessionUpdate;
   final Function()? onConnect;
 
   WCSession? get session => _session;
@@ -121,7 +124,7 @@ class WCClient {
       );
 
   approveSession({required List<String> accounts, int? chainId}) {
-    if (_handshakeId <= 0) {
+    if (int.parse(_handshakeId) <= 0) {
       throw HandshakeException();
     }
 
@@ -153,7 +156,7 @@ class WCClient {
       accounts: accounts,
     );
     final request = JsonRpcRequest(
-      id: DateTime.now().millisecondsSinceEpoch,
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
       method: WCMethod.SESSION_UPDATE,
       params: [param.toJson()],
     );
@@ -161,7 +164,7 @@ class WCClient {
   }
 
   rejectSession({String message = "Session rejected"}) {
-    if (_handshakeId <= 0) {
+    if (int.parse(_handshakeId) <= 0) {
       throw HandshakeException();
     }
 
@@ -173,7 +176,7 @@ class WCClient {
   }
 
   approveRequest<T>({
-    required int id,
+    required String id,
     required T result,
   }) {
     final response = JsonRpcResponse<T>(
@@ -184,7 +187,7 @@ class WCClient {
   }
 
   rejectRequest({
-    required int id,
+    required String id,
     String message = "Reject by the user",
   }) {
     final response = JsonRpcErrorResponse(
@@ -215,8 +218,7 @@ class WCClient {
     _peerId = peerId;
     _remotePeerId = remotePeerId;
     _chainId = chainId;
-    final bridgeUri =
-        Uri.parse(session.bridge.replaceAll('https://', 'wss://'));
+    final bridgeUri = Uri.parse(session.bridge.replaceAll('https://', 'wss://'));
     final ws = await WebSocket.connect(
       bridgeUri.toString(),
       customClient: customClient,
@@ -233,8 +235,8 @@ class WCClient {
     _subscribe(peerId);
   }
 
-  disconnect() {
-    _socketSink!.close(WebSocketStatus.normalClosure);
+  disconnect({String? reason}) {
+    _socketSink!.close(WebSocketStatus.normalClosure, reason);
   }
 
   _subscribe(String topic) {
@@ -246,7 +248,7 @@ class WCClient {
     _socketSink!.add(jsonEncode(message));
   }
 
-  _invalidParams(int id) {
+  _invalidParams(String id) {
     final response = JsonRpcErrorResponse(
       id: id,
       error: JsonRpcError.invalidParams("Invalid parameters"),
@@ -292,8 +294,7 @@ class WCClient {
   }
 
   Future<String> _decrypt(WCSocketMessage socketMessage) async {
-    final payload =
-        WCEncryptionPayload.fromJson(jsonDecode(socketMessage.payload));
+    final payload = WCEncryptionPayload.fromJson(jsonDecode(socketMessage.payload));
     final decrypted = await WCCipher.decrypt(payload, _session!.key);
     // print("DECRYPTED: $decrypted");
     return decrypted;
@@ -327,10 +328,11 @@ class WCClient {
         break;
       case WCMethod.SESSION_UPDATE:
         final param = WCSessionUpdate.fromJson(request.params!.first);
-        // print('SESSION_UPDATE $param');
+        print('SESSION_UPDATE $param');
         if (!param.approved) {
-          killSession();
+          killSession(reason: "Session Update Closed");
         }
+        onSessionUpdate?.call(request.id, param.approved, param.chainId, param.accounts);
         break;
       case WCMethod.ETH_SIGN:
         // print('ETH_SIGN $request');
@@ -396,13 +398,13 @@ class WCClient {
     }
   }
 
-  killSession() async {
+  killSession({String? reason}) async {
     await updateSession(approved: false);
-    disconnect();
+    disconnect(reason: reason);
   }
 
   _resetState() {
-    _handshakeId = -1;
+    _handshakeId = "-1";
     _isConnected = false;
     _session = null;
     _peerId = null;

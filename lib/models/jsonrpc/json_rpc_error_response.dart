@@ -6,7 +6,7 @@ part 'json_rpc_error_response.g.dart';
 
 @JsonSerializable()
 class JsonRpcErrorResponse {
-  final int id;
+  final String id;
   final String jsonrpc = JSONRPC_VERSION;
   final JsonRpcError error;
   JsonRpcErrorResponse({
@@ -14,8 +14,7 @@ class JsonRpcErrorResponse {
     required this.error,
   });
 
-  factory JsonRpcErrorResponse.fromJson(Map<String, dynamic> json) =>
-      _$JsonRpcErrorResponseFromJson(json);
+  factory JsonRpcErrorResponse.fromJson(Map<String, dynamic> json) => _$JsonRpcErrorResponseFromJson(json);
   Map<String, dynamic> toJson() => _$JsonRpcErrorResponseToJson(this);
 
   @override
